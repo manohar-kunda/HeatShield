@@ -2,13 +2,25 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   HeatShield — Community Heatwave Risk-to-Action Planner.
-  Serverless backend with Java 21 SnapStart, HTTP API, DynamoDB On-Demand, and CloudFront S3 hosting.
+  Serverless backend with Java 21 SnapStart, HTTP API, DynamoDB On-Demand, and optional CloudFront S3 hosting.
 
 Parameters:
+  DeployFrontend:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Set to false for Phase 1 backend-only deploy, true for Phase 2 full stack with CloudFront"
+
   BudgetNotificationEmail:
     Type: String
-    Default: "alerts@example.com"
-    Description: "Email address to receive AWS Budgets threshold alerts"
+    Default: ""
+    Description: "Optional email address to receive AWS Budgets and CloudWatch alarm threshold alerts (override at deploy time)"
+
+Conditions:
+  ShouldDeployFrontend: !Equals [!Ref DeployFrontend, "true"]
+  HasAlertEmail: !Not [!Equals [!Ref BudgetNotificationEmail, ""]]
 
 Globals:
   Function:
@@ -113,10 +125,11 @@ Resources:
             Method: PATCH
 
   # ==========================================================
-  # 4. S3 Bucket & CloudFront Origin Access Control for Frontend
+  # 4. S3 Bucket & CloudFront (Condition: ShouldDeployFrontend)
   # ==========================================================
   FrontendBucket:
     Type: AWS::S3::Bucket
+    Condition: ShouldDeployFrontend
     Properties:
       BucketName: !Sub "heatshield-frontend-${AWS::AccountId}-${AWS::Region}"
       PublicAccessBlockConfiguration:
@@ -127,6 +140,7 @@ Resources:
 
   CloudFrontOAC:
     Type: AWS::CloudFront::OriginAccessControl
+    Condition: ShouldDeployFrontend
     Properties:
       OriginAccessControlConfig:
         Name: !Sub "HeatShieldOAC-${AWS::StackName}"
@@ -136,6 +150,7 @@ Resources:
 
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution
+    Condition: ShouldDeployFrontend
     Properties:
       DistributionConfig:
         Enabled: true
@@ -190,6 +205,7 @@ Resources:
 
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
+    Condition: ShouldDeployFrontend
     Properties:
       Bucket: !Ref FrontendBucket
       PolicyDocument:
@@ -204,8 +220,21 @@ Resources:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}"
 
   # ==========================================================
-  # 5. CloudWatch Monitoring & Error Alarm
+  # 5. SNS Alarm Topic & CloudWatch Error Alarm
   # ==========================================================
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "HeatShield-AlertTopic-${AWS::StackName}"
+
+  AlertTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlertEmail
+    Properties:
+      TopicArn: !Ref AlertTopic
+      Protocol: email
+      Endpoint: !Ref BudgetNotificationEmail
+
   LambdaErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -220,12 +249,15 @@ Resources:
       EvaluationPeriods: 1
       Threshold: 5
       ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlertTopic
 
   # ==========================================================
   # 6. AWS Budgets Alarm ($5.00 low threshold)
   # ==========================================================
   HeatShieldCostBudget:
     Type: AWS::Budgets::Budget
+    Condition: HasAlertEmail
     Properties:
       Budget:
         BudgetName: !Sub "HeatShield-CostBudget-${AWS::StackName}"
@@ -249,11 +281,13 @@ Outputs:
     Description: "Direct HTTP API Gateway endpoint URL"
     Value: !Sub "https://${HeatShieldHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
   CloudFrontUrl:
+    Condition: ShouldDeployFrontend
     Description: "Unified CloudFront URL (serves both static assets and same-origin /api/*)"
     Value: !Sub "https://${FrontendDistribution.DomainName}"
   DynamoDbTableName:
     Description: "DynamoDB Table Name"
     Value: !Ref HeatShieldTable
   FrontendBucketName:
+    Condition: ShouldDeployFrontend
     Description: "S3 Static Web Bucket"
     Value: !Ref FrontendBucket

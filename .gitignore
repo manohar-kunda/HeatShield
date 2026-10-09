@@ -9,3 +9,8 @@ target/
 *.log
 scratch/
 .metadata/
+samconfig.toml
+*.env
+*.pem
+*.key
+credentials*
