@@ -93,7 +93,6 @@ Resources:
       CodeUri: backend
       Handler: heatshield.handler.LambdaApiHandler::handleRequest
       AutoPublishAlias: live
-      ReservedConcurrentExecutions: 10
       SnapStart:
         ApplyOn: PublishedVersions
       Policies:
