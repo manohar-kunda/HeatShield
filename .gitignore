@@ -1,0 +1,10 @@
+target/
+*.class
+.sam/
+.aws-sam/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.log
+scratch/
