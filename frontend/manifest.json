@@ -1,0 +1,21 @@
+{
+  "name": "HeatShield — Community Heatwave Planner",
+  "short_name": "HeatShield",
+  "description": "Rule-backed community heatwave risk-to-action planner for urban and peri-urban wards.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
