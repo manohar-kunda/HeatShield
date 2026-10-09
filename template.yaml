@@ -4,6 +4,12 @@ Description: >
   HeatShield — Community Heatwave Risk-to-Action Planner.
   Serverless backend with Java 21 SnapStart, HTTP API, DynamoDB On-Demand, and CloudFront S3 hosting.
 
+Parameters:
+  BudgetNotificationEmail:
+    Type: String
+    Default: "alerts@example.com"
+    Description: "Email address to receive AWS Budgets threshold alerts"
+
 Globals:
   Function:
     Timeout: 10
@@ -48,7 +54,7 @@ Resources:
           Value: Hackathon
 
   # ==========================================================
-  # 2. HTTP API Gateway (Low latency, cheaper than REST API)
+  # 2. HTTP API Gateway (No wildcard CORS; restricted)
   # ==========================================================
   HeatShieldHttpApi:
     Type: AWS::Serverless::HttpApi
@@ -140,6 +146,11 @@ Resources:
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
             OriginAccessControlId: !GetAtt CloudFrontOAC.Id
             S3OriginConfig: {}
+          - Id: ApiOrigin
+            DomainName: !Sub "${HeatShieldHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
@@ -154,6 +165,28 @@ Resources:
             QueryString: false
             Cookies:
               Forward: none
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+                - Content-Type
+              Cookies:
+                Forward: all
+            MinTTL: 0
+            DefaultTTL: 0
+            MaxTTL: 0
 
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -188,12 +221,35 @@ Resources:
       Threshold: 5
       ComparisonOperator: GreaterThanOrEqualToThreshold
 
+  # ==========================================================
+  # 6. AWS Budgets Alarm ($5.00 low threshold)
+  # ==========================================================
+  HeatShieldCostBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub "HeatShield-CostBudget-${AWS::StackName}"
+        BudgetLimit:
+          Amount: 5.0
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80.0
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetNotificationEmail
+
 Outputs:
   HttpApiUrl:
-    Description: "HTTP API Gateway endpoint URL"
+    Description: "Direct HTTP API Gateway endpoint URL"
     Value: !Sub "https://${HeatShieldHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
   CloudFrontUrl:
-    Description: "HTTPS CloudFront Frontend URL"
+    Description: "Unified CloudFront URL (serves both static assets and same-origin /api/*)"
     Value: !Sub "https://${FrontendDistribution.DomainName}"
   DynamoDbTableName:
     Description: "DynamoDB Table Name"
