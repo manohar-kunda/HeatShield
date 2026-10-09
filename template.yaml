@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  HeatShield — Community Heatwave Risk-to-Action Planner.
+  Serverless backend with Java 21 SnapStart, HTTP API, DynamoDB On-Demand, and CloudFront S3 hosting.
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 512
+    Runtime: java21
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref HeatShieldTable
+        OPEN_METEO_TIMEOUT_MS: "3000"
+        JAVA_TOOL_OPTIONS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+
+Resources:
+  # ==========================================================
+  # 1. DynamoDB Single-Table Storage (On-Demand, TTL enabled)
+  # ==========================================================
+  HeatShieldTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "heatshield-data-${AWS::StackName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+      Tags:
+        - Key: Project
+          Value: HeatShield
+        - Key: Environment
+          Value: Hackathon
+
+  # ==========================================================
+  # 2. HTTP API Gateway (Low latency, cheaper than REST API)
+  # ==========================================================
+  HeatShieldHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        MaxAge: 600
+
+  # ==========================================================
+  # 3. AWS Lambda Function with SnapStart enabled
+  # ==========================================================
+  HeatShieldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: heatshield.handler.LambdaApiHandler::handleRequest
+      AutoPublishAlias: live
+      SnapStart:
+        ApplyOn: PublishedVersions
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HeatShieldTable
+      Events:
+        HealthCheck:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HeatShieldHttpApi
+            Path: /api/health
+            Method: GET
+        AssessCondition:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HeatShieldHttpApi
+            Path: /api/assessments
+            Method: POST
+        GetForecast:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HeatShieldHttpApi
+            Path: /api/forecast
+            Method: GET
+        UpdateAction:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HeatShieldHttpApi
+            Path: /api/actions/{actionId}
+            Method: PATCH
+
+  # ==========================================================
+  # 4. S3 Bucket & CloudFront Origin Access Control for Frontend
+  # ==========================================================
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "heatshield-frontend-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "HeatShieldOAC-${AWS::StackName}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Comment: "HeatShield HTTPS Static Hosting Distribution"
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+            S3OriginConfig: {}
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource: !Sub "${FrontendBucket.Arn}/*"
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}"
+
+  # ==========================================================
+  # 5. CloudWatch Monitoring & Error Alarm
+  # ==========================================================
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alert if HeatShield Lambda handler throws 500 errors"
+      Namespace: "AWS/Lambda"
+      MetricName: "Errors"
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref HeatShieldFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+Outputs:
+  HttpApiUrl:
+    Description: "HTTP API Gateway endpoint URL"
+    Value: !Sub "https://${HeatShieldHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  CloudFrontUrl:
+    Description: "HTTPS CloudFront Frontend URL"
+    Value: !Sub "https://${FrontendDistribution.DomainName}"
+  DynamoDbTableName:
+    Description: "DynamoDB Table Name"
+    Value: !Ref HeatShieldTable
+  FrontendBucketName:
+    Description: "S3 Static Web Bucket"
+    Value: !Ref FrontendBucket
