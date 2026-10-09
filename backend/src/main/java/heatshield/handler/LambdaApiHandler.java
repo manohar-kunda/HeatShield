@@ -35,30 +35,32 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             "Access-Control-Allow-Headers", "Content-Type, Authorization"
     );
 
-    private static final Map<String, double[]> WARD_COORDINATES = Map.of(
-            "DEMO_AHMEDABAD", new double[]{23.0225, 72.5714}, // Ahmedabad Central (Kalupur)
-            "DEMO_DELHI", new double[]{28.6139, 77.2090},     // Delhi Central (Connaught Place)
-            "DEMO_NAGPUR", new double[]{21.1458, 79.0882},    // Nagpur Central (Sitabuldi)
-            "DEMO_HYDERABAD", new double[]{17.3616, 78.4747}, // Hyderabad Old City (Charminar)
-            "DEMO_KOLKATA", new double[]{22.6000, 88.3700},   // Kolkata North (Shyambazar)
-            "WARD_12", new double[]{23.0225, 72.5714},        // Legacy alias -> Ahmedabad
-            "WARD_01", new double[]{28.6139, 77.2090},        // Legacy alias -> Delhi
-            "WARD_05", new double[]{21.1458, 79.0882},        // Legacy alias -> Nagpur
-            "WARD_09", new double[]{17.3616, 78.4747},        // Legacy alias -> Hyderabad
-            "WARD_03", new double[]{22.6000, 88.3700}         // Legacy alias -> Kolkata
+    private static final Map<String, double[]> WARD_COORDINATES = Map.ofEntries(
+            Map.entry("DEMO_AHMEDABAD", new double[]{23.0225, 72.5714}), // Ahmedabad Central (Kalupur)
+            Map.entry("DEMO_DELHI", new double[]{28.6139, 77.2090}),     // Delhi Central (Connaught Place)
+            Map.entry("DEMO_NAGPUR", new double[]{21.1458, 79.0882}),    // Nagpur Central (Sitabuldi)
+            Map.entry("DEMO_HYDERABAD", new double[]{17.3616, 78.4747}), // Hyderabad Old City (Charminar)
+            Map.entry("DEMO_KOLKATA", new double[]{22.6000, 88.3700}),   // Kolkata North (Shyambazar)
+            Map.entry("REPLAY_AHMEDABAD_2010", new double[]{23.0225, 72.5714}), // Ahmedabad May 2010 Heatwave Replay
+            Map.entry("WARD_12", new double[]{23.0225, 72.5714}),        // Legacy alias -> Ahmedabad
+            Map.entry("WARD_01", new double[]{28.6139, 77.2090}),        // Legacy alias -> Delhi
+            Map.entry("WARD_05", new double[]{21.1458, 79.0882}),        // Legacy alias -> Nagpur
+            Map.entry("WARD_09", new double[]{17.3616, 78.4747}),        // Legacy alias -> Hyderabad
+            Map.entry("WARD_03", new double[]{22.6000, 88.3700})         // Legacy alias -> Kolkata
     );
 
-    private static final Map<String, String> WARD_NAMES = Map.of(
-            "DEMO_AHMEDABAD", "Demo ward: Ahmedabad Central (illustrative)",
-            "DEMO_DELHI", "Demo ward: Delhi Central (illustrative)",
-            "DEMO_NAGPUR", "Demo ward: Nagpur Central (illustrative)",
-            "DEMO_HYDERABAD", "Demo ward: Hyderabad Old City (illustrative)",
-            "DEMO_KOLKATA", "Demo ward: Kolkata North (illustrative)",
-            "WARD_12", "Demo ward: Ahmedabad Central (illustrative)",
-            "WARD_01", "Demo ward: Delhi Central (illustrative)",
-            "WARD_05", "Demo ward: Nagpur Central (illustrative)",
-            "WARD_09", "Demo ward: Hyderabad Old City (illustrative)",
-            "WARD_03", "Demo ward: Kolkata North (illustrative)"
+    private static final Map<String, String> WARD_NAMES = Map.ofEntries(
+            Map.entry("DEMO_AHMEDABAD", "Demo ward: Ahmedabad Central (illustrative)"),
+            Map.entry("DEMO_DELHI", "Demo ward: Delhi Central (illustrative)"),
+            Map.entry("DEMO_NAGPUR", "Demo ward: Nagpur Central (illustrative)"),
+            Map.entry("DEMO_HYDERABAD", "Demo ward: Hyderabad Old City (illustrative)"),
+            Map.entry("DEMO_KOLKATA", "Demo ward: Kolkata North (illustrative)"),
+            Map.entry("REPLAY_AHMEDABAD_2010", "Historical Replay: Ahmedabad May 2010 Heatwave (46.8°C)"),
+            Map.entry("WARD_12", "Demo ward: Ahmedabad Central (illustrative)"),
+            Map.entry("WARD_01", "Demo ward: Delhi Central (illustrative)"),
+            Map.entry("WARD_05", "Demo ward: Nagpur Central (illustrative)"),
+            Map.entry("WARD_09", "Demo ward: Hyderabad Old City (illustrative)"),
+            Map.entry("WARD_03", "Demo ward: Kolkata North (illustrative)")
     );
 
     private final AssessmentService assessmentService;
@@ -238,6 +240,24 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
 
         String demoMode = queryParams != null ? queryParams.get("demo") : null;
         boolean forceLive = queryParams != null && "true".equalsIgnoreCase(queryParams.get("live"));
+
+        // Historical Replay Mode: Ahmedabad May 2010
+        if ("REPLAY_AHMEDABAD_2010".equalsIgnoreCase(wardId)) {
+            List<HourlyHeatIndexPoint> replayPoints = ForecastIngestionService.createAhmedabad2010ReplayFixture();
+            ForecastWindowSummary replaySummary = ForecastIngestionService.computeWindowSummary(replayPoints);
+            HourlyHeatIndexPoint peak = replayPoints.get(0);
+            WardAssessment replayAssessment = assessmentService.createAssessmentWithForecast(
+                    wardId,
+                    "Historical Replay: Ahmedabad May 2010 Heatwave (46.8°C)",
+                    peak.temperatureC(),
+                    peak.humidityPct(),
+                    6.8, // Severe heatwave departure
+                    "HISTORICAL_REPLAY_2010",
+                    replaySummary,
+                    replayPoints
+            );
+            return buildResponse(200, replayAssessment);
+        }
 
         // Demo fallback switch: ?demo=offline
         if ("offline".equalsIgnoreCase(demoMode)) {

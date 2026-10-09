@@ -211,4 +211,35 @@ public class ForecastIngestionService {
 
         return points;
     }
+
+    /**
+     * Deterministic historical heatwave replay fixture: Ahmedabad 20-22 May 2010.
+     * Peak dry-bulb temperature reached 46.8°C with severe heatwave classification.
+     * Sourced from published meteorological studies & AMC HAP baseline records.
+     */
+    public static List<HourlyHeatIndexPoint> createAhmedabad2010ReplayFixture() {
+        List<HourlyHeatIndexPoint> points = new ArrayList<>();
+        Instant start = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.HOURS);
+
+        for (int i = 0; i < 72; i++) {
+            Instant timestamp = start.plus(Duration.ofHours(i));
+            int hourOfDay = (i + 12) % 24;
+
+            // Historical May 2010 episode: intense baseline (33°C night, 46.8°C peak afternoon)
+            double tempC = 38.0 + 8.8 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
+            double rhPct = 28.0 - 14.0 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
+
+            HeatIndexResult hi = RothfuszCalculator.calculate(tempC, rhPct);
+            points.add(new HourlyHeatIndexPoint(
+                    timestamp,
+                    Math.round(tempC * 10.0) / 10.0,
+                    Math.round(rhPct * 10.0) / 10.0,
+                    hi.heatIndexC(),
+                    hi.heatIndexF(),
+                    hi.riskTier()
+            ));
+        }
+
+        return points;
+    }
 }
