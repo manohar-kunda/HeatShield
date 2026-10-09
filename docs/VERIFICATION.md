@@ -86,10 +86,19 @@ The following Hindi strings are included for ward bulletins. They are marked **P
 
 ---
 
-## 5. Git Provenance and Clean-Room Verification
+## 5. Official National Emergency Helpline Evidence
+
+- **Pan-India Number**: `112`
+- **Authority**: Ministry of Home Affairs (MHA), Government of India — Emergency Response Support System (ERSS).
+- **Official Portal**: [https://112.gov.in](https://112.gov.in) (VERIFIED — single unified toll-free emergency number connecting police, fire, and health services across all States and Union Territories).
+- **Local Helplines**: HeatShield does not hardcode civic or municipal numbers (e.g. 1916). An editable "Local helpline" field is provided for ward coordinators and left blank in demo data to prevent dissemination of unverified numbers.
+
+---
+
+## 6. Git Provenance and Clean-Room Verification
 
 - **Git Commit History Verification**:
-  - All 28 commits created on **2026-10-09** (after the hackathon opening date of October 8, 2026).
+  - All commits created on or after **2026-10-09** (after the hackathon opening date of October 8, 2026).
 - **Zero Prior-Project Reuse Verification**:
   - Command: `git ls-files | ForEach-Object { Select-String -Path $_ -Pattern "jalrakshak" -CaseSensitive:$false }`
   - Output: **0 matches found** across entire repository.

@@ -1,6 +1,8 @@
 # HeatShield — 5-Minute Stranger Test Protocol
 
 > **Objective**: Enable any evaluator, judge, or stranger with zero prior context to test the full end-to-end functionality of HeatShield in under 5 minutes, verifying real-time calculations, offline resilience, and operational tracking.
+>
+> **Notice**: DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice. National emergency: **112**.
 
 ---
 
@@ -20,10 +22,10 @@
 2. **Observe Header Badges**:
    - `● Online` badge indicates active network connectivity.
    - `LIVE OPEN METEO` indicates real-time meteorological ingestion from Open-Meteo API.
-3. **Inspect Default Ward (Ahmedabad Central - Kalupur Market)**:
+3. **Inspect Default Ward (`DEMO_AHMEDABAD` - Demo ward: Ahmedabad Central (illustrative))**:
    - Notice the **Composite Operational Tier** (e.g. `CAUTION` or `EXTREME_CAUTION`).
    - Notice the **Dual-Signal display**: NWS Rothfusz Heat Index in both °C and °F, alongside the Direct Sunlight calculation (`+15°F / +8.3°C` solar allowance).
-   - Notice the **IMD Heatwave Category**: Evaluated per official IMD Plains criteria.
+   - Notice the **IMD Heatwave Category**: Evaluated per official IMD Plains criteria with subtext *"Indicative signal from model forecast, not an IMD warning"*.
 
 ---
 
@@ -35,7 +37,7 @@
 
 ---
 
-### Step 3: Run a Acute Heatwave Simulation via "What-If Simulator" (1:30 - 2:30)
+### Step 3: Run an Acute Heatwave Simulation via "What-If Simulator" (1:30 - 2:30)
 1. Click the **⚡ What-If Simulator** button in the top controls card.
 2. Enter acute heatwave parameters typical of North/West India in May/June:
    - **Ambient Temp**: `42.5` °C
@@ -51,12 +53,13 @@
 ---
 
 ### Step 4: Operational Action Tracking & Status Mutations (2:30 - 3:30)
-1. Scroll down to the **Mandatory Ward Action Playbook**.
+1. Scroll down to the **Suggested Ward Action Playbook**.
 2. Notice the time-bound action deadlines (e.g., *"Enforce prior to peak thermal stress window"*).
 3. Filter actions by clicking the role chips (e.g., **Labour Welfare** or **Public Health**).
 4. On any action card (e.g., *Activate shaded drinking water kiosks*):
+   - Notice the Hindi subtitle tagged `[PENDING HUMAN REVIEW]`.
    - Click the **IN PROGRESS** status pill.
-   - Type a field note in the input box: `"2 water tankers deployed at Kalupur Station"`.
+   - Type a field note in the input box: `"2 water tankers deployed at station"`.
    - Click **COMPLETED**.
 5. **Verify Persistence**:
    - Notice the progress bar updates: e.g., *"1 of 5 Completed (20%)"*.
@@ -67,11 +70,11 @@
 ### Step 5: Community Broadcast & Print Dispatch (3:30 - 4:15)
 1. Scroll to the **Ward Public Bulletin & Dispatch** section.
 2. Click **📱 Copy WhatsApp Alert**:
-   - A bilingual (English + reviewed Hindi) structured text message is copied to the clipboard.
-   - Paste into any notepad or chat to verify the formatting, emergency helplines (108 / 1916), and live action statuses.
+   - A structured advisory (English + Hindi marked `[PENDING HUMAN REVIEW]`) is copied to the clipboard.
+   - Paste into any notepad or chat to verify the formatting, emergency helpline (**National emergency: 112**), and live action statuses.
 3. Click **🖨️ Print A4 Notice**:
    - The browser opens the print preview.
-   - Notice the print stylesheet (`@media print`) formats a clean, black-and-white physical noticeboard poster with bilingual headers, ideal for pasting on ward office bulletin boards.
+   - Notice the print stylesheet (`@media print`) formats a clean, black-and-white physical noticeboard poster with prominent **DRAFT** watermark and official attribution to Open-Meteo.com (CC BY 4.0).
 
 ---
 
@@ -80,7 +83,8 @@
 2. Trigger any assessment or action update.
 3. Inspect request/response payloads:
    - **Zero personal names, zero phone numbers, zero household addresses, zero health records**.
-   - Identifiers are strictly ward-level (`WARD_12`, `WARD_01`) and role-level (`WARD_SANITATION_OFFICER`, `LABOUR_INSPECTION_LEAD`).
+   - Identifiers are strictly ward-level (`DEMO_AHMEDABAD`, `DEMO_DELHI`) and role-level (`WARD_SANITATION_OFFICER`, `LABOUR_INSPECTION_LEAD`).
+   - Server strictly rejects digit sequences of 10+ digits to prevent accidental phone number leaks.
 
 ---
 
@@ -93,4 +97,4 @@
 | **IMD Criteria** | Accurate evaluation of IMD Plains heatwave and severe heatwave conditions | ✅ PASSED |
 | **Persistence** | Mutations stored in DynamoDB table `heatshield-data-heatshield-app` | ✅ PASSED |
 | **Resilience** | Fallback to cached snapshots or offline fixtures if weather API is unreachable | ✅ PASSED |
-| **Accessibility** | Mobile-first 360px layout, WCAG 2.1 AA contrast, screen-reader aria labels | ✅ PASSED |
+| **Accessibility** | Mobile-first 360px layout, targeting WCAG 2.1 AA (see docs/ACCESSIBILITY.md) | ✅ PASSED |

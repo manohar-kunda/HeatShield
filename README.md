@@ -43,7 +43,9 @@ flowchart TD
 3. **Data-Driven Playbook**: Action checklists are grounded in the National Disaster Management Authority (NDMA) 2019 Guidelines and the Ahmedabad Municipal Corporation Heat Action Plan (HAP).
 4. **Zero PII**: No personal names, phone numbers, or health records are stored. All records pertain to aggregated community wards.
 
-> **Operational Disclaimer**: HeatShield provides environmental planning and operational risk indicators. It is not an individual medical diagnostic tool or personal health advisory. Always adhere to official bulletins from the India Meteorological Department and local disaster management authorities.
+> **Operational Disclaimer**: HeatShield is a DRAFT planning aid for coordinator review. It is not an official notice, not an IMD warning, not an individual medical diagnostic tool, and not personal health advice. Always adhere to official bulletins from the India Meteorological Department and local disaster management authorities. National emergency: **112**.
+>
+> **Accessibility**: The frontend is built mobile-first targeting WCAG 2.1 AA; detailed checklist and Lighthouse audit findings are documented in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
 
 ---
 

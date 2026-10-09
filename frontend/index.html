@@ -28,6 +28,11 @@
   </header>
 
   <main class="main-container">
+    <!-- Coordinator Safety & Planning Disclaimer -->
+    <div class="disclaimer-banner" role="note">
+      ⚠️ <strong>Notice:</strong> DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice. National emergency: <strong>112</strong>.
+    </div>
+
     <!-- Ward Ingestion & Simulator Controls -->
     <section class="card controls-card" aria-labelledby="controls-heading">
       <div class="section-header">
@@ -41,12 +46,17 @@
         <div class="form-group">
           <label for="ward-select">Target Ward / Zone:</label>
           <select id="ward-select" class="form-control">
-            <option value="WARD_12" selected>Ahmedabad Central (Kalupur Market)</option>
-            <option value="WARD_01">Delhi Central (Connaught Place)</option>
-            <option value="WARD_05">Nagpur Central (Sitabuldi Hub)</option>
-            <option value="WARD_09">Hyderabad Old City (Charminar Zone)</option>
-            <option value="WARD_03">Kolkata North (Shyambazar Market)</option>
+            <option value="DEMO_AHMEDABAD" selected>Demo ward: Ahmedabad Central (illustrative)</option>
+            <option value="DEMO_DELHI">Demo ward: Delhi Central (illustrative)</option>
+            <option value="DEMO_NAGPUR">Demo ward: Nagpur Central (illustrative)</option>
+            <option value="DEMO_HYDERABAD">Demo ward: Hyderabad Old City (illustrative)</option>
+            <option value="DEMO_KOLKATA">Demo ward: Kolkata North (illustrative)</option>
           </select>
+        </div>
+
+        <div class="form-group">
+          <label for="local-helpline-input">Local Helpline (optional coordinator field):</label>
+          <input type="text" id="local-helpline-input" class="form-control" placeholder="Optional ward helpline (leave blank for 112)" maxlength="50">
         </div>
 
         <div class="controls-actions">
@@ -121,7 +131,7 @@
           <div class="metric-box">
             <div class="metric-label">IMD Heatwave Signal</div>
             <div class="metric-value" id="imd-signal-val">NORMAL</div>
-            <div class="metric-sub" id="imd-criteria-desc">Plains Criteria Verified</div>
+            <div class="metric-sub" id="imd-criteria-desc">Indicative signal from model forecast, not an IMD warning</div>
           </div>
         </div>
       </div>
@@ -149,12 +159,12 @@
       </div>
     </section>
 
-    <!-- Prioritised Action Playbook -->
+    <!-- Suggested Action Playbook -->
     <section class="card actions-card" aria-labelledby="actions-heading">
       <div class="section-header actions-header-flex">
         <div>
-          <h2 id="actions-heading">Mandatory Ward Action Playbook</h2>
-          <p class="section-intro">Adapted from NDMA 2019 Guidelines & Ahmedabad Heat Action Plan (AMC 2023).</p>
+          <h2 id="actions-heading">Suggested Ward Action Playbook</h2>
+          <p class="section-intro">Operational planning suggestions adapted from NDMA 2019 Guidelines & Ahmedabad Heat Action Plan (AMC 2023).</p>
         </div>
         <div class="action-progress-container">
           <div class="progress-label" id="progress-label">0 / 0 Completed</div>
@@ -201,9 +211,10 @@
 
   <!-- Print-Only A4 Ward Poster View -->
   <div class="print-poster-container" id="print-poster" aria-hidden="true">
+    <div class="draft-watermark" aria-hidden="true">DRAFT</div>
     <div class="print-poster-header">
-      <h1>MUNICIPAL WARD HEATWAVE ACTION NOTICE</h1>
-      <p>कार्यालय वार्ड आपदा प्रबंधन प्राधिकरण | Heatwave Response Advisory</p>
+      <h1>MUNICIPAL WARD HEATWAVE ACTION ADVISORY (DRAFT)</h1>
+      <p>कार्यालय वार्ड आपदा प्रबंधन | Heatwave Planning Aid (PENDING HUMAN REVIEW)</p>
     </div>
     <div class="print-poster-meta" id="print-poster-meta">
       <!-- Injected during print -->
@@ -215,8 +226,8 @@
       <!-- Action list for noticeboard -->
     </div>
     <div class="print-poster-footer">
-      <p>Issued under National Disaster Management Authority (NDMA) & Local Heat Action Plan Framework.</p>
-      <p>Emergency Ambulance: 108 | Civic Helpline: 1916</p>
+      <p><strong>Notice:</strong> DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice.</p>
+      <p>National emergency: <strong>112</strong> <span id="print-local-helpline"></span> | Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com (CC BY 4.0)</a></p>
     </div>
   </div>
 
@@ -224,7 +235,7 @@
     <div class="footer-content">
       <div class="footer-text">
         <p><strong>HeatShield</strong> — Built for Bharat Builds Tour 2026 / Environmental Hacks.</p>
-        <p>Clean-room serverless architecture on AWS (Java 21 SnapStart, HTTP API, DynamoDB, S3/CloudFront).</p>
+        <p>Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color: #38bdf8;">Open-Meteo.com (CC BY 4.0)</a> | Targeting WCAG 2.1 AA; checklist and Lighthouse results in <a href="docs/ACCESSIBILITY.md" style="color: #38bdf8;">docs/ACCESSIBILITY.md</a>.</p>
       </div>
       <div class="privacy-badge">
         <span>🔒 Zero PII Protocol</span>

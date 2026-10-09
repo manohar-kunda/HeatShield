@@ -1,5 +1,6 @@
 /* HeatShield Production Stylesheet
-   Mobile-first, WCAG 2.1 AA compliant, zero external frameworks */
+   Mobile-first, targeting WCAG 2.1 AA; checklist and Lighthouse results in docs/ACCESSIBILITY.md
+   Zero external frameworks */
 
 :root {
   --bg-primary: #0f172a;
@@ -14,7 +15,7 @@
   --primary-hover: #0369a1;
   --accent: #38bdf8;
 
-  /* WCAG AA compliant hazard tier palette */
+  /* Hazard tier palette targeting WCAG AA contrast */
   --tier-below: #475569;
   --tier-caution: #ca8a04;
   --tier-extreme-caution: #d97706;
@@ -810,6 +811,17 @@ body {
   color: var(--text-muted);
 }
 
+.disclaimer-banner {
+  background-color: rgba(202, 138, 4, 0.12);
+  border: 1px solid rgba(202, 138, 4, 0.4);
+  color: #fef08a;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
 /* Print Only Styles */
 .print-poster-container {
   display: none;
@@ -819,6 +831,18 @@ body {
   body {
     background-color: #ffffff !important;
     color: #000000 !important;
+  }
+
+  .draft-watermark {
+    position: fixed;
+    top: 35%;
+    left: 20%;
+    font-size: 80pt;
+    font-weight: 900;
+    color: rgba(180, 180, 180, 0.22) !important;
+    transform: rotate(-30deg);
+    pointer-events: none;
+    z-index: 1000;
   }
 
   .app-header,

@@ -333,15 +333,11 @@ function renderRiskSummary(assessment) {
 
   const imd = assessment.imdCategory || 'NORMAL';
   imdSignalVal.textContent = imd.replace(/_/g, ' ');
-  if (imd === 'SEVERE_HEAT_WAVE') {
+  imdCriteriaDesc.textContent = 'Indicative signal from model forecast, not an IMD warning';
+  if (imd === 'SEVERE_HEAT_WAVE' || imd === 'HEAT_WAVE') {
     imdSignalVal.className = 'metric-value text-danger';
-    imdCriteriaDesc.textContent = 'Max Temp ≥ 47°C or Departure > 6.4°C';
-  } else if (imd === 'HEAT_WAVE') {
-    imdSignalVal.className = 'metric-value text-danger';
-    imdCriteriaDesc.textContent = 'Max Temp ≥ 45°C or Departure 4.5 - 6.4°C';
   } else {
     imdSignalVal.className = 'metric-value';
-    imdCriteriaDesc.textContent = 'Below IMD Plains Heatwave Criteria';
   }
 }
 
@@ -444,7 +440,7 @@ function renderActions(actions) {
       <div class="action-top">
         <div class="action-title-group">
           <h3>${escapeHtml(action.title)}</h3>
-          <div class="action-hindi-title">${escapeHtml(action.hindiTitle || '')}</div>
+          <div class="action-hindi-title">${escapeHtml(action.hindiTitle || '')} <small style="font-size:0.7em; color:#94a3b8; font-style:normal;">[PENDING HUMAN REVIEW]</small></div>
         </div>
         <span class="action-priority-badge ${priorityClass}">${action.priority}</span>
       </div>
@@ -471,7 +467,7 @@ function renderActions(actions) {
           <button class="status-btn ${action.status === 'IN_PROGRESS' ? 'active-in-progress' : ''}" data-status="IN_PROGRESS">IN PROGRESS</button>
           <button class="status-btn ${action.status === 'COMPLETED' ? 'active-completed' : ''}" data-status="COMPLETED">COMPLETED</button>
         </div>
-        <input type="text" class="action-note-input" placeholder="Field note (e.g. Tanker deployed)" value="${escapeHtml(action.note || '')}" />
+        <input type="text" class="action-note-input" maxlength="200" placeholder="Field note (max 200 chars - no names/phones)" value="${escapeHtml(action.note || '')}" />
       </div>
     `;
 
@@ -524,7 +520,8 @@ function generateBulletinText(assessment) {
   const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-  let text = `🚨 *HEATSHIELD WARD ADVISORY* 🚨\n`;
+  let text = `🚨 *HEATSHIELD WARD ADVISORY (DRAFT)* 🚨\n`;
+  text += `⚠️ *Notice:* DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice.\n`;
   text += `📍 *Ward:* ${assessment.wardName || assessment.wardId}\n`;
   text += `📅 *Issued:* ${dateStr} at ${timeStr}\n`;
   text += `⚠️ *Alert Tier:* ${meta.title.toUpperCase()}\n`;
@@ -533,17 +530,22 @@ function generateBulletinText(assessment) {
   }
   text += `ℹ️ *Guidance:* ${meta.desc}\n\n`;
 
-  text += `📋 *PRIORITY WARD ACTIONS:*\n`;
+  text += `📋 *SUGGESTED WARD ACTIONS:*\n`;
   actions.forEach((a, i) => {
     const statusIcon = a.status === 'COMPLETED' ? '✅' : (a.status === 'IN_PROGRESS' ? '⏳' : '⭕');
     text += `${i + 1}. ${statusIcon} [${a.status}] ${a.title}\n`;
     if (a.hindiTitle) {
-      text += `   👉 ${a.hindiTitle}\n`;
+      text += `   👉 ${a.hindiTitle} [PENDING HUMAN REVIEW]\n`;
     }
   });
 
-  text += `\n📞 *Emergency Contacts:* Ambulance: 108 | Civic Helpline: 1916\n`;
-  text += `🛡️ *HeatShield* — Community Heatwave Risk-to-Action Planner`;
+  const localHelplineInput = document.getElementById('local-helpline-input');
+  const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
+  const emergencyStr = localHelpline ? `National emergency: 112 | Local helpline: ${localHelpline}` : `National emergency: 112`;
+
+  text += `\n📞 *Emergency Contacts:* ${emergencyStr}\n`;
+  text += `🛡️ *HeatShield* — Community Heatwave Risk-to-Action Planner\n`;
+  text += `🌐 Weather data: Open-Meteo.com (CC BY 4.0)`;
 
   return text;
 }
@@ -566,9 +568,16 @@ function preparePrintPoster() {
   const meta = document.getElementById('print-poster-meta');
   const tier = document.getElementById('print-poster-tier');
   const acts = document.getElementById('print-poster-actions');
+  const printHelplineSpan = document.getElementById('print-local-helpline');
 
   const tierMeta = TIER_METADATA[currentAssessment.operationalTier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = currentAssessment.heatIndex;
+
+  const localHelplineInput = document.getElementById('local-helpline-input');
+  const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
+  if (printHelplineSpan) {
+    printHelplineSpan.textContent = localHelpline ? `| Local helpline: ${localHelpline}` : '';
+  }
 
   meta.innerHTML = `
     <p><strong>Ward / Jurisdiction:</strong> ${escapeHtml(currentAssessment.wardName || currentAssessment.wardId)}</p>
@@ -581,13 +590,13 @@ function preparePrintPoster() {
     <div style="font-size: 11pt; font-weight: normal; margin-top: 4pt;">${tierMeta.desc}</div>
   `;
 
-  acts.innerHTML = '<h3>MANDATORY WARD-LEVEL ACTIONS:</h3>';
+  acts.innerHTML = '<h3>SUGGESTED WARD-LEVEL ACTIONS (PLANNING AID):</h3>';
   (currentAssessment.actions || []).forEach((a, idx) => {
     const div = document.createElement('div');
     div.className = 'print-poster-action-item';
     div.innerHTML = `
       <p><strong>${idx + 1}. [${a.status}] ${escapeHtml(a.title)}</strong></p>
-      <p style="font-style: italic; color: #444;">${escapeHtml(a.hindiTitle || '')}</p>
+      <p style="font-style: italic; color: #444;">${escapeHtml(a.hindiTitle || '')} <small>[PENDING HUMAN REVIEW]</small></p>
       <p><small>Role: ${formatRole(a.ownerRole)} | Deadline: ${escapeHtml(a.deadline || a.timeWindow)} | Source: ${escapeHtml(a.sourceReference || '')}</small></p>
     `;
     acts.appendChild(div);
