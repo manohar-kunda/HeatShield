@@ -52,27 +52,45 @@ flowchart TD
 - **Runtime**: Amazon Corretto / Java 21 (`release 21`).
 - **Framework**: Zero DI framework (pure POJO architecture).
 - **Packaging**: Uber-jar produced via `maven-shade-plugin` (measured size: **10.0 MB**).
-- **Testing**: 44 automated tests passing (26 golden tests vs NWS charts, IMD evaluation tests, playbook slice tests, and API contract tests).
+- **Testing**: 50 automated tests passing (26 golden tests vs NWS charts, IMD evaluation tests, playbook slice tests, forecast parsing tests, and API contract tests).
 - **Infrastructure as Code**: AWS SAM (`template.yaml`).
-- **AWS Services**: AWS Lambda (SnapStart enabled), Amazon API Gateway HTTP API, Amazon DynamoDB On-Demand (TTL enabled), Amazon S3 + CloudFront (HTTPS), Amazon CloudWatch.
+- **AWS Services**: AWS Lambda (SnapStart enabled), Amazon API Gateway HTTP API, Amazon DynamoDB On-Demand (TTL enabled), Amazon S3 + CloudFront (HTTPS with OAC), Amazon CloudWatch, AWS Budgets.
+- **Production URL**: [`https://d2ijd5tuo68h8.cloudfront.net`](https://d2ijd5tuo68h8.cloudfront.net)
 
 ---
 
-## Local Verification Commands
+## Local Development & Verification Commands
 
+### 1. Run Automated Unit & Golden Tests
 ```bash
-# 1. Run all automated tests (Golden tests, domain, and API handlers)
+cd backend
 mvn clean test
-
-# 2. Package shaded JAR
-mvn package
-
-# 3. Validate SAM infrastructure template
-sam validate --lint
-
-# 4. Run SAM local API emulator
-sam local start-api
 ```
+
+### 2. Run Local Dev Server (No Docker / No SAM required)
+```bash
+# Serves both the API at /api/* and static frontend at / on http://localhost:8085
+java -cp backend/target/heatshield-backend-1.0.0.jar heatshield.dev.LocalDevServer
+```
+
+### 3. Run Automated Smoke Verification Script
+```powershell
+# Local smoke test:
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "http://localhost:8085"
+
+# Live CloudFront smoke test:
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d2ijd5tuo68h8.cloudfront.net"
+```
+
+---
+
+## Documentation Links
+
+- [5-Minute Stranger Test Protocol](docs/STRANGER_TEST.md)
+- [3-Minute Demo Video Script](docs/DEMO_SCRIPT.md)
+- [Evidence & Scientific Verification Record](docs/VERIFICATION.md)
+- [Originality & Clean-Room Statement](docs/ORIGINALITY.md)
+- [Architecture Decision Records (ADRs)](docs/decisions/)
 
 ---
 
