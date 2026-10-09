@@ -78,7 +78,7 @@ Resources:
   HeatShieldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
+      CodeUri: backend
       Handler: heatshield.handler.LambdaApiHandler::handleRequest
       AutoPublishAlias: live
       SnapStart:
