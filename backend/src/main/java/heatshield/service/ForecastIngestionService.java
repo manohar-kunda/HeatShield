@@ -37,13 +37,15 @@ public class ForecastIngestionService {
         this.httpClient = httpClient;
     }
 
+    public static final java.time.ZoneId IST_ZONE = java.time.ZoneId.of("Asia/Kolkata");
+
     /**
-     * Fetches hourly forecast from Open-Meteo for given coordinates.
-     * URL pattern: https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,relative_humidity_2m&forecast_days=3
+     * Fetches hourly forecast from Open-Meteo for given coordinates in IST.
+     * URL pattern includes &timezone=Asia%2FKolkata.
      */
     public List<HourlyHeatIndexPoint> fetchHourlyForecast(double latitude, double longitude) throws Exception {
         String url = String.format(Locale.US,
-                "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&hourly=temperature_2m,relative_humidity_2m&forecast_days=3",
+                "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&hourly=temperature_2m,relative_humidity_2m&forecast_days=3&timezone=Asia%%2FKolkata",
                 latitude, longitude);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -80,10 +82,16 @@ public class ForecastIngestionService {
 
         for (int i = 0; i < count; i++) {
             String timeStr = times.get(i).asText();
-            // Open-Meteo returns ISO local times like "2026-10-10T00:00"
+            // Open-Meteo returns ISO local times in Asia/Kolkata like "2026-10-10T14:00"
             Instant instant;
             try {
-                instant = Instant.parse(timeStr.endsWith("Z") ? timeStr : timeStr + ":00Z");
+                if (timeStr.contains("T") && !timeStr.endsWith("Z")) {
+                    String fullIso = timeStr.length() == 16 ? timeStr + ":00" : timeStr;
+                    java.time.LocalDateTime ldt = java.time.LocalDateTime.parse(fullIso);
+                    instant = ldt.atZone(IST_ZONE).toInstant();
+                } else {
+                    instant = Instant.parse(timeStr.endsWith("Z") ? timeStr : timeStr + ":00Z");
+                }
             } catch (Exception e) {
                 instant = Instant.now().plus(Duration.ofHours(i));
             }
@@ -110,7 +118,8 @@ public class ForecastIngestionService {
     }
 
     /**
-     * Calculates peak stress window and aggregates hours per hazard tier across the series.
+     * Calculates peak stress window, composite peak hazard tier (NWS + IMD),
+     * and aggregates hours per hazard tier across the series.
      */
     public static ForecastWindowSummary computeWindowSummary(List<HourlyHeatIndexPoint> points) {
         if (points == null || points.isEmpty()) {
@@ -125,9 +134,23 @@ public class ForecastIngestionService {
         }
 
         HourlyHeatIndexPoint peakPoint = points.get(0);
+        HeatRiskTier peakCompositeTier = heatshield.domain.WardAssessment.determineCompositeTier(
+                peakPoint.tier(),
+                heatshield.domain.ImdHeatwaveCategory.evaluatePlains(peakPoint.temperatureC(), null)
+        );
 
         for (HourlyHeatIndexPoint pt : points) {
             hoursPerTier.put(pt.tier(), hoursPerTier.get(pt.tier()) + 1);
+
+            HeatRiskTier hourlyComposite = heatshield.domain.WardAssessment.determineCompositeTier(
+                    pt.tier(),
+                    heatshield.domain.ImdHeatwaveCategory.evaluatePlains(pt.temperatureC(), null)
+            );
+
+            if (hourlyComposite.ordinal() > peakCompositeTier.ordinal()) {
+                peakCompositeTier = hourlyComposite;
+            }
+
             if (pt.heatIndexF() > peakPoint.heatIndexF()) {
                 peakPoint = pt;
             }
@@ -142,7 +165,7 @@ public class ForecastIngestionService {
                 peakEnd,
                 peakPoint.heatIndexC(),
                 peakPoint.heatIndexF(),
-                peakPoint.tier(),
+                peakCompositeTier,
                 hoursPerTier
         );
     }
