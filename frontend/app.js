@@ -7,6 +7,17 @@ const API_BASE = window.location.origin.includes('localhost')
   ? 'http://localhost:8085'
   : ''; // Same-origin on CloudFront (/api/*)
 
+function getOrCreateWorkspaceId() {
+  let ws = localStorage.getItem('heatshield_workspace_id');
+  if (!ws || !ws.match(/^[a-zA-Z0-9_-]{3,64}$/)) {
+    ws = 'ws-' + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem('heatshield_workspace_id', ws);
+  }
+  return ws;
+}
+
+const CURRENT_WORKSPACE_ID = getOrCreateWorkspaceId();
+
 const TIER_METADATA = {
   BELOW_THRESHOLD: {
     title: 'Below Threshold / Not Rated',
@@ -46,6 +57,7 @@ let currentFilter = 'ALL';
 // DOM Elements
 const wardSelect = document.getElementById('ward-select');
 const fetchLiveBtn = document.getElementById('fetch-live-btn');
+const resetDemoBtn = document.getElementById('reset-demo-btn');
 const toggleWhatifBtn = document.getElementById('toggle-whatif-btn');
 const whatifForm = document.getElementById('whatif-form');
 const resetSimBtn = document.getElementById('reset-sim-btn');
@@ -149,6 +161,23 @@ function setupEventListeners() {
     fetchForecast(wardSelect.value, true);
   });
 
+  if (resetDemoBtn) {
+    resetDemoBtn.addEventListener('click', () => {
+      if (confirm('Reset local demo workspace? This clears locally modified notes, statuses, and offline cache.')) {
+        // Clear cached ward data and offline queue
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith('heatshield_cache_') || k === 'heatshield_offline_queue') {
+            localStorage.removeItem(k);
+          }
+        });
+        // Generate fresh workspace ID
+        const newWs = 'ws-' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('heatshield_workspace_id', newWs);
+        window.location.reload();
+      }
+    });
+  }
+
   toggleWhatifBtn.addEventListener('click', () => {
     const isHidden = whatifForm.hidden;
     whatifForm.hidden = !isHidden;
@@ -207,7 +236,9 @@ async function fetchForecast(wardId, live = true) {
   setLoadingState(true);
   try {
     const url = `${API_BASE}/api/forecast?wardId=${encodeURIComponent(wardId)}&live=${live}`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { 'X-Workspace-Id': CURRENT_WORKSPACE_ID }
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     currentAssessment = data;
@@ -233,7 +264,10 @@ async function runWhatIfAssessment(payload) {
   try {
     const res = await fetch(`${API_BASE}/api/assessments`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Workspace-Id': CURRENT_WORKSPACE_ID
+      },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -269,7 +303,10 @@ async function updateActionStatus(actionId, status, note) {
   try {
     const res = await fetch(`${API_BASE}/api/actions/${actionId}?wardId=${encodeURIComponent(wardId)}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Workspace-Id': CURRENT_WORKSPACE_ID
+      },
       body: JSON.stringify({ status, note })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

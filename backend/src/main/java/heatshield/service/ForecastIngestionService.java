@@ -26,6 +26,9 @@ public class ForecastIngestionService {
     private static final Duration TIMEOUT = Duration.ofSeconds(3);
 
     private final HttpClient httpClient;
+    private static final Map<String, CachedForecast> MEMORY_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private record CachedForecast(Instant fetchedAt, List<HourlyHeatIndexPoint> points) {}
 
     public ForecastIngestionService() {
         this.httpClient = HttpClient.newBuilder()
@@ -40,10 +43,16 @@ public class ForecastIngestionService {
     public static final java.time.ZoneId IST_ZONE = java.time.ZoneId.of("Asia/Kolkata");
 
     /**
-     * Fetches hourly forecast from Open-Meteo for given coordinates in IST.
+     * Fetches hourly forecast from Open-Meteo for given coordinates in IST with 30-min cache.
      * URL pattern includes &timezone=Asia%2FKolkata.
      */
     public List<HourlyHeatIndexPoint> fetchHourlyForecast(double latitude, double longitude) throws Exception {
+        String cacheKey = String.format(Locale.US, "%.3f,%.3f", latitude, longitude);
+        CachedForecast cached = MEMORY_CACHE.get(cacheKey);
+        if (cached != null && Duration.between(cached.fetchedAt(), Instant.now()).toMinutes() < 30) {
+            return cached.points();
+        }
+
         String url = String.format(Locale.US,
                 "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&hourly=temperature_2m,relative_humidity_2m&forecast_days=3&timezone=Asia%%2FKolkata",
                 latitude, longitude);
@@ -59,7 +68,9 @@ public class ForecastIngestionService {
             throw new IOException("Open-Meteo returned HTTP " + response.statusCode());
         }
 
-        return parseForecastJson(response.body());
+        List<HourlyHeatIndexPoint> points = parseForecastJson(response.body());
+        MEMORY_CACHE.put(cacheKey, new CachedForecast(Instant.now(), points));
+        return points;
     }
 
     public static List<HourlyHeatIndexPoint> parseForecastJson(String jsonStr) throws Exception {

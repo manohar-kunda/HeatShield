@@ -93,12 +93,19 @@ Resources:
       CodeUri: backend
       Handler: heatshield.handler.LambdaApiHandler::handleRequest
       AutoPublishAlias: live
+      ReservedConcurrentExecutions: 10
       SnapStart:
         ApplyOn: PublishedVersions
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref HeatShieldTable
       Events:
+        HourlyWarmupSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(4 hours)
+            Description: "Periodic ingestion and cache pre-warming for demo wards"
+            Enabled: true
         HealthCheck:
           Type: HttpApi
           Properties:

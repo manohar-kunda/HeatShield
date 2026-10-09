@@ -34,18 +34,24 @@ public class DynamoDbAssessmentRepository implements AssessmentRepository {
 
     @Override
     public void saveAssessment(WardAssessment assessment) {
+        saveAssessment("default", assessment);
+    }
+
+    public void saveAssessment(String workspaceId, WardAssessment assessment) {
+        String ws = normalizeWorkspaceId(workspaceId);
         try {
             String jsonPayload = MAPPER.writeValueAsString(assessment);
 
             Map<String, AttributeValue> item = new HashMap<>();
-            item.put("PK", AttributeValue.builder().s("WARD#" + assessment.wardId()).build());
+            item.put("PK", AttributeValue.builder().s("WS#" + ws + "#WARD#" + assessment.wardId()).build());
             item.put("SK", AttributeValue.builder().s("LATEST").build());
             item.put("assessmentId", AttributeValue.builder().s(assessment.assessmentId()).build());
             item.put("wardId", AttributeValue.builder().s(assessment.wardId()).build());
+            item.put("workspaceId", AttributeValue.builder().s(ws).build());
             item.put("operationalTier", AttributeValue.builder().s(assessment.operationalTier().name()).build());
             item.put("payload", AttributeValue.builder().s(jsonPayload).build());
-            // Expire cached snapshot in 4 hours
-            long expiresAt = Instant.now().getEpochSecond() + (4 * 3600);
+            // Expire cached snapshot in 7 days (604,800 seconds)
+            long expiresAt = Instant.now().getEpochSecond() + (7 * 24 * 3600);
             item.put("expiresAt", AttributeValue.builder().n(String.valueOf(expiresAt)).build());
 
             PutItemRequest request = PutItemRequest.builder()
@@ -61,8 +67,13 @@ public class DynamoDbAssessmentRepository implements AssessmentRepository {
 
     @Override
     public Optional<WardAssessment> getLatestAssessment(String wardId) {
+        return getLatestAssessment("default", wardId);
+    }
+
+    public Optional<WardAssessment> getLatestAssessment(String workspaceId, String wardId) {
+        String ws = normalizeWorkspaceId(workspaceId);
         Map<String, AttributeValue> key = new HashMap<>();
-        key.put("PK", AttributeValue.builder().s("WARD#" + wardId).build());
+        key.put("PK", AttributeValue.builder().s("WS#" + ws + "#WARD#" + wardId).build());
         key.put("SK", AttributeValue.builder().s("LATEST").build());
 
         GetItemRequest request = GetItemRequest.builder()
@@ -90,7 +101,11 @@ public class DynamoDbAssessmentRepository implements AssessmentRepository {
 
     @Override
     public Optional<TrackedAction> updateActionStatus(String wardId, String actionId, ActionStatus status, String note, Instant timestamp) {
-        Optional<WardAssessment> latestOpt = getLatestAssessment(wardId);
+        return updateActionStatus("default", wardId, actionId, status, note, timestamp);
+    }
+
+    public Optional<TrackedAction> updateActionStatus(String workspaceId, String wardId, String actionId, ActionStatus status, String note, Instant timestamp) {
+        Optional<WardAssessment> latestOpt = getLatestAssessment(workspaceId, wardId);
         if (latestOpt.isEmpty()) {
             return Optional.empty();
         }
@@ -101,9 +116,20 @@ public class DynamoDbAssessmentRepository implements AssessmentRepository {
 
         Optional<TrackedAction> updatedAction = memoryUpdater.updateActionStatus(wardId, actionId, status, note, timestamp);
         if (updatedAction.isPresent()) {
-            memoryUpdater.getLatestAssessment(wardId).ifPresent(this::saveAssessment);
+            memoryUpdater.getLatestAssessment(wardId).ifPresent(updated -> saveAssessment(workspaceId, updated));
         }
 
         return updatedAction;
+    }
+
+    private static String normalizeWorkspaceId(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "default";
+        }
+        String trimmed = raw.trim();
+        if (trimmed.matches("^[a-zA-Z0-9_-]{3,64}$")) {
+            return trimmed;
+        }
+        return "default";
     }
 }

@@ -46,7 +46,7 @@ class LambdaApiHandlerTest {
     void testCreateAssessmentEndpoint() throws Exception {
         String body = """
                 {
-                  "wardId": "WARD_TEST_01",
+                  "wardId": "DEMO_DELHI",
                   "wardName": "Connaught Hub",
                   "temperatureC": 36.0,
                   "humidityPct": 55.0
@@ -58,7 +58,7 @@ class LambdaApiHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(201);
         JsonNode json = MAPPER.readTree(response.getBody());
-        assertThat(json.get("wardId").asText()).isEqualTo("WARD_TEST_01");
+        assertThat(json.get("wardId").asText()).isEqualTo("DEMO_DELHI");
         assertThat(json.get("operationalTier").asText()).isNotBlank();
         assertThat(json.get("actions").isArray()).isTrue();
     }
@@ -69,7 +69,7 @@ class LambdaApiHandlerTest {
         // First create an assessment
         String createBody = """
                 {
-                  "wardId": "WARD_TEST_02",
+                  "wardId": "DEMO_NAGPUR",
                   "temperatureC": 38.0,
                   "humidityPct": 60.0
                 }
@@ -83,7 +83,7 @@ class LambdaApiHandlerTest {
                   "note": "2 water tankers deployed on site"
                 }
                 """;
-        Map<String, String> qp = Map.of("wardId", "WARD_TEST_02");
+        Map<String, String> qp = Map.of("wardId", "DEMO_NAGPUR");
         APIGatewayV2HTTPEvent patchEvent = createEvent("PATCH", "/api/actions/ACT_WATER_KIOSKS", patchBody, qp);
         APIGatewayV2HTTPResponse response = handler.handleRequest(patchEvent, null);
 
@@ -96,13 +96,13 @@ class LambdaApiHandlerTest {
     @Test
     @DisplayName("GET /api/forecast returns 200 with forecast and actions")
     void testGetForecastEndpoint() throws Exception {
-        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "WARD_12"));
+        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "DEMO_AHMEDABAD"));
         APIGatewayV2HTTPResponse response = handler.handleRequest(event, null);
 
         assertThat(response.getStatusCode()).isEqualTo(200);
         JsonNode json = MAPPER.readTree(response.getBody());
         assertThat(json.has("wardId")).isTrue();
-        assertThat(json.get("wardId").asText()).isEqualTo("WARD_12");
+        assertThat(json.get("wardId").asText()).isEqualTo("DEMO_AHMEDABAD");
         assertThat(json.has("actions")).isTrue();
         assertThat(json.get("actions").isArray()).isTrue();
         assertThat(json.has("operationalTier")).isTrue();
@@ -114,7 +114,7 @@ class LambdaApiHandlerTest {
         // Pre-create an assessment
         String body = """
                 {
-                  "wardId": "WARD_EXISTING",
+                  "wardId": "DEMO_HYDERABAD",
                   "wardName": "Pre-existing Ward",
                   "temperatureC": 40.0,
                   "humidityPct": 45.0
@@ -122,13 +122,49 @@ class LambdaApiHandlerTest {
                 """;
         handler.handleRequest(createEvent("POST", "/api/assessments", body, null), null);
 
-        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "WARD_EXISTING"));
+        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "DEMO_HYDERABAD"));
         APIGatewayV2HTTPResponse response = handler.handleRequest(event, null);
 
         assertThat(response.getStatusCode()).isEqualTo(200);
         JsonNode json = MAPPER.readTree(response.getBody());
-        assertThat(json.get("wardId").asText()).isEqualTo("WARD_EXISTING");
+        assertThat(json.get("wardId").asText()).isEqualTo("DEMO_HYDERABAD");
         assertThat(json.get("wardName").asText()).isEqualTo("Pre-existing Ward");
+    }
+
+    @Test
+    @DisplayName("Rejects unauthorized ward IDs outside allowlist with 400")
+    void testUnauthorizedWardIdRejection() throws Exception {
+        String body = """
+                {
+                  "wardId": "UNAUTHORIZED_MALICIOUS_WARD",
+                  "temperatureC": 40.0,
+                  "humidityPct": 45.0
+                }
+                """;
+        APIGatewayV2HTTPEvent event = createEvent("POST", "/api/assessments", body, null);
+        APIGatewayV2HTTPResponse response = handler.handleRequest(event, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(400);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.get("error").asText()).contains("unauthorized wardId");
+    }
+
+    @Test
+    @DisplayName("Rejects action notes containing 10-digit phone numbers with 400")
+    void testPiiNoteRejection() throws Exception {
+        String patchBody = """
+                {
+                  "status": "COMPLETED",
+                  "note": "Contact contractor directly on 9876543210 for billing"
+                }
+                """;
+        Map<String, String> qp = Map.of("wardId", "DEMO_AHMEDABAD");
+        APIGatewayV2HTTPEvent patchEvent = createEvent("PATCH", "/api/actions/ACT_WATER_KIOSKS", patchBody, qp);
+        APIGatewayV2HTTPResponse response = handler.handleRequest(patchEvent, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(400);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.get("error").asText()).contains("Privacy violation");
     }
 
     private APIGatewayV2HTTPEvent createEvent(String method, String path, String body, Map<String, String> queryParams) {

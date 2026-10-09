@@ -36,19 +36,29 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
     );
 
     private static final Map<String, double[]> WARD_COORDINATES = Map.of(
-            "WARD_12", new double[]{23.0225, 72.5714}, // Ahmedabad Central (Kalupur)
-            "WARD_01", new double[]{28.6139, 77.2090}, // Delhi Central (Connaught Place)
-            "WARD_05", new double[]{21.1458, 79.0882}, // Nagpur Central (Sitabuldi)
-            "WARD_09", new double[]{17.3616, 78.4747}, // Hyderabad Old City (Charminar)
-            "WARD_03", new double[]{22.6000, 88.3700}  // Kolkata North (Shyambazar)
+            "DEMO_AHMEDABAD", new double[]{23.0225, 72.5714}, // Ahmedabad Central (Kalupur)
+            "DEMO_DELHI", new double[]{28.6139, 77.2090},     // Delhi Central (Connaught Place)
+            "DEMO_NAGPUR", new double[]{21.1458, 79.0882},    // Nagpur Central (Sitabuldi)
+            "DEMO_HYDERABAD", new double[]{17.3616, 78.4747}, // Hyderabad Old City (Charminar)
+            "DEMO_KOLKATA", new double[]{22.6000, 88.3700},   // Kolkata North (Shyambazar)
+            "WARD_12", new double[]{23.0225, 72.5714},        // Legacy alias -> Ahmedabad
+            "WARD_01", new double[]{28.6139, 77.2090},        // Legacy alias -> Delhi
+            "WARD_05", new double[]{21.1458, 79.0882},        // Legacy alias -> Nagpur
+            "WARD_09", new double[]{17.3616, 78.4747},        // Legacy alias -> Hyderabad
+            "WARD_03", new double[]{22.6000, 88.3700}         // Legacy alias -> Kolkata
     );
 
     private static final Map<String, String> WARD_NAMES = Map.of(
-            "WARD_12", "Ahmedabad Central (Kalupur Market)",
-            "WARD_01", "Delhi Central (Connaught Place)",
-            "WARD_05", "Nagpur Central (Sitabuldi Hub)",
-            "WARD_09", "Hyderabad Old City (Charminar Zone)",
-            "WARD_03", "Kolkata North (Shyambazar Market)"
+            "DEMO_AHMEDABAD", "Demo ward: Ahmedabad Central (illustrative)",
+            "DEMO_DELHI", "Demo ward: Delhi Central (illustrative)",
+            "DEMO_NAGPUR", "Demo ward: Nagpur Central (illustrative)",
+            "DEMO_HYDERABAD", "Demo ward: Hyderabad Old City (illustrative)",
+            "DEMO_KOLKATA", "Demo ward: Kolkata North (illustrative)",
+            "WARD_12", "Demo ward: Ahmedabad Central (illustrative)",
+            "WARD_01", "Demo ward: Delhi Central (illustrative)",
+            "WARD_05", "Demo ward: Nagpur Central (illustrative)",
+            "WARD_09", "Demo ward: Hyderabad Old City (illustrative)",
+            "WARD_03", "Demo ward: Kolkata North (illustrative)"
     );
 
     private final AssessmentService assessmentService;
@@ -88,11 +98,20 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
         if (event == null || event.getRequestContext() == null || event.getRequestContext().getHttp() == null) {
-            return buildResponse(400, Map.of("error", "Malformed request"));
+            // Check if triggered by EventBridge Schedule or Warmup ping
+            if (context != null) {
+                context.getLogger().log("EventBridge or Warmup triggered: refreshing demo wards cache");
+            }
+            try {
+                handleGetForecast(Map.of("wardId", "DEMO_AHMEDABAD", "live", "true"), "default");
+            } catch (Exception ignored) {}
+            return buildResponse(200, Map.of("status", "WARMUP_SUCCESS"));
         }
 
         String method = event.getRequestContext().getHttp().getMethod();
         String path = event.getRequestContext().getHttp().getPath();
+        Map<String, String> headers = event.getHeaders() != null ? event.getHeaders() : Collections.emptyMap();
+        String workspaceId = extractWorkspaceId(headers);
 
         if ("OPTIONS".equalsIgnoreCase(method)) {
             return buildResponse(200, Map.of("status", "ok"));
@@ -102,11 +121,11 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             if ("GET".equalsIgnoreCase(method) && path.endsWith("/api/health")) {
                 return handleHealth();
             } else if ("POST".equalsIgnoreCase(method) && path.endsWith("/api/assessments")) {
-                return handleCreateAssessment(event.getBody());
+                return handleCreateAssessment(event.getBody(), workspaceId);
             } else if ("PATCH".equalsIgnoreCase(method) && path.contains("/api/actions/")) {
-                return handleUpdateAction(path, event.getBody(), event.getQueryStringParameters());
+                return handleUpdateAction(path, event.getBody(), event.getQueryStringParameters(), workspaceId);
             } else if ("GET".equalsIgnoreCase(method) && path.endsWith("/api/forecast")) {
-                return handleGetForecast(event.getQueryStringParameters());
+                return handleGetForecast(event.getQueryStringParameters(), workspaceId);
             } else {
                 return buildResponse(404, Map.of("error", "Not found", "path", path));
             }
@@ -129,14 +148,20 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
         return buildResponse(200, body);
     }
 
-    private APIGatewayV2HTTPResponse handleCreateAssessment(String requestBody) throws Exception {
+    private APIGatewayV2HTTPResponse handleCreateAssessment(String requestBody, String workspaceId) throws Exception {
         if (requestBody == null || requestBody.isBlank()) {
             return buildResponse(400, Map.of("error", "Request body is required"));
         }
 
         JsonNode json = MAPPER.readTree(requestBody);
-        String wardId = json.has("wardId") ? json.get("wardId").asText() : "WARD_DEFAULT";
-        String wardName = json.has("wardName") ? json.get("wardName").asText() : wardId;
+        String wardId = json.has("wardId") ? json.get("wardId").asText() : "DEMO_AHMEDABAD";
+        
+        // Enforce ward allowlist
+        if (!WARD_COORDINATES.containsKey(wardId) && !wardId.startsWith("smoke-") && !wardId.equals("WARD_SMOKE_TEST")) {
+            return buildResponse(400, Map.of("error", "Invalid or unauthorized wardId: " + wardId));
+        }
+
+        String wardName = json.has("wardName") ? json.get("wardName").asText() : WARD_NAMES.getOrDefault(wardId, wardId);
 
         if (!json.has("temperatureC") || !json.has("humidityPct")) {
             return buildResponse(400, Map.of("error", "Fields 'temperatureC' and 'humidityPct' are required"));
@@ -152,15 +177,23 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
                 wardId, wardName, tempC, rhPct, departureC, "MANUAL_INPUT"
         );
 
+        if (repository instanceof DynamoDbAssessmentRepository ddbRepo) {
+            ddbRepo.saveAssessment(workspaceId, assessment);
+        }
+
         return buildResponse(201, assessment);
     }
 
-    private APIGatewayV2HTTPResponse handleUpdateAction(String path, String requestBody, Map<String, String> queryParams) throws Exception {
+    private APIGatewayV2HTTPResponse handleUpdateAction(String path, String requestBody, Map<String, String> queryParams, String workspaceId) throws Exception {
         String actionId = path.substring(path.lastIndexOf('/') + 1);
         String wardId = queryParams != null ? queryParams.get("wardId") : null;
 
         if (wardId == null || wardId.isBlank()) {
             return buildResponse(400, Map.of("error", "Query parameter 'wardId' is required"));
+        }
+
+        if (!WARD_COORDINATES.containsKey(wardId) && !wardId.startsWith("smoke-") && !wardId.equals("WARD_SMOKE_TEST")) {
+            return buildResponse(400, Map.of("error", "Invalid or unauthorized wardId: " + wardId));
         }
 
         JsonNode json = MAPPER.readTree(requestBody);
@@ -171,7 +204,24 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
         ActionStatus status = ActionStatus.valueOf(json.get("status").asText().toUpperCase());
         String note = json.has("note") ? json.get("note").asText() : null;
 
-        Optional<TrackedAction> updated = repository.updateActionStatus(wardId, actionId, status, note, Instant.now());
+        // Privacy & Abuse validation on note
+        if (note != null) {
+            if (note.length() > 200) {
+                return buildResponse(400, Map.of("error", "Note exceeds maximum limit of 200 characters"));
+            }
+            // Check for PII phone numbers: sequence of 10 or more consecutive digits
+            if (note.matches(".*\\d{10,}.*")) {
+                return buildResponse(400, Map.of("error", "Privacy violation: Phone numbers and identity numbers are prohibited in action notes"));
+            }
+        }
+
+        Optional<TrackedAction> updated;
+        if (repository instanceof DynamoDbAssessmentRepository ddbRepo) {
+            updated = ddbRepo.updateActionStatus(workspaceId, wardId, actionId, status, note, Instant.now());
+        } else {
+            updated = repository.updateActionStatus(wardId, actionId, status, note, Instant.now());
+        }
+
         if (updated.isEmpty()) {
             return buildResponse(404, Map.of("error", "Action or Ward not found"));
         }
@@ -179,34 +229,54 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
         return buildResponse(200, updated.get());
     }
 
-    private APIGatewayV2HTTPResponse handleGetForecast(Map<String, String> queryParams) {
-        String wardId = queryParams != null ? queryParams.getOrDefault("wardId", "WARD_12") : "WARD_12";
-        boolean forceLive = queryParams != null && ("true".equalsIgnoreCase(queryParams.get("live")) || queryParams.containsKey("lat"));
+    private APIGatewayV2HTTPResponse handleGetForecast(Map<String, String> queryParams, String workspaceId) {
+        String wardId = queryParams != null ? queryParams.getOrDefault("wardId", "DEMO_AHMEDABAD") : "DEMO_AHMEDABAD";
+        
+        if (!WARD_COORDINATES.containsKey(wardId) && !wardId.startsWith("smoke-") && !wardId.equals("WARD_SMOKE_TEST")) {
+            return buildResponse(400, Map.of("error", "Invalid or unauthorized wardId: " + wardId));
+        }
 
-        // If not forced and we already have a saved/created assessment in the repository, return it
-        Optional<WardAssessment> existing = repository.getLatestAssessment(wardId);
+        String demoMode = queryParams != null ? queryParams.get("demo") : null;
+        boolean forceLive = queryParams != null && "true".equalsIgnoreCase(queryParams.get("live"));
+
+        // Demo fallback switch: ?demo=offline
+        if ("offline".equalsIgnoreCase(demoMode)) {
+            List<HourlyHeatIndexPoint> offlinePoints = ForecastIngestionService.createOfflineFixture();
+            ForecastWindowSummary offlineSummary = ForecastIngestionService.computeWindowSummary(offlinePoints);
+            HourlyHeatIndexPoint first = offlinePoints.get(0);
+            WardAssessment offlineAssessment = assessmentService.createAssessmentWithForecast(
+                    wardId,
+                    WARD_NAMES.getOrDefault(wardId, "Ahmedabad Central (Offline Fixture)"),
+                    first.temperatureC(),
+                    first.humidityPct(),
+                    null,
+                    "OFFLINE_SAMPLE",
+                    offlineSummary,
+                    offlinePoints
+            );
+            return buildResponse(200, offlineAssessment);
+        }
+
+        Optional<WardAssessment> existing;
+        if (repository instanceof DynamoDbAssessmentRepository ddbRepo) {
+            existing = ddbRepo.getLatestAssessment(workspaceId, wardId);
+        } else {
+            existing = repository.getLatestAssessment(wardId);
+        }
+
+        // Demo fallback switch: ?demo=stale
+        if ("stale".equalsIgnoreCase(demoMode) && existing.isPresent()) {
+            return buildResponse(200, existing.get());
+        }
+
         if (!forceLive && existing.isPresent()) {
             return buildResponse(200, existing.get());
         }
 
-        // Coordinates resolution
-        Double lat = null;
-        Double lon = null;
-        if (queryParams != null && queryParams.containsKey("lat") && queryParams.containsKey("lon")) {
-            try {
-                lat = Double.parseDouble(queryParams.get("lat"));
-                lon = Double.parseDouble(queryParams.get("lon"));
-            } catch (NumberFormatException ignored) {}
-        }
-        if (lat == null || lon == null) {
-            double[] coords = WARD_COORDINATES.getOrDefault(wardId, new double[]{23.0225, 72.5714});
-            lat = coords[0];
-            lon = coords[1];
-        }
-
-        String wardName = queryParams != null && queryParams.containsKey("wardName")
-                ? queryParams.get("wardName")
-                : WARD_NAMES.getOrDefault(wardId, wardId);
+        double[] coords = WARD_COORDINATES.getOrDefault(wardId, new double[]{23.0225, 72.5714});
+        double lat = coords[0];
+        double lon = coords[1];
+        String wardName = WARD_NAMES.getOrDefault(wardId, wardId);
 
         // Resilience Tier 1: Live fetch from Open-Meteo API
         try {
@@ -219,6 +289,11 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             WardAssessment liveAssessment = assessmentService.createAssessmentWithForecast(
                     wardId, wardName, currentTemp, currentRh, null, "LIVE_OPEN_METEO", summary, points
             );
+
+            if (repository instanceof DynamoDbAssessmentRepository ddbRepo) {
+                ddbRepo.saveAssessment(workspaceId, liveAssessment);
+            }
+
             return buildResponse(200, liveAssessment);
         } catch (Exception fetchErr) {
             // Resilience Tier 2: Stale cached snapshot fallback from DynamoDB
@@ -233,7 +308,7 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
 
             WardAssessment offlineAssessment = assessmentService.createAssessmentWithForecast(
                     wardId,
-                    wardName != null ? wardName : "Ahmedabad Central (Offline Fixture)",
+                    wardName,
                     first.temperatureC(),
                     first.humidityPct(),
                     null,
@@ -243,6 +318,19 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             );
             return buildResponse(200, offlineAssessment);
         }
+    }
+
+    private static String extractWorkspaceId(Map<String, String> headers) {
+        if (headers == null) return "default";
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            if ("x-workspace-id".equalsIgnoreCase(entry.getKey())) {
+                String val = entry.getValue();
+                if (val != null && val.trim().matches("^[a-zA-Z0-9_-]{3,64}$")) {
+                    return val.trim();
+                }
+            }
+        }
+        return "default";
     }
 
     private static APIGatewayV2HTTPResponse buildResponse(int statusCode, Object body) {
