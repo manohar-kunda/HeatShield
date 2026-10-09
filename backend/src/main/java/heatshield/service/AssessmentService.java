@@ -30,6 +30,19 @@ public class AssessmentService {
             Double imdDepartureC,
             String dataSource
     ) {
+        return createAssessmentWithForecast(wardId, wardName, tempC, rhPct, imdDepartureC, dataSource, null, List.of());
+    }
+
+    public WardAssessment createAssessmentWithForecast(
+            String wardId,
+            String wardName,
+            double tempC,
+            double rhPct,
+            Double imdDepartureC,
+            String dataSource,
+            ForecastWindowSummary forecastSummary,
+            List<HourlyHeatIndexPoint> hourlyForecast
+    ) {
         // 1. Calculate NWS Rothfusz Heat Index
         HeatIndexResult hiResult = RothfuszCalculator.calculate(tempC, rhPct);
 
@@ -45,6 +58,7 @@ public class AssessmentService {
         Instant now = Instant.now();
         List<TrackedAction> trackedActions = new ArrayList<>();
         for (ActionDefinition def : definitions) {
+            String deadline = computeActionDeadline(def.timeWindow(), forecastSummary);
             trackedActions.add(new TrackedAction(
                     def.actionId(),
                     def.title(),
@@ -56,7 +70,8 @@ public class AssessmentService {
                     def.sourceReference(),
                     ActionStatus.PENDING,
                     null,
-                    now
+                    now,
+                    deadline
             ));
         }
 
@@ -69,10 +84,28 @@ public class AssessmentService {
                 operationalTier,
                 trackedActions,
                 dataSource != null ? dataSource : "MANUAL_INPUT",
-                now
+                now,
+                forecastSummary,
+                hourlyForecast != null ? hourlyForecast : List.of()
         );
 
         repository.saveAssessment(assessment);
         return assessment;
+    }
+
+    public static String computeActionDeadline(String timeWindow, ForecastWindowSummary summary) {
+        if ("IMMEDIATE".equalsIgnoreCase(timeWindow)) {
+            return "Immediate (within 30 mins)";
+        } else if ("BEFORE_10_AM".equalsIgnoreCase(timeWindow)) {
+            return "Complete before 10:00 AM";
+        } else if ("BEFORE_11_AM".equalsIgnoreCase(timeWindow)) {
+            return "Complete before 11:00 AM";
+        } else if ("PEAK_HOURS_12_TO_16".equalsIgnoreCase(timeWindow)) {
+            if (summary != null && summary.peakWindowStart() != null) {
+                return "Enforce prior to peak thermal stress window";
+            }
+            return "Enforce during peak hours (12:00 - 16:00)";
+        }
+        return "Complete within operational shift";
     }
 }

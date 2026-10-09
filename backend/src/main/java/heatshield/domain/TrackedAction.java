@@ -16,8 +16,25 @@ public record TrackedAction(
         String sourceReference,
         ActionStatus status,
         String note,
-        Instant updatedAt
+        Instant updatedAt,
+        String deadline
 ) {
+    public TrackedAction(
+            String actionId,
+            String title,
+            String hindiTitle,
+            String ownerRole,
+            String targetGroup,
+            String timeWindow,
+            String priority,
+            String sourceReference,
+            ActionStatus status,
+            String note,
+            Instant updatedAt
+    ) {
+        this(actionId, title, hindiTitle, ownerRole, targetGroup, timeWindow, priority, sourceReference, status, note, updatedAt, null);
+    }
+
     public TrackedAction withStatus(ActionStatus newStatus, String newNote, Instant now) {
         return new TrackedAction(
                 actionId,
@@ -30,7 +47,8 @@ public record TrackedAction(
                 sourceReference,
                 newStatus,
                 newNote != null ? newNote : note,
-                now
+                now,
+                deadline
         );
     }
 }

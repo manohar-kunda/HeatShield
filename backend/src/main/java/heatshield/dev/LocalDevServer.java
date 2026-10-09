@@ -23,7 +23,7 @@ import java.util.Map;
 public class LocalDevServer {
 
     public static void main(String[] args) throws IOException {
-        int port = 8080;
+        int port = 8085;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         LambdaApiHandler lambdaHandler = new LambdaApiHandler();
 
@@ -39,6 +39,29 @@ public class LocalDevServer {
                 String method = exchange.getRequestMethod();
                 String path = exchange.getRequestURI().getPath();
                 String rawQuery = exchange.getRequestURI().getRawQuery();
+
+                // Serve static frontend files if path doesn't start with /api/
+                if (!path.startsWith("/api/")) {
+                    String relativePath = path.equals("/") ? "index.html" : path.substring(1);
+                    java.io.File file = new java.io.File("frontend", relativePath);
+                    if (!file.exists() || file.isDirectory()) {
+                        file = new java.io.File("frontend", "index.html");
+                    }
+                    if (file.exists() && file.isFile()) {
+                        String contentType = "text/html; charset=UTF-8";
+                        if (file.getName().endsWith(".css")) contentType = "text/css; charset=UTF-8";
+                        else if (file.getName().endsWith(".js")) contentType = "application/javascript; charset=UTF-8";
+                        else if (file.getName().endsWith(".json")) contentType = "application/json; charset=UTF-8";
+
+                        byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+                        exchange.getResponseHeaders().set("Content-Type", contentType);
+                        exchange.sendResponseHeaders(200, bytes.length);
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(bytes);
+                        }
+                        return;
+                    }
+                }
 
                 Map<String, String> queryParams = new HashMap<>();
                 if (rawQuery != null && !rawQuery.isBlank()) {

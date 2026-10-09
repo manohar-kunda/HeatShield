@@ -93,6 +93,44 @@ class LambdaApiHandlerTest {
         assertThat(json.get("note").asText()).isEqualTo("2 water tankers deployed on site");
     }
 
+    @Test
+    @DisplayName("GET /api/forecast returns 200 with forecast and actions")
+    void testGetForecastEndpoint() throws Exception {
+        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "WARD_12"));
+        APIGatewayV2HTTPResponse response = handler.handleRequest(event, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.has("wardId")).isTrue();
+        assertThat(json.get("wardId").asText()).isEqualTo("WARD_12");
+        assertThat(json.has("actions")).isTrue();
+        assertThat(json.get("actions").isArray()).isTrue();
+        assertThat(json.has("operationalTier")).isTrue();
+    }
+
+    @Test
+    @DisplayName("GET /api/forecast returns existing assessment when already saved")
+    void testGetForecastExistingWard() throws Exception {
+        // Pre-create an assessment
+        String body = """
+                {
+                  "wardId": "WARD_EXISTING",
+                  "wardName": "Pre-existing Ward",
+                  "temperatureC": 40.0,
+                  "humidityPct": 45.0
+                }
+                """;
+        handler.handleRequest(createEvent("POST", "/api/assessments", body, null), null);
+
+        APIGatewayV2HTTPEvent event = createEvent("GET", "/api/forecast", null, Map.of("wardId", "WARD_EXISTING"));
+        APIGatewayV2HTTPResponse response = handler.handleRequest(event, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.get("wardId").asText()).isEqualTo("WARD_EXISTING");
+        assertThat(json.get("wardName").asText()).isEqualTo("Pre-existing Ward");
+    }
+
     private APIGatewayV2HTTPEvent createEvent(String method, String path, String body, Map<String, String> queryParams) {
         APIGatewayV2HTTPEvent.RequestContext.Http http = APIGatewayV2HTTPEvent.RequestContext.Http.builder()
                 .withMethod(method)

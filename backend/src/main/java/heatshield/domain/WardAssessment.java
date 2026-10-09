@@ -15,9 +15,24 @@ public record WardAssessment(
         ImdHeatwaveCategory imdCategory,
         HeatRiskTier operationalTier,
         List<TrackedAction> actions,
-        String dataSource, // "LIVE_OPEN_METEO", "STALE_CACHE", or "OFFLINE_SAMPLE"
-        Instant timestamp
+        String dataSource, // "LIVE_OPEN_METEO", "STALE_CACHE", "MANUAL_INPUT", or "OFFLINE_SAMPLE"
+        Instant timestamp,
+        ForecastWindowSummary forecastSummary,
+        List<HourlyHeatIndexPoint> hourlyForecast
 ) {
+    public WardAssessment(
+            String assessmentId,
+            String wardId,
+            String wardName,
+            HeatIndexResult heatIndex,
+            ImdHeatwaveCategory imdCategory,
+            HeatRiskTier operationalTier,
+            List<TrackedAction> actions,
+            String dataSource,
+            Instant timestamp
+    ) {
+        this(assessmentId, wardId, wardName, heatIndex, imdCategory, operationalTier, actions, dataSource, timestamp, null, List.of());
+    }
     public static HeatRiskTier determineCompositeTier(HeatRiskTier nwsTier, ImdHeatwaveCategory imd) {
         if (nwsTier == null) {
             nwsTier = HeatRiskTier.BELOW_THRESHOLD;

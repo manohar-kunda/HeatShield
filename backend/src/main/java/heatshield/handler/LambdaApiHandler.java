@@ -7,22 +7,19 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import heatshield.domain.ActionStatus;
-import heatshield.domain.TrackedAction;
-import heatshield.domain.WardAssessment;
+import heatshield.domain.*;
 import heatshield.repository.AssessmentRepository;
 import heatshield.repository.DynamoDbAssessmentRepository;
 import heatshield.repository.InMemoryAssessmentRepository;
 import heatshield.service.AssessmentService;
+import heatshield.service.ForecastIngestionService;
 import heatshield.service.PlaybookService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Main AWS Lambda Request Handler for HTTP API Gateway.
@@ -38,8 +35,25 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             "Access-Control-Allow-Headers", "Content-Type, Authorization"
     );
 
+    private static final Map<String, double[]> WARD_COORDINATES = Map.of(
+            "WARD_12", new double[]{23.0225, 72.5714}, // Ahmedabad Central (Kalupur)
+            "WARD_01", new double[]{28.6139, 77.2090}, // Delhi Central (Connaught Place)
+            "WARD_05", new double[]{21.1458, 79.0882}, // Nagpur Central (Sitabuldi)
+            "WARD_09", new double[]{17.3616, 78.4747}, // Hyderabad Old City (Charminar)
+            "WARD_03", new double[]{22.6000, 88.3700}  // Kolkata North (Shyambazar)
+    );
+
+    private static final Map<String, String> WARD_NAMES = Map.of(
+            "WARD_12", "Ahmedabad Central (Kalupur Market)",
+            "WARD_01", "Delhi Central (Connaught Place)",
+            "WARD_05", "Nagpur Central (Sitabuldi Hub)",
+            "WARD_09", "Hyderabad Old City (Charminar Zone)",
+            "WARD_03", "Kolkata North (Shyambazar Market)"
+    );
+
     private final AssessmentService assessmentService;
     private final AssessmentRepository repository;
+    private final ForecastIngestionService forecastService;
 
     public LambdaApiHandler() {
         String tableName = System.getenv("TABLE_NAME");
@@ -58,11 +72,17 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
 
         this.repository = repo;
         this.assessmentService = new AssessmentService(new PlaybookService(), repo);
+        this.forecastService = new ForecastIngestionService();
     }
 
     public LambdaApiHandler(AssessmentService assessmentService, AssessmentRepository repository) {
+        this(assessmentService, repository, new ForecastIngestionService());
+    }
+
+    public LambdaApiHandler(AssessmentService assessmentService, AssessmentRepository repository, ForecastIngestionService forecastService) {
         this.assessmentService = assessmentService;
         this.repository = repository;
+        this.forecastService = forecastService;
     }
 
     @Override
@@ -161,22 +181,68 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
 
     private APIGatewayV2HTTPResponse handleGetForecast(Map<String, String> queryParams) {
         String wardId = queryParams != null ? queryParams.getOrDefault("wardId", "WARD_12") : "WARD_12";
-        Optional<WardAssessment> latest = repository.getLatestAssessment(wardId);
+        boolean forceLive = queryParams != null && ("true".equalsIgnoreCase(queryParams.get("live")) || queryParams.containsKey("lat"));
 
-        if (latest.isPresent()) {
-            return buildResponse(200, latest.get());
+        // If not forced and we already have a saved/created assessment in the repository, return it
+        Optional<WardAssessment> existing = repository.getLatestAssessment(wardId);
+        if (!forceLive && existing.isPresent()) {
+            return buildResponse(200, existing.get());
         }
 
-        // Return baseline offline sample if no assessment stored yet
-        WardAssessment sample = assessmentService.createAssessment(
-                wardId,
-                "Demo Ward - Transit & Market Zone",
-                34.0,
-                55.0,
-                null,
-                "OFFLINE_SAMPLE"
-        );
-        return buildResponse(200, sample);
+        // Coordinates resolution
+        Double lat = null;
+        Double lon = null;
+        if (queryParams != null && queryParams.containsKey("lat") && queryParams.containsKey("lon")) {
+            try {
+                lat = Double.parseDouble(queryParams.get("lat"));
+                lon = Double.parseDouble(queryParams.get("lon"));
+            } catch (NumberFormatException ignored) {}
+        }
+        if (lat == null || lon == null) {
+            double[] coords = WARD_COORDINATES.getOrDefault(wardId, new double[]{23.0225, 72.5714});
+            lat = coords[0];
+            lon = coords[1];
+        }
+
+        String wardName = queryParams != null && queryParams.containsKey("wardName")
+                ? queryParams.get("wardName")
+                : WARD_NAMES.getOrDefault(wardId, wardId);
+
+        // Resilience Tier 1: Live fetch from Open-Meteo API
+        try {
+            List<HourlyHeatIndexPoint> points = forecastService.fetchHourlyForecast(lat, lon);
+            ForecastWindowSummary summary = ForecastIngestionService.computeWindowSummary(points);
+            HourlyHeatIndexPoint current = points.isEmpty() ? null : points.get(0);
+            double currentTemp = current != null ? current.temperatureC() : 35.0;
+            double currentRh = current != null ? current.humidityPct() : 50.0;
+
+            WardAssessment liveAssessment = assessmentService.createAssessmentWithForecast(
+                    wardId, wardName, currentTemp, currentRh, null, "LIVE_OPEN_METEO", summary, points
+            );
+            return buildResponse(200, liveAssessment);
+        } catch (Exception fetchErr) {
+            // Resilience Tier 2: Stale cached snapshot fallback from DynamoDB
+            if (existing.isPresent()) {
+                return buildResponse(200, existing.get());
+            }
+
+            // Resilience Tier 3: Deterministic bundled offline fixture
+            List<HourlyHeatIndexPoint> offlinePoints = ForecastIngestionService.createOfflineFixture();
+            ForecastWindowSummary offlineSummary = ForecastIngestionService.computeWindowSummary(offlinePoints);
+            HourlyHeatIndexPoint first = offlinePoints.get(0);
+
+            WardAssessment offlineAssessment = assessmentService.createAssessmentWithForecast(
+                    wardId,
+                    wardName != null ? wardName : "Ahmedabad Central (Offline Fixture)",
+                    first.temperatureC(),
+                    first.humidityPct(),
+                    null,
+                    "OFFLINE_SAMPLE",
+                    offlineSummary,
+                    offlinePoints
+            );
+            return buildResponse(200, offlineAssessment);
+        }
     }
 
     private static APIGatewayV2HTTPResponse buildResponse(int statusCode, Object body) {
