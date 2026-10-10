@@ -39,7 +39,7 @@
 
 ### Shot 4: Historical Heatwave Replay & What-If Simulation (1:45 - 2:15) [30s]
 1. Return to the top Controls Card.
-2. Under Target Ward, select **REPLAY: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C reported in the AMC Heat Action Plan (page not verified) / Grid 44.2°C)**.
+2. Under Target Ward, select **Replay: Ahmedabad, May 2010 heatwave**.
 3. Click **Get forecast**: observe instantaneous escalation to **DANGER (Orange Alert)** with 4 prioritized actions.
 4. Click **What-if** toggle button: enter simulated extreme conditions (43°C ambient, 50% RH) to show dynamic calculation of **EXTREME DANGER (Red Alert)** with the scientific extrapolation warning flag.
 

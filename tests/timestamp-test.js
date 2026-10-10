@@ -71,4 +71,28 @@ assert(formattedIso.includes('IST'), 'ISO format must include IST');
 assert(formattedSec.includes('IST'), 'Must explicitly display IST');
 assert(formattedMil.includes('IST'), 'Must explicitly display IST');
 
+function formatPeakDateTime(raw) {
+  const dt = parseTimestamp(raw);
+  if (!dt) return 'Not available';
+  try {
+    const options = {
+      timeZone: 'Asia/Kolkata',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    const formatted = new Intl.DateTimeFormat('en-IN', options).format(dt);
+    return `${formatted} IST`;
+  } catch (e) {
+    return 'Upcoming';
+  }
+}
+
+// 5. Peak time formatting test ensuring IST suffix
+const peakSec = 1791790200.0;
+const formattedPeak = formatPeakDateTime(peakSec);
+console.log('Peak time test:', formattedPeak);
+assert(formattedPeak.includes('IST'), 'Peak time format must include IST');
+
 console.log('ALL TIMESTAMP TESTS PASSED!');

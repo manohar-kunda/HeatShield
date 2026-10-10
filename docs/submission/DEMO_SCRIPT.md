@@ -17,7 +17,7 @@
 - **Visual**: Switch to HeatShield live URL (`https://d2ijd5tuo68h8.cloudfront.net`). Select "Demo ward: Ahmedabad Central". Show the 72-Hour continuous timeline.
 - **Narration**:  
   *"HeatShield is a rule-backed Heatwave Risk-to-Action Planner live in AWS ap-south-1. Notice what happens: even though current morning conditions might be mild, HeatShield scans the entire 72-hour forecast horizon from Open-Meteo in Indian Standard Time.  
-  It calculates both the NOAA/NWS Rothfusz 9-term polynomial heat index and the IMD Plains criteria. Under our 72-Hour Peak Composite Tier Rule, actions are triggered by the forecast peak—activating the emergency playbook in advance and giving field teams time to mobilize."*
+  It calculates both the NOAA/NWS Rothfusz 9-term polynomial heat index and the IMD Plains criteria. Under our 72-Hour Peak Composite Tier Rule, actions are triggered by the forecast peak—activating the emergency playbook in advance. Because current October autumn weather in India triggers 2 of 5 actions under Extreme Caution, our What-If simulator and Historical Replay demonstrate the full 5-action emergency playbook."*
 
 ---
 

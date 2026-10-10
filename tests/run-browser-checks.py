@@ -145,6 +145,12 @@ for w in widths:
         else:
             print(f"  [FAIL] Peak tier '{peak_text}' does not contain expected '{expected_peak_title}'.")
             all_passed = False
+        if " at " in peak_text:
+            if "IST" in peak_text:
+                print("  [PASS] Peak time in peak-72h-tier explicitly displays 'IST'.")
+            else:
+                print("  [FAIL] Peak time in peak-72h-tier does not contain 'IST'.")
+                all_passed = False
     else:
         print("  [FAIL] Element #peak-72h-tier not found in DOM.")
         all_passed = False

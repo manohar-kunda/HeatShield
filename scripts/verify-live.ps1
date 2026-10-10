@@ -1,4 +1,4 @@
-﻿param(
+param(
     [Parameter(Mandatory=$false)]
     [string]$BaseUrl = "https://d2ijd5tuo68h8.cloudfront.net"
 )
@@ -49,7 +49,9 @@ try {
         "Reset Demo",
         "National emergency: <strong>112</strong>",
         "DRAFT Ward Heat Advisory (illustrative)",
-        "PENDING HUMAN REVIEW"
+        "PENDING HUMAN REVIEW",
+        "Replay: Ahmedabad, May 2010 heatwave",
+        "Retrospective illustration only"
     )
 
     foreach ($req in $requiredStrings) {
@@ -62,7 +64,9 @@ try {
         "Mandatory Ward",
         "1916",
         "Issued under",
-        "MUNICIPAL WARD HEATWAVE ACTION NOTICE"
+        "MUNICIPAL WARD HEATWAVE ACTION NOTICE",
+        "Severe Heatwave",
+        "docs/ACCESSIBILITY.md"
     )
 
     foreach ($forb in $forbiddenStrings) {

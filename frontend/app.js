@@ -167,7 +167,8 @@ function formatPeakDateTime(raw) {
       minute: '2-digit',
       hour12: true
     };
-    return new Intl.DateTimeFormat('en-IN', options).format(dt);
+    const formatted = new Intl.DateTimeFormat('en-IN', options).format(dt);
+    return `${formatted} IST`;
   } catch (e) {
     return 'Upcoming';
   }
@@ -674,6 +675,10 @@ function setupEventListeners() {
   window.addEventListener('online', flushOfflineQueue);
 
   wardSelect.addEventListener('change', () => {
+    const replayProv = document.getElementById('replay-provenance');
+    if (replayProv) {
+      replayProv.style.display = wardSelect.value === 'REPLAY_AHMEDABAD_2010' ? 'block' : 'none';
+    }
     fetchForecast(wardSelect.value, true);
   });
 

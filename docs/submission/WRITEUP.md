@@ -68,7 +68,7 @@ Existing weather apps display current ambient readings, but fail municipal field
 1. **AWS Lambda (Java 21 with SnapStart)**: Delivers sub-20ms warm handler execution and cold starts under 622ms without requiring expensive always-on container clusters.
 2. **Amazon CloudFront with Origin Access Control (OAC)**: Eliminates CORS friction by routing both the static PWA frontend and dynamic API requests through a single origin domain. Delivers 43ms - 70ms edge latencies across India.
 3. **Amazon DynamoDB (On-Demand with TTL)**: Zero idle cost. Automatic 7-day TTL ensures temporary demo states expire cleanly without accumulating database storage costs.
-4. **Amazon EventBridge Scheduler**: Triggers periodic 4-hour background cache warming for demo wards so coordinators never experience slow initial weather API queries.
+4. **Amazon EventBridge Scheduler**: Triggers a periodic 4-hour background invocation for demo wards that refreshes the in-memory cache of the invoked Lambda execution environment so initial queries have low latency.
 
 ---
 
@@ -79,6 +79,10 @@ Existing weather apps display current ambient readings, but fail municipal field
 - **Performance & Latency**: CloudFront $p_{50}$ median latency of **77 ms**, steady-state warm Lambda execution of **14 ms - 22 ms (average ~18 ms)**. Early post-restore first-invocation figures (182.63 ms) marked as UNVERIFIED pending live CloudWatch REPORT line validation.
 - **Accessibility & Lighthouse**: **98 Performance**, **96 Accessibility**, **100 Best Practices** targeting WCAG 2.1 AA.
 - **Clean-Room Independence**: 100% newly written from scratch starting October 8, 2026. Zero legacy code or fabricated deliverables.
+
+### Architectural Limitations & Cache Behavior:
+- **Multi-Instance In-Memory Cache Variance**: Because AWS Lambda distributes traffic across multiple concurrent or warm execution environments, each instance maintains its own local in-memory cache (`ConcurrentHashMap<String, CachedForecast>`, 30-minute TTL). When Open-Meteo updates its numerical forecast model run, two consecutive queries routed to different warm Lambda instances may reflect slight model run variations (e.g. 36.6°C vs 36.9°C) until both instances reach TTL expiration. This is normal distributed serverless behavior.
+- **Workspace Scoping**: Stale DynamoDB snapshots are strictly scoped per workspace (`WS#<workspaceId>#WARD#<wardId>`). A fresh workspace without prior network activity or cached items deterministically receives the bundled offline sample fixture.
 
 ---
 

@@ -135,6 +135,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 | **API Throttling Protection** | **VERIFIED** | API Gateway HTTP API stage throttling configured at 25 rps (burst 50). Unreserved Lambda concurrency default pool is used (no reserved concurrency 10). |
 | **Hindi Language Translations** | **PENDING REVIEW** | All Hindi UI and bulletin strings are marked **PENDING HUMAN REVIEW** in the UI and exported to `docs/hindi-strings.csv` (summer advisory vs heatwave term flag noted). |
 
+### Distributed Architecture Notes & Limitations
+- **Lambda Multi-Instance Cache Variance**: In a serverless deployment, concurrent or sequential requests can be routed to different warm Lambda execution environments. Each instance caches forecasts in memory for 30 minutes (`ConcurrentHashMap`). When Open-Meteo publishes an updated numerical model run, slight differences in forecast readings (e.g. 36.6°C vs 36.9°C) may be observed between warm instances until local caches expire.
+- **Workspace-Scoped Snapshots**: DynamoDB snapshot persistence is partitioned strictly by workspace ID (`WS#<workspaceId>#WARD#<wardId>`). A fresh workspace without prior history or cache deterministically receives the bundled offline sample fixture if upstream weather is unreachable.
+- **Cache Refreshing**: The EventBridge scheduled rule refreshes the in-memory cache of the specific Lambda execution environment it invokes.
+
 ---
 
 ## Documentation Links
