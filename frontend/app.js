@@ -295,6 +295,23 @@ async function updateActionStatus(actionId, status, note) {
     renderBulletin(currentAssessment);
   }
 
+  // Client-side privacy filtering
+  if (note) {
+    if (note.length > 200) {
+      alert('Note exceeds maximum length of 200 characters.');
+      return;
+    }
+    const strippedForDigits = note.replace(/[\s\-\.\(\)\+]/g, '');
+    if (/\d{10,}/.test(strippedForDigits) || /[\u0966-\u096F]{10,}/.test(strippedForDigits)) {
+      alert('Privacy alert: Phone numbers or citizen identifiers cannot be entered in notes.');
+      return;
+    }
+    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(note)) {
+      alert('Privacy alert: Email addresses cannot be entered in notes.');
+      return;
+    }
+  }
+
   if (!navigator.onLine) {
     queueOfflineAction(wardId, actionId, status, note);
     return;

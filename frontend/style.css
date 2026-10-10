@@ -51,6 +51,14 @@ body {
   z-index: 100;
 }
 
+.footer-link {
+  color: var(--accent);
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
 .header-content {
   max-width: 1100px;
   margin: 0 auto;

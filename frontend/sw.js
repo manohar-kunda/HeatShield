@@ -1,4 +1,4 @@
-const CACHE_NAME = 'heatshield-v1';
+const CACHE_NAME = 'heatshield-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -52,7 +52,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets: Stale-while-revalidate
+  // For HTML / root navigation: Network-first, fallback to cache
+  if (url.pathname === '/' || url.pathname.endsWith('/index.html')) {
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For other static assets (css, js, manifest, icons): Stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {

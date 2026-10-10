@@ -4,7 +4,23 @@
 [![AWS Serverless](https://img.shields.io/badge/AWS-SAM%20%7C%20Lambda%20%7C%20DynamoDB-blue.svg)](https://aws.amazon.com/serverless/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
+- **Live Production URL**: [https://d2ijd5tuo68h8.cloudfront.net](https://d2ijd5tuo68h8.cloudfront.net)
+- **3-Minute Demo Video**: `[DEMO VIDEO LINK PLACEHOLDER — to be recorded and added upon final submission]`
+- **Hackathon Track**: Bharat Builds Tour 2026 / Environmental Hacks (Solo Developer: Manohar Kunda)
+
 HeatShield converts ambient weather forecasts and community context into transparent, rule-backed heat risk assessments, prioritised emergency protective actions, and verifiable action completion tracking.
+
+---
+
+## Where AWS Fits in the Solution Architecture
+
+HeatShield uses an entirely serverless, resilient AWS architecture in `ap-south-1` (Mumbai):
+1. **Amazon CloudFront**: Provides a single-origin entrypoint for Indian municipal coordinators. Delivers static PWA assets from edge POPs and routes `/api/*` requests directly to backend services, avoiding cross-origin overhead and enforcing strict Content Security Policies.
+2. **Amazon S3**: Hosts static frontend assets securely with Origin Access Control (OAC), completely private with public block policies enabled.
+3. **Amazon API Gateway (HTTP API v2)**: Low-latency, cost-effective REST gateway configured with burst and rate throttling to protect downstream compute.
+4. **AWS Lambda (Java 21 + SnapStart)**: Executes the Rothfusz regression and IMD dual-signal algorithm with sub-20ms warm invocation latency and fast snapshot restore.
+5. **Amazon DynamoDB**: Single-table On-Demand database storing assessments and coordinator field notes, with multi-tenant workspace isolation and automated 7-day TTL expiration to avoid storage accumulation.
+6. **Amazon CloudWatch & AWS Budgets**: Monitors Lambda error rates and enforces cost containment alerts ($5.00 threshold) with SNS email notifications.
 
 ---
 
@@ -86,13 +102,35 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 
 ---
 
+## Data Sources & Licenses
+
+1. **Weather Forecasts**: Open-Meteo API ([Open-Meteo.com](https://open-meteo.com/)), licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+2. **Historical Reanalysis Data**: ECMWF ERA5 reanalysis via Open-Meteo Historical Weather API.
+3. **Heat Index Equations**: National Oceanic and Atmospheric Administration (NOAA) / National Weather Service (NWS) public domain scientific specifications.
+4. **Action Playbooks**: Adapted from National Disaster Management Authority (NDMA) 2019 National Guidelines for Preparation of Action Plan - Prevention and Management of Heat Wave and Ahmedabad Municipal Corporation (AMC) Heat Action Plan.
+
+---
+
+## Known Limitations
+
+1. **Extrapolation Caution**: The NWS Rothfusz polynomial is validated between 80°F–110°F and 40%–100% relative humidity. Outside this range, the system tags calculations with an explicit cautionary badge.
+2. **Advisory Scope**: HeatShield is an administrative planning aid for municipal coordinators. It does not replace official meteorological bulletins from the IMD or clinical triage advice.
+3. **Mild Weather Windows**: When tested during mild autumn conditions (e.g. October), ambient heat indices may remain in the "Below Threshold" tier. Users can use the What-If Simulator or the Historical Ahmedabad May 2010 Replay mode to observe Extreme Danger response tiers.
+
+---
+
 ## Documentation Links
 
+- [Traceability Matrix & Verification Table](docs/TRACEABILITY.md)
+- [Evidence & Scientific Verification Record (Live vs Recalled)](docs/VERIFICATION.md)
+- [Latency & Performance Profile](docs/LATENCY.md)
+- [Accessibility Walkthrough & Checklist](docs/ACCESSIBILITY.md)
 - [5-Minute Stranger Test Protocol](docs/STRANGER_TEST.md)
 - [3-Minute Demo Video Script](docs/DEMO_SCRIPT.md)
-- [Evidence & Scientific Verification Record](docs/VERIFICATION.md)
+- [Submission Form Answers Guide](docs/submission/FORM_ANSWERS.md)
 - [Originality & Clean-Room Statement](docs/ORIGINALITY.md)
 - [Architecture Decision Records (ADRs)](docs/decisions/)
+- [Emergency Rollback Guide](docs/ROLLBACK.md)
 
 ---
 

@@ -211,9 +211,16 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
             if (note.length() > 200) {
                 return buildResponse(400, Map.of("error", "Note exceeds maximum limit of 200 characters"));
             }
-            // Check for PII phone numbers: sequence of 10 or more consecutive digits
-            if (note.matches(".*\\d{10,}.*")) {
+            // Privacy filter hardening:
+            // 1. Strip spaces, dashes, dots, parentheses, and '+'
+            String strippedForDigits = note.replaceAll("[\\s\\-\\.\\(\\)\\+]", "");
+            // Match 10 or more Unicode digits (\p{Nd} covers ASCII 0-9, Devanagari ०-९, etc.)
+            if (strippedForDigits.matches(".*\\p{Nd}{10,}.*")) {
                 return buildResponse(400, Map.of("error", "Privacy violation: Phone numbers and identity numbers are prohibited in action notes"));
+            }
+            // 2. Reject email-like patterns (e.g. a@b.com, user@domain)
+            if (note.matches("(?i).*\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b.*")) {
+                return buildResponse(400, Map.of("error", "Privacy violation: Email addresses are prohibited in action notes"));
             }
         }
 

@@ -13,10 +13,14 @@
 
 Measurements collected across 20 consecutive requests against `/api/health` following warmup:
 
-| Target Endpoint | Samples ($N$) | Min (ms) | Median / $p_{50}$ (ms) | $p_{95}$ (ms) | Max (ms) | Note |
+| Target Flow / Endpoint | Samples ($N$) | Min (ms) | Median / $p_{50}$ (ms) | $p_{95}$ (ms) | Max (ms) | Note |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **CloudFront CDN Edge** | 20 | 53 | **77** | 290 | 1286 | Includes TLS edge handshake & reverse-proxy routing |
-| **Direct API Gateway** | 20 | 45 | **53** | 85 | 158 | Direct connection to `ap-south-1` HTTP API |
+| **GET /api/forecast (cache miss)** | 20 | 126 | **251** | 483 | 4409 | Real Open-Meteo external ingestion + 72h window calculation |
+| **GET /api/forecast (cache hit)** | 20 | 87 | **101** | 142 | 318 | Pre-cached DynamoDB read + Rothfusz evaluation |
+| **POST /api/assessments (What-If)** | 20 | 105 | **124** | 315 | 361 | Custom parameter assessment + DynamoDB write |
+| **PATCH /api/actions (Field update)** | 20 | 87 | **107** | 154 | 252 | Atomic status & screened note update in DynamoDB |
+| **GET /api/health (CloudFront edge)** | 20 | 53 | **77** | 290 | 1286 | Health baseline through edge proxy |
+| **GET /api/health (Direct API)** | 20 | 45 | **53** | 85 | 158 | Direct connection to `ap-south-1` HTTP API |
 
 ### Component Breakdown & Latency Transition Explanation
 1. **Initial Post-Restore First Invocation (182.63 ms)**:

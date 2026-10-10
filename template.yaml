@@ -180,7 +180,7 @@ Resources:
             Preload: true
             Override: true
           ContentSecurityPolicy:
-            ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; frame-ancestors 'none';"
+            ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
             Override: true
 
   FrontendDistribution:

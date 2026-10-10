@@ -167,6 +167,32 @@ class LambdaApiHandlerTest {
         assertThat(json.get("error").asText()).contains("Privacy violation");
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "98765 43210",
+            "+91-98765-43210",
+            "9876-543-210",
+            "९८७६५४३२१०",
+            "a@b.com",
+            "coordinator.field@city.gov.in"
+    })
+    @DisplayName("Hardened privacy filter rejects spaced/dashed phones, Devanagari numerals, and email addresses")
+    void testHardenedPrivacyFilterRejections(String sensitiveInput) throws Exception {
+        String patchBody = """
+                {
+                  "status": "COMPLETED",
+                  "note": "Update note: %s"
+                }
+                """.formatted(sensitiveInput);
+        Map<String, String> qp = Map.of("wardId", "DEMO_AHMEDABAD");
+        APIGatewayV2HTTPEvent patchEvent = createEvent("PATCH", "/api/actions/ACT_WATER_KIOSKS", patchBody, qp);
+        APIGatewayV2HTTPResponse response = handler.handleRequest(patchEvent, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(400);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.get("error").asText()).contains("Privacy violation");
+    }
+
     private APIGatewayV2HTTPEvent createEvent(String method, String path, String body, Map<String, String> queryParams) {
         APIGatewayV2HTTPEvent.RequestContext.Http http = APIGatewayV2HTTPEvent.RequestContext.Http.builder()
                 .withMethod(method)
