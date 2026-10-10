@@ -370,7 +370,11 @@ function renderRiskSummary(assessment) {
 
   const imd = assessment.imdCategory || 'NORMAL';
   imdSignalVal.textContent = imd.replace(/_/g, ' ');
-  imdCriteriaDesc.textContent = 'Indicative signal from model forecast, not an IMD warning';
+  if (assessment.dataSource === 'HISTORICAL_REPLAY_2010') {
+    imdCriteriaDesc.textContent = 'RETROSPECTIVE ILLUSTRATION using reanalysis data, not a forecast. (Station 46.8°C / Grid 44.2°C)';
+  } else {
+    imdCriteriaDesc.textContent = 'Indicative signal from model forecast, not an IMD warning';
+  }
   if (imd === 'SEVERE_HEAT_WAVE' || imd === 'HEAT_WAVE') {
     imdSignalVal.className = 'metric-value text-danger';
   } else {

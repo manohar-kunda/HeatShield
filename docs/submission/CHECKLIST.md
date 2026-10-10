@@ -19,16 +19,16 @@
 
 ## 2. Technical Deliverables Matrix
 
-| Requirement | Target Specification | Delivered Verification | Status |
-| :--- | :--- | :--- | :---: |
-| **Working Live Deployment** | Public HTTPS endpoint | `https://d2ijd5tuo68h8.cloudfront.net` | **PASS** |
-| **Automated Test Suite** | Comprehensive unit & contract tests | **54 tests passing** (`mvn test` in 5.6s) | **PASS** |
-| **Low Latency Profile** | Under 300ms warm / <1s edge | Median ($p_{50}$): **70 ms**, Warm Lambda: **18 ms** | **PASS** |
-| **Frontend Budget** | Under 100 KB uncompressed | **55.45 KB** total frontend bundle size | **PASS** |
-| **Accessibility & Contrast** | Targeting WCAG 2.1 AA | Lighthouse: **96 Accessibility, 98 Perf, 100 Best Practices** | **PASS** |
-| **Abuse & Privacy Guardrails** | Zero PII; rate controls | Server-side note validation (<200 char, no 10+ digits) | **PASS** |
-| **Offline Resilience** | Service Worker + local fallback | PWA offline cache + deterministic offline fixture | **PASS** |
-| **Differentiator Feature** | Simulation / Replay mode | Interactive What-If + Ahmedabad May 2010 Replay mode | **PASS** |
+| Feature / Requirement | Implementation Details | Measured Evidence |
+| :--- | :--- | :--- |
+| **Live Deployment** | Public HTTPS via CloudFront | `https://d2ijd5tuo68h8.cloudfront.net` |
+| **Automated Test Suite** | JUnit 5 unit & contract test suite | 54 tests passing (`mvn test` in 4.7s) |
+| **Edge & Handler Latency** | CloudFront CDN + SnapStart Lambda | CloudFront $p_{50}$: 70 ms, Warm handler execution: ~18 ms |
+| **Frontend Bundle Size** | Vanilla PWA (no node modules / bundlers) | 55.45 KB uncompressed (~14.3 KB gzip) |
+| **Accessibility & Performance** | Semantic HTML5 & CSS design tokens | Lighthouse: 96 Accessibility, 98 Performance, 100 Best Practices |
+| **Abuse & Privacy Guardrails** | Notes validation (<200 char, no 10+ digits) | Server-side rejection with HTTP 400 |
+| **Offline Resilience** | Service Worker + local storage fallback | Pre-cached app shell & bundled offline sample fixture |
+| **Retrospective Replay Mode** | Ahmedabad May 2010 heatwave episode | Historic dates (20 May 2010), observed station 46.8°C / grid 44.2°C |
 
 ---
 

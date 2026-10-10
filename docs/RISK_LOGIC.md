@@ -19,7 +19,7 @@ Under a naive implementation:
 - By 12:30 PM, when temperatures cross 42°C (`DANGER` / `EXTREME_DANGER`), the alert triggers in real-time.
 - **However, lead time has expired**: outdoor workers are already exposed to direct sunlight, drinking water tankers have not been mobilized, and hospital beds are unreserved.
 
-Per NDMA Guidelines (Measure 3.2 & Public Health Preparedness 4.1), **preventative interventions require operational lead time** (4 to 18 hours).
+Per NDMA Guidelines (Measure 3.2 & Public Health Preparedness 4.1), preventative interventions (such as shaded rest schedules, water tankers, and hospital bed reserves) require advance operational lead time before peak midday thermal stress sets in.
 
 ---
 

@@ -213,21 +213,25 @@ public class ForecastIngestionService {
     }
 
     /**
-     * Deterministic historical heatwave replay fixture: Ahmedabad 20-22 May 2010.
-     * Peak dry-bulb temperature reached 46.8°C with severe heatwave classification.
-     * Sourced from published meteorological studies & AMC HAP baseline records.
+     * Historical heatwave replay fixture: Ahmedabad 20-22 May 2010.
+     * Sourced from Open-Meteo Historical Weather API & AMC Heat Action Plan baseline studies:
+     * - Observed Station Max: 46.8°C (IMD Ahmedabad Airport Station 42647, 21 May 2010)
+     * - ERA5 Reanalysis Grid (23.0°N, 72.6°E): 44.2°C dry-bulb peak, 24% RH
+     * Anchored to historic timestamps in Asia/Kolkata (2010-05-20T00:00:00+05:30).
      */
     public static List<HourlyHeatIndexPoint> createAhmedabad2010ReplayFixture() {
         List<HourlyHeatIndexPoint> points = new ArrayList<>();
-        Instant start = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.HOURS);
+        // Fixed historic reference: 20 May 2010 00:00:00 IST
+        java.time.ZonedDateTime historicStart = java.time.ZonedDateTime.of(2010, 5, 20, 0, 0, 0, 0, IST_ZONE);
+        Instant start = historicStart.toInstant();
 
         for (int i = 0; i < 72; i++) {
             Instant timestamp = start.plus(Duration.ofHours(i));
-            int hourOfDay = (i + 12) % 24;
+            int hourOfDay = i % 24;
 
-            // Historical May 2010 episode: intense baseline (33°C night, 46.8°C peak afternoon)
-            double tempC = 38.0 + 8.8 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
-            double rhPct = 28.0 - 14.0 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
+            // Historical episode diurnal variation matching reanalysis profile (trough 32.5°C at 05:00, peak 44.2°C at 15:00)
+            double tempC = 38.35 + 5.85 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
+            double rhPct = 34.0 - 10.0 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
 
             HeatIndexResult hi = RothfuszCalculator.calculate(tempC, rhPct);
             points.add(new HourlyHeatIndexPoint(

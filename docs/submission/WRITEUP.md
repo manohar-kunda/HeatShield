@@ -12,7 +12,7 @@
 In Indian cities, urban heatwaves are silent killers. Municipalities often operate reactively: alerts are broadcast only when temperatures cross 42°C in real time. By that hour, municipal water tankers are unmobilized, informal laborers have already been exposed to midday solar radiation, and local health centres face sudden surges of dehydration and heat exhaustion.
 
 Existing weather apps display current ambient readings, but fail municipal field coordinators in three key ways:
-1. **Zero Lead Time**: Current-hour alerts do not afford the 4 to 18 hours required to enact preventive civic interventions.
+1. **Zero Lead Time**: Current-hour alerts do not afford the operational lead time required to enact preventative civic interventions before peak midday heat.
 2. **Missing Action Guidance**: Raw temperature figures do not translate into specific role-based municipal tasks.
 3. **No Field Tracking**: Playbooks are static PDF documents forgotten on municipal shelves.
 
@@ -25,7 +25,7 @@ Existing weather apps display current ambient readings, but fail municipal field
 ### Core Capabilities:
 - **72-Hour Peak-Driven Risk Logic**: Rather than waiting for midday heat, HeatShield continuously scans the 72-hour forecast horizon from Open-Meteo (in Indian Standard Time) and evaluates the composite peak hazard tier (NWS Rothfusz 9-term polynomial + IMD Plains heatwave criteria). Preventive actions are activated in advance.
 - **NDMA & AMC Heat Action Plan Alignment**: Translates hazard tiers into actionable, time-bound municipal playbooks (e.g. `ACT_WATER_KIOSKS`, `ACT_OUTDOOR_WORK_ADVISORY`, `ACT_COOLING_SHELTERS`, `ACT_ORS_DISPATCH`, `ACT_HOSPITAL_ALERT`).
-- **Interactive What-If & Historical Replay**: Coordinators can simulate custom microclimate scenarios or replay historical benchmark episodes (such as the Ahmedabad May 2010 heatwave at 46.8°C) to train teams and stress-test resource preparedness.
+- **Interactive What-If & Historical Replay**: Coordinators can simulate custom microclimate scenarios or replay historical benchmark episodes—such as the Ahmedabad May 2010 episode (Observed IMD Station 46.8°C / ERA5 Reanalysis Grid 44.2°C)—to train teams and test resource preparedness against historical ground-truth data.
 - **Field Tracking with Zero PII**: Officers toggle action statuses (`PENDING`, `IN_PROGRESS`, `COMPLETED`) with field notes. Strict server-side validation rejects personal phone numbers and identity markers.
 - **Offline-First PWA Architecture**: Operates under poor 2G/3G connectivity. Features offline caching, background action queueing, and a deterministic offline fixture if upstream networks fail.
 - **Single-Click Public Communications**: Generates WhatsApp civic broadcast text and printable emergency bulletin posters with QR codes and official national emergency contact (`112`).

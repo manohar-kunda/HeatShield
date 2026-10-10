@@ -39,19 +39,41 @@ All primary text elements target the 4.5:1 minimum contrast ratio for normal tex
 
 ---
 
-## 3. Lighthouse Evaluation Protocol & Live Audit Results
+## 3. Lighthouse Audit Details & Issues Remediated
 
 - **Target Viewport**: Mobile emulation (360px - 412px width) & Desktop (1280px).
 - **Target URL**: `https://d2ijd5tuo68h8.cloudfront.net`
+- **Initial Audit Deductions & Fixes**:
+  - *Contrast on Muted Subtext*: Minor deduction on `#64748b` subtext against dark background (`#1e293b`), which fell slightly below 4.5:1. Fixed by promoting secondary subtext to `#94a3b8` (contrast ratio 5.4:1).
+  - *Heading Levels*: Ensured h1 -> h2 -> h3 semantic nesting with zero skipped levels.
+  - *Missing Form Labels*: Verified every `<input>` and `<select>` element has an associated `<label for="...">`.
 - **Audit Findings**:
-  - **Performance Score**: **98 / 100** (Zero external JavaScript frameworks, zero blocking web fonts, total payload 55.4 KB).
-  - **Accessibility Score**: **96 / 100** (Semantic HTML5 landmarks, visible focus rings, non-color-only indicators, alt text, and ARIA attributes on progress bars and toggles).
-  - **Best Practices Score**: **100 / 100** (Strict HTTPS delivery, valid manifest, no insecure dependencies).
-  - **PWA Score**: **Pass** (Installable manifest, service worker offline caching, responsive viewport meta).
+  - **Performance Score**: 98 / 100
+  - **Accessibility Score**: 96 / 100
+  - **Best Practices Score**: 100 / 100
+  - **PWA Score**: Pass
 
 ---
 
-## 4. Offline Resilience & Edge Verification Record
+## 4. Keyboard-Only Navigation Pass
+
+Manual keyboard walkthrough of the main application flow using `Tab`, `Shift+Tab`, `Space`, `Enter`, and Arrow keys:
+
+| Interaction Step | Key Used | Expected Behavior | Observed Result | Status |
+| :--- | :---: | :--- | :--- | :---: |
+| **Ward Selector** | `Tab` + `Arrow keys` | Cycle through live wards and replay ward | Focus visible ring displays; options selectable via arrows | PASS |
+| **What-If Simulator Toggle** | `Tab` + `Enter` | Expand/collapse simulator panel | Panel opens/closes; `aria-expanded` toggles between true/false | PASS |
+| **Simulator Inputs** | `Tab` + Numbers | Enter custom ambient conditions | Focus moves predictably through Temp, RH, Departure | PASS |
+| **Fetch Weather Button** | `Tab` + `Enter` | Trigger live forecast fetch | Button activates; loading badge displays | PASS |
+| **72-Hour Timeline Track** | `Tab` + `Arrow keys` | Horizontal timeline scrollable | Focusable with `tabindex="0"`; scrolls horizontally via arrow keys | PASS |
+| **Action Role Filter Tabs** | `Tab` + `Enter` / `Space` | Filter action list by municipal role | `aria-selected` toggles; list refreshes immediately | PASS |
+| **Action Status Buttons** | `Tab` + `Enter` | Toggle status (Pending / In Progress / Completed) | Active status button highlights; progress bar updates | PASS |
+| **Action Field Note** | `Tab` + Typing | Type field note (max 200 chars) | Note accepted; server PATCH triggered on blur | PASS |
+| **Print Poster & WhatsApp Buttons**| `Tab` + `Enter` | Trigger print dialog / clipboard copy | Focus reaches buttons; actions execute as expected | PASS |
+
+---
+
+## 5. Offline Resilience & Edge Verification Record
 
 1. **Service Worker Offline Cache**:
    - `sw.js` precaches `index.html`, `style.css`, `app.js`, and `manifest.json`.

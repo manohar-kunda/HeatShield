@@ -11,22 +11,23 @@
 
 ## 1. End-to-End Latency Profile
 
-Measurements were collected across 15 consecutive requests against `/api/health` following warmup:
+Measurements collected across 20 consecutive requests against `/api/health` following warmup:
 
 | Target Endpoint | Samples ($N$) | Min (ms) | Median / $p_{50}$ (ms) | $p_{95}$ (ms) | Max (ms) | Note |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **CloudFront CDN Edge** | 15 | 43 | **70** | 539 | 895 | Includes TLS edge handshake & reverse-proxy routing |
-| **Direct API Gateway** | 15 | 41 | **46** | 93 | 146 | Direct connection to `ap-south-1` HTTP API |
+| **CloudFront CDN Edge** | 20 | 53 | **77** | 290 | 1286 | Includes TLS edge handshake & reverse-proxy routing |
+| **Direct API Gateway** | 20 | 45 | **53** | 85 | 158 | Direct connection to `ap-south-1` HTTP API |
 
-### Component Breakdown
-1. **AWS Lambda Execution Duration (Warm)**:
-   - Handler CPU time: **14 ms - 22 ms** (Zero DI framework, pre-allocated singletons).
-2. **AWS Lambda SnapStart Cold Start**:
-   - Restore Duration: **~622 ms** (observed in CloudWatch upon initial snapshot restore).
-   - Subsequent warm invocations: **~18 ms**.
-3. **Network Transit / CDN Edge Overhead**:
-   - Public round-trip time (Client to Mumbai): **~25 - 40 ms**.
-   - CloudFront reverse-proxy forwarding to API Gateway: **~15 - 25 ms**.
+### Component Breakdown & Latency Transition Explanation
+1. **Initial Post-Restore First Invocation (182.63 ms)**:
+   - When AWS Lambda SnapStart restores a snapshot, the very first user invocation after the restore phase undergoes initial class-loading, JVM JIT profiling, and TLS socket initialization with DynamoDB / HTTPS endpoints. This resulted in the initial 182.63 ms execution duration recorded in the early smoke test.
+2. **Subsequent Steady-State Warm Invocations (14 ms - 22 ms, Average ~18 ms)**:
+   - Once the JVM tiered compiler processes hot execution paths and HTTP connection pools are established, pure handler execution drops to 14 ms - 22 ms.
+3. **AWS Lambda SnapStart Restore Phase**:
+   - Snapshot restore duration: **~622 ms** (observed in CloudWatch upon initial snapshot restore).
+4. **Network Transit / CDN Edge Overhead**:
+   - Client-to-Mumbai public Internet RTT: **~25 - 40 ms**.
+   - CloudFront reverse-proxy forwarding to API Gateway origin: **~15 - 25 ms**.
 
 ---
 

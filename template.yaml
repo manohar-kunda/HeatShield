@@ -66,11 +66,14 @@ Resources:
           Value: Hackathon
 
   # ==========================================================
-  # 2. HTTP API Gateway (No wildcard CORS; restricted)
+  # 2. HTTP API Gateway (Restricted CORS and Default Stage Throttling)
   # ==========================================================
   HeatShieldHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 50
+        ThrottlingRateLimit: 25.0
       CorsConfiguration:
         AllowOrigins:
           - "*"
@@ -82,6 +85,7 @@ Resources:
         AllowHeaders:
           - Content-Type
           - Authorization
+          - X-Workspace-Id
         MaxAge: 600
 
   # ==========================================================
@@ -154,6 +158,31 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  SecurityHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Condition: ShouldDeployFrontend
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "HeatShieldSecurityHeaders-${AWS::StackName}"
+        Comment: "Strict security headers for HeatShield PWA"
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+          ContentSecurityPolicy:
+            ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; frame-ancestors 'none';"
+            Override: true
+
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution
     Condition: ShouldDeployFrontend
@@ -175,6 +204,7 @@ Resources:
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
+          ResponseHeadersPolicyId: !Ref SecurityHeadersPolicy
           AllowedMethods:
             - GET
             - HEAD
@@ -190,6 +220,7 @@ Resources:
           - PathPattern: /api/*
             TargetOriginId: ApiOrigin
             ViewerProtocolPolicy: redirect-to-https
+            ResponseHeadersPolicyId: !Ref SecurityHeadersPolicy
             AllowedMethods:
               - GET
               - HEAD
@@ -203,6 +234,7 @@ Resources:
               Headers:
                 - Authorization
                 - Content-Type
+                - X-Workspace-Id
               Cookies:
                 Forward: all
             MinTTL: 0
@@ -297,3 +329,7 @@ Outputs:
     Condition: ShouldDeployFrontend
     Description: "S3 Static Web Bucket"
     Value: !Ref FrontendBucket
+  CloudFrontDistributionId:
+    Condition: ShouldDeployFrontend
+    Description: "CloudFront Distribution ID"
+    Value: !Ref FrontendDistribution

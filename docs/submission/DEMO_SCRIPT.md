@@ -9,7 +9,7 @@
 ### [00:00 - 00:30] Scene 1: The Problem & The Lead Time Gap
 - **Visual**: Screen recording showing standard weather app displaying "Ahmedabad: 28°C at 7:00 AM — No Alert".
 - **Narration**:  
-  *"During Indian heatwaves, temperatures easily breach 42°C. But standard weather dashboards only tell you the current temperature. When an alert fires at noon, the damage is already done: outdoor laborers have been exposed to sunlight, water kiosks are unstaffed, and hospital beds are unreserved. Preventative civic action requires 4 to 18 hours of operational lead time. That’s why we built HeatShield."*
+  *"During Indian heatwaves, temperatures easily breach 42°C. But standard weather dashboards only tell you the current temperature. When an alert fires at noon, the damage is already done: outdoor laborers have been exposed to sunlight, water kiosks are unstaffed, and hospital beds are unreserved. Preventative civic action requires advance operational lead time before peak midday heat sets in. That’s why we built HeatShield."*
 
 ---
 
@@ -30,14 +30,14 @@
 ---
 
 ### [01:50 - 02:20] Scene 4: What-If Simulator & Historical Replay
-- **Visual**: Click "⚡ What-If Simulator". Dial temperature to 44°C and 45% humidity. Then switch ward dropdown to "Historical Replay: Ahmedabad May 2010 Heatwave (46.8°C)".
+- **Visual**: Click "⚡ What-If Simulator". Dial temperature to 44°C and 45% humidity. Then switch ward dropdown to "Historical Replay: Ahmedabad May 2010 Severe Heatwave".
 - **Narration**:  
-  *"Coordinators don't have to wait for an actual disaster to prepare. Using the What-If Simulator, teams can test microclimate scenarios. Or they can load our Historical Replay mode—replaying the catastrophic May 2010 Ahmedabad heatwave at 46.8°C to stress-test municipal resource allocation."*
+  *"Coordinators don't have to wait for an actual disaster to prepare. Using the What-If Simulator, teams can test microclimate scenarios. Or they can load our Historical Replay mode—replaying the benchmark May 2010 Ahmedabad heatwave episode with both observed station data and reanalysis grid values to stress-test municipal resource allocation."*
 
 ---
 
 ### [02:20 - 02:45] Scene 5: AWS Architecture & Performance
-- **Visual**: Quick transition to AWS architecture diagram / terminal showing smoke tests passing with 70ms latencies. Show the WhatsApp broadcast copy and print bulletin view with QR code.
+- **Visual**: Quick transition to AWS architecture diagram / terminal showing smoke tests passing. Show the WhatsApp broadcast copy and print bulletin view with QR code.
 - **Narration**:  
-  *"Under the hood, HeatShield uses Java 21 with AWS Lambda SnapStart for sub-20ms warm execution, Amazon CloudFront with Origin Access Control for 70ms edge latency across India, and DynamoDB On-Demand with 7-day TTL for zero idle cost. The entire frontend is vanilla PWA under 55 KB, with offline caching and background sync.  
-  HeatShield turns raw weather data into immediate, life-saving civic action."*
+  *"Under the hood, HeatShield uses Java 21 with AWS Lambda SnapStart for low warm handler execution, Amazon CloudFront with Origin Access Control for edge caching across India, and DynamoDB On-Demand with 7-day TTL for zero idle cost. The entire frontend is vanilla PWA under [FRONTEND_BUNDLE_KB] KB, with offline caching and background sync.  
+  HeatShield turns raw weather data into immediate, transparent civic action."*

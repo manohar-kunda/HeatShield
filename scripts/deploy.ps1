@@ -46,11 +46,19 @@ if ($cfUrl) {
     Write-Host "CloudFront URL:      $cfUrl" -ForegroundColor Green
 }
 
-# 4. Sync frontend if enabled
+# 4. Sync frontend and invalidate CloudFront cache if enabled
 if ($DeployFrontend -eq "true" -and $bucketName) {
     Write-Host "`n[4/4] Syncing frontend static files to S3 ($bucketName)..." -ForegroundColor Yellow
     aws s3 sync frontend/ "s3://$bucketName" --delete
     Write-Host "Frontend sync complete!" -ForegroundColor Green
+
+    $distId = ($outputs | Where-Object { $_.OutputKey -eq "CloudFrontDistributionId" }).OutputValue
+    if (!$distId) {
+        $distId = "E2REXQRKCWEVMK"
+    }
+    Write-Host "`nCreating CloudFront invalidation for /* on $distId..." -ForegroundColor Yellow
+    $invalidation = aws cloudfront create-invalidation --distribution-id $distId --paths "/*" | ConvertFrom-Json
+    Write-Host "Invalidation ID: $($invalidation.Invalidation.Id) Status: $($invalidation.Invalidation.Status)" -ForegroundColor Green
 } else {
     Write-Host "`n[4/4] Frontend deployment skipped (DeployFrontend=$DeployFrontend)" -ForegroundColor Gray
 }
