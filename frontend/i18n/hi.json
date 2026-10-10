@@ -18,9 +18,11 @@
     "DANGER": "खतरा",
     "EXTREME_DANGER": "अत्यधिक खतरा"
   },
-  "bulletin_current_status_prefix": "वर्तमान स्थिति:",
+  "bulletin_right_now_prefix": "वर्तमान स्थिति:",
+  "bulletin_planning_level_prefix": "योजना स्तर (72 घंटे के चरम के अनुसार):",
   "bulletin_peak_prefix": "अगले 72 घंटों में चरम जोखिम:",
   "bulletin_peak_not_applicable": "चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)",
+  "bulletin_extrapolation_note": "110 F / 43.3 C से ऊपर का हीट इंडेक्स NWS मान्य सीमा से बाहर है (अनुमानित)।",
   "bulletin_time_at": "को",
   "bulletin_deadline_prefix": "समय-सीमा:",
   "weekdays": {

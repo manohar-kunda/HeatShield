@@ -704,34 +704,45 @@ function renderBulletin(assessment) {
 
 function generateBulletinText(assessment) {
   if (!assessment) return 'No assessment loaded.';
-  const tier = assessment.operationalTier || 'BELOW_THRESHOLD';
-  const meta = TIER_METADATA[tier] || TIER_METADATA.BELOW_THRESHOLD;
+  const compositeTier = assessment.operationalTier || 'BELOW_THRESHOLD';
+  const compositeMeta = TIER_METADATA[compositeTier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = assessment.heatIndex;
   const ambient = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC).toFixed(1) : '--';
   const hiC = hi ? hi.heatIndexC.toFixed(1) : '--';
+
+  // Compute current tier from current heat index (or fallback to riskTier / compositeTier)
+  const currentTier = (hi && hi.tier) || assessment.riskTier || compositeTier;
+  const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
+
+  const isExtrapolated = hi && (hi.isExtrapolated === true || hi.extrapolated === true || (hi.temperatureC || hi.ambientTempC) > 43.33);
 
   const timeStr = formatIstTimestamp(assessment.timestamp);
 
   let text = `HEATWAVE ADVISORY (DRAFT) - ${assessment.wardName || assessment.wardId}\n`;
   text += `Issued: ${timeStr}\n`;
-  text += `Status: ${meta.title.toUpperCase()}\n`;
-  text += `Current: ${ambient}C | Heat Index: ${hiC}C\n`;
+  text += `Right now: ${currentMeta.title} (heat index ${hiC}C)\n`;
 
   const summary = assessment.forecastSummary;
   if (assessment.dataSource === 'SIMULATION') {
-    text += `Peak in next 72 hours: not applicable (what-if, constant conditions)\n\n`;
+    text += `Peak in next 72 hours: not applicable (what-if, constant conditions)\n`;
   } else if (summary && summary.peakTier) {
-    const peakMeta = TIER_METADATA[summary.peakTier] || meta;
+    const peakMeta = TIER_METADATA[summary.peakTier] || compositeMeta;
     const peakTimeStr = summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '';
     const peakLineEn = peakTimeStr
-      ? `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr}\n\n`
-      : `Peak in next 72 hours: ${peakMeta.title}\n\n`;
+      ? `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr}\n`
+      : `Peak in next 72 hours: ${peakMeta.title}\n`;
     text += peakLineEn;
   } else {
     text += `\n`;
   }
 
-  text += `Summary:\n${meta.desc}\n\n`;
+  text += `Planning level (follows the 72-hour peak): ${compositeMeta.title}\n`;
+  if (isExtrapolated) {
+    text += `Heat index above 110 F / 43.3 C is outside the NWS validated range (extrapolated).\n`;
+  }
+  text += `\n`;
+
+  text += `Summary:\n${compositeMeta.desc}\n\n`;
 
   text += `Suggested Civic Actions:\n`;
   (assessment.actions || []).forEach((a, i) => {
@@ -744,10 +755,11 @@ function generateBulletinText(assessment) {
   const hindiBulletinTitle = (I18N_HINDI && I18N_HINDI.bulletin_header_title) ? I18N_HINDI.bulletin_header_title : 'वार्ड ग्रीष्म परामर्श (प्रारूप)';
   const hindiActionHeading = (I18N_HINDI && I18N_HINDI.bulletin_suggested_actions_heading) ? I18N_HINDI.bulletin_suggested_actions_heading : 'सुझाए गए नागरिक कार्य (वार्ड स्तर):';
   const hindiTiers = (I18N_HINDI && I18N_HINDI.tiers) ? I18N_HINDI.tiers : {};
-  const currentTierHindi = hindiTiers[tier] || tier;
+  const currentTierHindi = hindiTiers[currentTier] || currentTier;
+  const compositeTierHindi = hindiTiers[compositeTier] || compositeTier;
 
   text += `\n--- ${hindiBulletinTitle} [${hindiStatus}] ---\n`;
-  text += `${I18N_HINDI.bulletin_current_status_prefix || 'वर्तमान स्थिति:'} ${currentTierHindi}\n`;
+  text += `${I18N_HINDI.bulletin_right_now_prefix || 'वर्तमान स्थिति:'} ${currentTierHindi}\n`;
 
   if (assessment.dataSource === 'SIMULATION') {
     const notApplicableHi = I18N_HINDI.bulletin_peak_not_applicable || 'चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)';
@@ -759,6 +771,11 @@ function generateBulletinText(assessment) {
       ? `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi} (${peakTimeStrHi})`
       : `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi}`;
     text += `${peakLineHi}\n`;
+  }
+
+  text += `${I18N_HINDI.bulletin_planning_level_prefix || 'योजना स्तर (72 घंटे के चरम के अनुसार):'} ${compositeTierHindi}\n`;
+  if (isExtrapolated) {
+    text += `${I18N_HINDI.bulletin_extrapolation_note || '110 F / 43.3 C से ऊपर का हीट इंडेक्स NWS मान्य सीमा से बाहर है (अनुमानित)।'}\n`;
   }
 
   text += `\n${hindiActionHeading}\n`;
@@ -833,8 +850,12 @@ function preparePrintPoster() {
   const acts = document.getElementById('print-poster-actions');
   const printHelplineSpan = document.getElementById('print-local-helpline');
 
-  const tierMeta = TIER_METADATA[currentAssessment.operationalTier] || TIER_METADATA.BELOW_THRESHOLD;
+  const compositeTier = currentAssessment.operationalTier || 'BELOW_THRESHOLD';
+  const compositeMeta = TIER_METADATA[compositeTier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = currentAssessment.heatIndex;
+  const currentTier = (hi && hi.tier) || currentAssessment.riskTier || compositeTier;
+  const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
+  const isExtrapolated = hi && (hi.isExtrapolated === true || hi.extrapolated === true || (hi.temperatureC || hi.ambientTempC) > 43.33);
 
   const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
   if (printHelplineSpan) {
@@ -844,12 +865,14 @@ function preparePrintPoster() {
   meta.innerHTML = `
     <p><strong>Ward / Jurisdiction:</strong> ${escapeHtml(currentAssessment.wardName || currentAssessment.wardId)}</p>
     <p><strong>Date & Time of Assessment:</strong> ${formatIstTimestamp(currentAssessment.timestamp)}</p>
-    <p><strong>Ambient / Heat Index:</strong> ${hi ? `${hi.temperatureC || hi.ambientTempC}°C / Heat Index: ${hi.heatIndexC.toFixed(1)}°C` : 'N/A'}</p>
+    <p><strong>Ambient / Heat Index:</strong> ${hi ? `${hi.temperatureC || hi.ambientTempC}°C / Heat Index: ${hi.heatIndexC.toFixed(1)}°C` : 'N/A'}${isExtrapolated ? ' (Extrapolated)' : ''}</p>
+    <p><strong>Right now:</strong> ${escapeHtml(currentMeta.title)} | <strong>Planning level (follows 72h peak):</strong> ${escapeHtml(compositeMeta.title)}</p>
   `;
 
   tier.innerHTML = `
-    <div>${tierMeta.title.toUpperCase()}</div>
-    <div style="font-size: 11pt; font-weight: normal; margin-top: 4pt;">${tierMeta.desc}</div>
+    <div>PLANNING LEVEL: ${compositeMeta.title.toUpperCase()}</div>
+    <div style="font-size: 11pt; font-weight: normal; margin-top: 4pt;">${compositeMeta.desc}</div>
+    ${isExtrapolated ? '<div style="font-size: 9pt; font-style: italic; margin-top: 2pt;">Heat index above 110°F / 43.3°C is outside the NWS validated range (extrapolated).</div>' : ''}
   `;
 
   acts.innerHTML = '<h3>SUGGESTED WARD-LEVEL ACTIONS (PLANNING AID):</h3>';

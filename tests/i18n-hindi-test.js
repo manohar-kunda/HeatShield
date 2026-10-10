@@ -80,7 +80,7 @@ console.log('  [PASS] All placeholders preserved identically across languages.')
 // Strictly reduced to acronyms and units actually present: ORS, CC, BY, OPEN-METEO.COM
 console.log('\n>>> Check 4: Latin Text Whitelist in Hindi Values');
 const allowedLatinWords = new Set([
-  'CC', 'BY', 'OPEN-METEO.COM', 'OPEN-METEO', 'ORS', 'IST'
+  'CC', 'BY', 'OPEN-METEO.COM', 'OPEN-METEO', 'ORS', 'IST', 'F', 'C', 'NWS'
 ]);
 
 function checkLatinWords(obj, prefix = '') {
@@ -147,24 +147,43 @@ const samplesContent = fs.readFileSync(samplesPath, 'utf8');
 
 // Scenario 1: Live Forecast assertions
 assert(samplesContent.includes('### SCENARIO 1: LIVE FORECAST'), 'Scenario 1 must be present');
-assert(samplesContent.includes('Peak in next 72 hours: Extreme Caution at'), 'Live must contain peak line in English');
-assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी'), 'Live must contain peak line in Hindi');
+assert(samplesContent.includes('Issued: 02:30 AM IST, 11 Oct 2026'), 'Scenario 1 issued at fixed clock 02:30 AM IST, 11 Oct 2026');
+assert(samplesContent.includes('Right now: Caution (heat index 28.5C)'), 'Live right now must be Caution from current heat index');
+assert(samplesContent.includes('वर्तमान स्थिति: सावधानी'), 'Live Hindi current status must be Caution');
+assert(samplesContent.includes('Peak in next 72 hours: Extreme Caution at Tue 13 Oct, 12:00 IST'), 'Live English peak line');
+assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (मंगलवार, 13 अक्टूबर, 12:00 IST को)'), 'Live Hindi peak line');
+assert(samplesContent.includes('Planning level (follows the 72-hour peak): Extreme Caution'), 'Live planning level must be Extreme Caution');
+assert(samplesContent.includes('योजना स्तर (72 घंटे के चरम के अनुसार): अत्यधिक सावधानी'), 'Live Hindi planning level must be Extreme Caution');
 assert(samplesContent.includes('IST को'), 'Live Hindi peak line must use "<time> IST को"');
 assert(samplesContent.includes('IST से पहले'), 'Live Hindi deadline must use "IST से पहले"');
+assert(samplesContent.includes('Deadline: Sun 11 Oct, before 10:00 AM IST'), 'Scenario 1 deadline is at 10:00 AM IST, after 02:30 AM issue time');
 
 // Scenario 2: What-if Simulation assertions
 assert(samplesContent.includes('### SCENARIO 2: WHAT-IF SIMULATION'), 'Scenario 2 must be present');
+assert(samplesContent.includes('Issued: 02:30 AM IST, 11 Oct 2026'), 'Scenario 2 issued at fixed clock 02:30 AM IST, 11 Oct 2026');
+assert(samplesContent.includes('Right now: Extreme Danger (heat index 53.9C)'), 'What-if right now must be Extreme Danger');
+assert(samplesContent.includes('वर्तमान स्थिति: अत्यधिक खतरा'), 'What-if Hindi current status must be Extreme Danger');
 assert(samplesContent.includes('Peak in next 72 hours: not applicable (what-if, constant conditions)'), 'What-if must state peak not applicable in English');
 assert(samplesContent.includes('चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)'), 'What-if must state peak not applicable in Hindi');
+assert(samplesContent.includes('Planning level (follows the 72-hour peak): Extreme Danger'), 'What-if planning level must be Extreme Danger');
+assert(samplesContent.includes('योजना स्तर (72 घंटे के चरम के अनुसार): अत्यधिक खतरा'), 'What-if Hindi planning level must be Extreme Danger');
+assert(samplesContent.includes('Heat index above 110 F / 43.3 C is outside the NWS validated range (extrapolated).'), 'What-if English extrapolation disclaimer');
+assert(samplesContent.includes('110 F / 43.3 C से ऊपर का हीट इंडेक्स NWS मान्य सीमा से बाहर है (अनुमानित)।'), 'What-if Hindi extrapolation disclaimer');
 
 // Scenario 3: Historical Replay assertions
 assert(samplesContent.includes('### SCENARIO 3: HISTORICAL REPLAY'), 'Scenario 3 must be present');
 assert(samplesContent.includes('Historical Replay: Ahmedabad May 2010 Heatwave'), 'Replay must be present');
+assert(samplesContent.includes('Issued: 08:00 AM IST, 20 May 2010'), 'Scenario 3 issued at historic clock 08:00 AM IST, 20 May 2010');
+assert(samplesContent.includes('Right now: Extreme Caution (heat index 35.7C)'), 'Replay right now must be Extreme Caution from current 33.2C / 46%');
+assert(samplesContent.includes('वर्तमान स्थिति: अत्यधिक सावधानी'), 'Replay Hindi current status must be Extreme Caution');
 assert(samplesContent.includes('Peak in next 72 hours: Danger at Thu 20 May, 13:00 IST'), 'Replay English peak line');
 assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 13:00 IST को)'), 'Replay Hindi peak line with correct localized grammar');
+assert(samplesContent.includes('Planning level (follows the 72-hour peak): Danger'), 'Replay planning level must be Danger');
+assert(samplesContent.includes('योजना स्तर (72 घंटे के चरम के अनुसार): खतरा'), 'Replay Hindi planning level must be Danger');
+assert(samplesContent.includes('Deadline: Thu 20 May, before 10:00 AM IST'), 'Replay deadline at 10:00 AM IST is after 08:00 AM issue time');
 assert(samplesContent.includes('समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले'), 'Replay Hindi localized deadline');
 
-console.log('  [PASS] All 3 bulletin scenarios verified for Hindi grammar, peak line phrasing, and localized deadlines.');
+console.log('  [PASS] All 3 bulletin scenarios verified for distinct Right-now / Planning tiers, future deadlines, and extrapolation notices.');
 
 console.log('\n==========================================================');
 console.log(' ALL MECHANICAL HINDI CHECKS PASSED (7/7)');

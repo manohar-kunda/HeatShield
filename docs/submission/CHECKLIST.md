@@ -28,7 +28,7 @@
 | **Accessibility & Performance** | Semantic HTML5 & CSS design tokens | Lighthouse: 96 Accessibility, 98 Performance, 100 Best Practices |
 | **Abuse & Privacy Guardrails** | Notes validation (<200 char, no 10+ digits) | Server-side rejection with HTTP 400 |
 | **Offline Resilience** | Service Worker + local storage fallback | Pre-cached app shell & bundled offline sample fixture |
-| **Retrospective Replay Mode** | Ahmedabad May 2010 heatwave episode | Historic dates (20 May 2010), observed station 46.8°C / grid 44.2°C |
+| **Retrospective Replay Mode** | Ahmedabad May 2010 heatwave episode | Historic dates (20 May 2010), observed station 46.8°C / ERA5 grid peak dry-bulb 45.4°C |
 
 ---
 

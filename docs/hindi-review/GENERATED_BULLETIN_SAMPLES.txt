@@ -7,10 +7,10 @@ Date: 2026-10-11
 ### SCENARIO 1: LIVE FORECAST (DEMO_AHMEDABAD, EXTREME CAUTION PEAK)
 --------------------------------------------------------------------------------
 HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
-Issued: 01:10 AM IST, 13 Oct 2026
-Status: EXTREME CAUTION
-Current: 28.6C | Heat Index: 28.5C
-Peak in next 72 hours: Extreme Caution at Thu 15 Oct, 11:50 IST
+Issued: 02:30 AM IST, 11 Oct 2026
+Right now: Caution (heat index 28.5C)
+Peak in next 72 hours: Extreme Caution at Tue 13 Oct, 12:00 IST
+Planning level (follows the 72-hour peak): Extreme Caution
 
 Summary:
 Heat cramps and heat exhaustion possible. Suggested shaded rest cycles for outdoor workers.
@@ -20,8 +20,9 @@ Suggested Civic Actions:
 2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours 12:00 to 16:00 IST)
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
-वर्तमान स्थिति: अत्यधिक सावधानी
-अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (गुरुवार, 15 अक्टूबर, 11:50 IST को)
+वर्तमान स्थिति: सावधानी
+अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (मंगलवार, 13 अक्टूबर, 12:00 IST को)
+योजना स्तर (72 घंटे के चरम के अनुसार): अत्यधिक सावधानी
 
 सुझाए गए नागरिक कार्य (वार्ड स्तर):
 1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: रविवार, 11 अक्टूबर, 10:00 IST से पहले)
@@ -35,13 +36,14 @@ Data: Open-Meteo.com (CC BY 4.0)
 मौसम डेटा: Open-Meteo.com (CC BY 4.0)
 
 
-### SCENARIO 2: WHAT-IF SIMULATION (EXTREME DANGER)
+### SCENARIO 2: WHAT-IF SIMULATION (38.5 C, 55% RH - EXTREME DANGER)
 --------------------------------------------------------------------------------
 HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
-Issued: 01:10 AM IST, 13 Oct 2026
-Status: EXTREME DANGER
-Current: 45.0C | Heat Index: 66.5C
+Issued: 02:30 AM IST, 11 Oct 2026
+Right now: Extreme Danger (heat index 53.9C)
 Peak in next 72 hours: not applicable (what-if, constant conditions)
+Planning level (follows the 72-hour peak): Extreme Danger
+Heat index above 110 F / 43.3 C is outside the NWS validated range (extrapolated).
 
 Summary:
 Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.
@@ -51,11 +53,13 @@ Suggested Civic Actions:
 2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours 12:00 to 16:00 IST)
 3. [PENDING] Open shaded or cooled community buildings and public shelters (Deadline: Sun 11 Oct, before 11:00 AM IST)
 4. [PENDING] Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies (Deadline: During peak hours 12:00 to 16:00 IST)
-5. [PENDING] Alert urban health centres to prepare for heat-related illnesses (Deadline: Immediate (within 30 mins, by 01:40))
+5. [PENDING] Alert urban health centres to prepare for heat-related illnesses (Deadline: Immediate (within 30 mins, by 03:00))
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
 वर्तमान स्थिति: अत्यधिक खतरा
 चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)
+योजना स्तर (72 घंटे के चरम के अनुसार): अत्यधिक खतरा
+110 F / 43.3 C से ऊपर का हीट इंडेक्स NWS मान्य सीमा से बाहर है (अनुमानित)।
 
 सुझाए गए नागरिक कार्य (वार्ड स्तर):
 1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: रविवार, 11 अक्टूबर, 10:00 IST से पहले)
@@ -76,9 +80,9 @@ Data: Open-Meteo.com (CC BY 4.0)
 --------------------------------------------------------------------------------
 HEATWAVE ADVISORY (DRAFT) - Historical Replay: Ahmedabad May 2010 Heatwave
 Issued: 08:00 AM IST, 20 May 2010
-Status: DANGER
-Current: 33.2C | Heat Index: 35.7C
+Right now: Extreme Caution (heat index 35.7C)
 Peak in next 72 hours: Danger at Thu 20 May, 13:00 IST
+Planning level (follows the 72-hour peak): Danger
 
 Summary:
 Heat cramps or exhaustion likely, heatstroke possible. Open daytime cooling shelters.
@@ -90,8 +94,9 @@ Suggested Civic Actions:
 4. [PENDING] Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies (Deadline: During peak hours 12:00 to 16:00 IST)
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
-वर्तमान स्थिति: खतरा
+वर्तमान स्थिति: अत्यधिक सावधानी
 अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 13:00 IST को)
+योजना स्तर (72 घंटे के चरम के अनुसार): खतरा
 
 सुझाए गए नागरिक कार्य (वार्ड स्तर):
 1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले)

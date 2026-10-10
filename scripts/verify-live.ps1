@@ -59,6 +59,12 @@ try {
         Report-Check "Required string '$req'" $found "Present in HTML: $found"
     }
 
+    # Replay provenance truth assertions: 44.2 forbidden, 45.4 required
+    $has454 = $rawHtml.Contains("45.4")
+    Report-Check "Live HTML requires '45.4'" $has454 "Present in HTML: $has454"
+    $has442 = $rawHtml.Contains("44.2")
+    Report-Check "Live HTML forbids '44.2'" (-not $has442) "Absent from HTML: $(-not $has442)"
+
     # Forbidden strings
     $forbiddenStrings = @(
         "Mandatory Ward",
@@ -67,13 +73,25 @@ try {
         "MUNICIPAL WARD HEATWAVE ACTION NOTICE",
         "Severe Heatwave",
         "docs/ACCESSIBILITY.md",
-        "44.2°C at 15:00",
         "sin((hour-9)"
     )
 
     foreach ($forb in $forbiddenStrings) {
         $found = $rawHtml.Contains($forb)
         Report-Check "Forbidden string '$forb' absent" (-not $found) "Absent from HTML: $(-not $found)"
+    }
+
+    # Verify app.js and i18n/hi.json for 44.2 absence
+    try {
+        $appJsContent = (Invoke-WebRequest -Uri "$BaseUrl/app.js" -Method Get -UseBasicParsing).Content
+        $appJsHas442 = $appJsContent.Contains("44.2")
+        Report-Check "Live app.js forbids '44.2'" (-not $appJsHas442) "Absent from app.js: $(-not $appJsHas442)"
+
+        $hiJsonContent = (Invoke-WebRequest -Uri "$BaseUrl/i18n/hi.json" -Method Get -UseBasicParsing).Content
+        $hiJsonHas442 = $hiJsonContent.Contains("44.2")
+        Report-Check "Live i18n/hi.json forbids '44.2'" (-not $hiJsonHas442) "Absent from hi.json: $(-not $hiJsonHas442)"
+    } catch {
+        Report-Check "Live asset provenance check" $false $_.Exception.Message
     }
 } catch {
     Report-Check "HTML Content Fetch" $false $_.Exception.Message
