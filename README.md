@@ -133,7 +133,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 | **Live Headless Browser DOM Rendering** | **VERIFIED** | Automated Edge headless DOM verification (`tests/run-browser-checks.py`) passing at 360px, 768px, 1280px (no horizontal scroll, buttons enclosed, truthful status pill, no placeholder dashes). |
 | **Browser Interactive Clicks & Offline Queue Sync** | **NOT AUTOMATED** | Automated suite does not simulate user click flows (status toggle, note save, clipboard copy, simulation form submit, Service Worker offline queue background sync); these require manual evaluation. |
 | **API Throttling Protection** | **VERIFIED** | API Gateway HTTP API stage throttling configured at 25 rps (burst 50). Unreserved Lambda concurrency default pool is used (no reserved concurrency 10). |
-| **Hindi Language Translations** | **PENDING REVIEW** | All Hindi UI and bulletin strings are marked **PENDING HUMAN REVIEW** in the UI and exported to `docs/hindi-strings.csv` (summer advisory vs heatwave term flag noted). |
+| **Hindi Language Translations** | **PENDING REVIEW** | All Hindi UI, bulletin, and print strings are marked **PENDING HUMAN REVIEW** in the UI and sourced from `frontend/i18n/hi.json` (review packet in `docs/hindi-review/`). |
+
+### Hindi Human Review & Fallback Policy
+- **Strict Human Review Rule**: No AI system or automated script is authorized to mark Hindi translations as reviewed or verified. All Hindi text remains visibly labeled as **`[PENDING HUMAN REVIEW]`** in the UI, printable posters, WhatsApp bulletins, and documentation.
+- **Fallback if No Reviewer Replies**: If no native speaker review is returned prior to submission or live deployment, Hindi strings remain strictly labeled as draft (`PENDING HUMAN REVIEW`). Demo recordings and presentation scripts must never claim Hindi has been reviewed.
+- **Review Ingestion Protocol**: Only when a human reviewer completes `docs/hindi-review/REVIEW_SHEET.csv` and the maintainer executes `scripts/apply-hindi-review.ps1 -ConfirmedBy "<role/initials>" -Date "<date>"` is the label updated to `"Hindi reviewed by a native speaker (<role/initials>, <date>)"`. Without those explicit parameters, the status label remains unaltered.
 
 ### Distributed Architecture Notes & Limitations
 - **Lambda Multi-Instance Cache Variance**: In a serverless deployment, concurrent or sequential requests can be routed to different warm Lambda execution environments. Each instance caches forecasts in memory for 30 minutes (`ConcurrentHashMap`). When Open-Meteo publishes an updated numerical model run, slight differences in forecast readings (e.g. 36.6°C vs 36.9°C) may be observed between warm instances until local caches expire.

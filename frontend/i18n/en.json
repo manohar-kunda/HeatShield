@@ -1,0 +1,20 @@
+{
+  "_metadata": {
+    "language": "en",
+    "description": "English reference strings paired with frontend/i18n/hi.json."
+  },
+  "review_status_label": "PENDING HUMAN REVIEW",
+  "print_header_title": "DRAFT Ward Heat Advisory (illustrative)",
+  "bulletin_header_title": "HEATWAVE ADVISORY (DRAFT)",
+  "bulletin_suggested_actions_heading": "Suggested Civic Actions:",
+  "bulletin_emergency_contact": "National emergency: 112",
+  "bulletin_disclaimer": "Notice: DRAFT for coordinator review. Planning aid only.",
+  "bulletin_data_attribution": "Data: Open-Meteo.com (CC BY 4.0)",
+  "actions": {
+    "ACT_WATER_KIOSKS": "Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs",
+    "ACT_OUTDOOR_WORK_ADVISORY": "Enforce mandatory work-rest cycles and shaded rest breaks for outdoor laborers and street vendors",
+    "ACT_COOLING_SHELTERS": "Open air-cooled municipal community halls and temples as daytime public cooling shelters",
+    "ACT_ORS_DISPATCH": "Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies",
+    "ACT_HOSPITAL_ALERT": "Issue heatstroke bed reserve alert to urban health centres and stock IV rehydration fluids"
+  }
+}

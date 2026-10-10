@@ -52,6 +52,46 @@ const TIER_METADATA = {
   }
 };
 
+// --- Hindi Source of Truth (Loaded from i18n/hi.json with resilient inline fallback) ---
+let I18N_HINDI = {
+  review_status_label: "PENDING HUMAN REVIEW",
+  print_header_title: "वार्ड ग्रीष्म परामर्श (प्रारूप)",
+  bulletin_header_title: "वार्ड ग्रीष्म परामर्श (प्रारूप)",
+  bulletin_suggested_actions_heading: "सुझाए गए नागरिक कार्य (वार्ड स्तर):",
+  bulletin_emergency_contact: "राष्ट्रीय आपातकालीन नंबर: 112",
+  bulletin_disclaimer: "सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं।",
+  bulletin_data_attribution: "मौसम डेटा: Open-Meteo.com (CC BY 4.0)",
+  actions: {
+    "ACT_WATER_KIOSKS": "बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें",
+    "ACT_OUTDOOR_WORK_ADVISORY": "निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में अनिवार्य छायादार विश्राम और काम के घंटों में बदलाव लागू करें",
+    "ACT_COOLING_SHELTERS": "नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें",
+    "ACT_ORS_DISPATCH": "बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें",
+    "ACT_HOSPITAL_ALERT": "शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें"
+  }
+};
+
+async function loadHindiStrings() {
+  try {
+    const res = await fetch('i18n/hi.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.actions) {
+        I18N_HINDI = data;
+        updateStaticHindiDom();
+      }
+    }
+  } catch (err) {
+    console.warn('Using embedded i18n fallback:', err);
+  }
+}
+
+function updateStaticHindiDom() {
+  const printHindiTitle = document.getElementById('print-poster-hindi-title');
+  if (printHindiTitle) {
+    printHindiTitle.innerHTML = `${escapeHtml(I18N_HINDI.print_header_title)} <small class="hindi-review-tag">[${escapeHtml(I18N_HINDI.review_status_label)}]</small>`;
+  }
+}
+
 let currentAssessment = null;
 let currentFilter = 'ALL';
 
@@ -94,6 +134,7 @@ const printBulletinBtn = document.getElementById('print-bulletin-btn');
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+  loadHindiStrings();
   initHelplineField();
   setupEventListeners();
   registerServiceWorker();
@@ -453,14 +494,17 @@ function renderActions(actions) {
     card.className = `action-card ${isDone ? 'status-done' : ''} ${isInProgress ? 'status-inprogress' : ''}`;
 
     const deadlineText = action.deadline || action.timeWindow || 'Before peak hours';
-    const cleanHindiTitle = (action.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
+    const hindiFromI18n = (I18N_HINDI && I18N_HINDI.actions && I18N_HINDI.actions[action.actionId])
+      ? I18N_HINDI.actions[action.actionId]
+      : (action.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
+    const hindiStatusLabel = (I18N_HINDI && I18N_HINDI.review_status_label) ? I18N_HINDI.review_status_label : 'PENDING HUMAN REVIEW';
 
     card.innerHTML = `
       <div class="action-top-row">
         <h3 class="action-title">${escapeHtml(action.title)}</h3>
         <span class="action-priority"><svg class="icon icon-inline" aria-hidden="true"><use href="#icon-clock"/></svg>${escapeHtml(action.priority || 'MEDIUM')}</span>
       </div>
-      ${cleanHindiTitle ? `<p class="action-hindi">${escapeHtml(cleanHindiTitle)} <small>[PENDING HUMAN REVIEW]</small></p>` : ''}
+      ${hindiFromI18n ? `<p class="action-hindi">${escapeHtml(hindiFromI18n)} <small class="hindi-review-tag">[${escapeHtml(hindiStatusLabel)}]</small></p>` : ''}
       <div class="action-meta">
         <span>Role: ${formatRole(action.ownerRole)}</span>
         <span>Deadline: ${escapeHtml(deadlineText)}</span>
@@ -553,12 +597,38 @@ function generateBulletinText(assessment) {
     text += `${i + 1}. ${mark} ${a.title} (Deadline: ${a.deadline || a.timeWindow})\n`;
   });
 
+  // Hindi section from single source of truth I18N_HINDI
+  const hindiStatus = (I18N_HINDI && I18N_HINDI.review_status_label) ? I18N_HINDI.review_status_label : 'PENDING HUMAN REVIEW';
+  const hindiBulletinTitle = (I18N_HINDI && I18N_HINDI.bulletin_header_title) ? I18N_HINDI.bulletin_header_title : 'वार्ड ग्रीष्म परामर्श (प्रारूप)';
+  const hindiActionHeading = (I18N_HINDI && I18N_HINDI.bulletin_suggested_actions_heading) ? I18N_HINDI.bulletin_suggested_actions_heading : 'सुझाए गए नागरिक कार्य (वार्ड स्तर):';
+
+  text += `\n--- ${hindiBulletinTitle} [${hindiStatus}] ---\n`;
+  text += `${hindiActionHeading}\n`;
+  (assessment.actions || []).forEach((a, i) => {
+    const mark = a.status === 'COMPLETED' ? '[पूर्ण / DONE]' : '[लंबित / PENDING]';
+    const hindiAction = (I18N_HINDI && I18N_HINDI.actions && I18N_HINDI.actions[a.actionId])
+      ? I18N_HINDI.actions[a.actionId]
+      : (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
+    if (hindiAction) {
+      text += `${i + 1}. ${mark} ${hindiAction}\n`;
+    }
+  });
+
   const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
   const emergencyStr = localHelpline ? `National emergency: 112 | Public office: ${localHelpline}` : `National emergency: 112`;
 
   text += `\nEmergency Contacts: ${emergencyStr}\n`;
+  if (I18N_HINDI && I18N_HINDI.bulletin_emergency_contact) {
+    text += `${I18N_HINDI.bulletin_emergency_contact}\n`;
+  }
   text += `Notice: DRAFT for coordinator review. Planning aid only.\n`;
+  if (I18N_HINDI && I18N_HINDI.bulletin_disclaimer) {
+    text += `${I18N_HINDI.bulletin_disclaimer}\n`;
+  }
   text += `Data: Open-Meteo.com (CC BY 4.0)\n`;
+  if (I18N_HINDI && I18N_HINDI.bulletin_data_attribution) {
+    text += `${I18N_HINDI.bulletin_data_attribution}\n`;
+  }
 
   return text;
 }
@@ -622,13 +692,16 @@ function preparePrintPoster() {
   `;
 
   acts.innerHTML = '<h3>SUGGESTED WARD-LEVEL ACTIONS (PLANNING AID):</h3>';
+  const hindiStatusLabel = (I18N_HINDI && I18N_HINDI.review_status_label) ? I18N_HINDI.review_status_label : 'PENDING HUMAN REVIEW';
   (currentAssessment.actions || []).forEach((a, idx) => {
     const div = document.createElement('div');
     div.className = 'print-poster-action-item';
-    const cleanHindi = (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
+    const cleanHindi = (I18N_HINDI && I18N_HINDI.actions && I18N_HINDI.actions[a.actionId])
+      ? I18N_HINDI.actions[a.actionId]
+      : (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
     div.innerHTML = `
       <p><strong>${idx + 1}. [${a.status}] ${escapeHtml(a.title)}</strong></p>
-      ${cleanHindi ? `<p style="font-style: italic; color: #444;">${escapeHtml(cleanHindi)} <small>[PENDING HUMAN REVIEW]</small></p>` : ''}
+      ${cleanHindi ? `<p style="font-style: italic; color: #444;">${escapeHtml(cleanHindi)} <small class="hindi-review-tag">[${escapeHtml(hindiStatusLabel)}]</small></p>` : ''}
       <p><small>Role: ${formatRole(a.ownerRole)} | Deadline: ${escapeHtml(a.deadline || a.timeWindow)} | Source: ${escapeHtml(a.sourceReference || '')}</small></p>
     `;
     acts.appendChild(div);

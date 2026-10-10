@@ -74,15 +74,26 @@ All actions are practice-informed and adapted from official public guidance:
 
 ## 4. Hindi Translations (PENDING HUMAN REVIEW)
 
-The following Hindi strings are included for ward bulletins. They are marked **PENDING HUMAN REVIEW**:
+All Hindi strings across the application (UI, printable posters, and WhatsApp bulletins) are managed in a single source of truth at [`frontend/i18n/hi.json`](file:///e:/Projects/HeatShield/frontend/i18n/hi.json) (12 localized strings total).
 
-| Action ID | English Title | Hindi Translation (Pending Human Review) |
-| :--- | :--- | :--- |
-| `ACT_WATER_KIOSKS` | Activate and inspect shaded drinking water kiosks | बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें |
-| `ACT_OUTDOOR_WORK_ADVISORY` | Enforce work-rest cycles for outdoor laborers | निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में अनिवार्य छायादार विश्राम और काम के घंटों में बदलाव लागू करें |
-| `ACT_COOLING_SHELTERS` | Open public daytime cooling shelters | नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें |
-| `ACT_ORS_DISPATCH` | Dispatch mobile patrols with ORS packets | बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें |
-| `ACT_HOSPITAL_ALERT` | Issue hospital heatstroke bed reserve alert | शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें |
+They are strictly marked **`[PENDING HUMAN REVIEW]`**. A complete review packet is prepared in [`docs/hindi-review/`](file:///e:/Projects/HeatShield/docs/hindi-review/):
+- **Review Spreadsheet**: [`docs/hindi-review/REVIEW_SHEET.csv`](file:///e:/Projects/HeatShield/docs/hindi-review/REVIEW_SHEET.csv)
+- **Reviewer Instructions**: [`docs/hindi-review/REVIEWER_INSTRUCTIONS.md`](file:///e:/Projects/HeatShield/docs/hindi-review/REVIEWER_INSTRUCTIONS.md)
+- **Review Screenshots**: [`docs/hindi-review/screenshot-bulletin-hindi-360px.png`](file:///e:/Projects/HeatShield/docs/hindi-review/screenshot-bulletin-hindi-360px.png) and [`docs/hindi-review/screenshot-print-preview-a4.png`](file:///e:/Projects/HeatShield/docs/hindi-review/screenshot-print-preview-a4.png)
+
+| Key | English Reference | Hindi Translation (PENDING HUMAN REVIEW) | Where Shown |
+| :--- | :--- | :--- | :--- |
+| `print_header_title` | DRAFT Ward Heat Advisory (illustrative) | वार्ड ग्रीष्म परामर्श (प्रारूप) | A4 Noticeboard Print Header |
+| `bulletin_header_title` | HEATWAVE ADVISORY (DRAFT) | वार्ड ग्रीष्म परामर्श (प्रारूप) | WhatsApp Broadcast Bulletin |
+| `bulletin_suggested_actions_heading` | Suggested Civic Actions: | सुझाए गए नागरिक कार्य (वार्ड स्तर): | WhatsApp Bulletin Action Heading |
+| `bulletin_emergency_contact` | National emergency: 112 | राष्ट्रीय आपातकालीन नंबर: 112 | WhatsApp Bulletin Emergency Line |
+| `bulletin_disclaimer` | Notice: DRAFT for coordinator review. Planning aid only. | सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं। | WhatsApp Bulletin Disclaimer |
+| `bulletin_data_attribution` | Data: Open-Meteo.com (CC BY 4.0) | मौसम डेटा: Open-Meteo.com (CC BY 4.0) | WhatsApp Bulletin Attribution |
+| `ACT_WATER_KIOSKS` | Activate and inspect shaded drinking water kiosks | बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें | UI Card, Bulletin, Print Poster |
+| `ACT_OUTDOOR_WORK_ADVISORY` | Enforce work-rest cycles for outdoor laborers | निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में अनिवार्य छायादार विश्राम और काम के घंटों में बदलाव लागू करें | UI Card, Bulletin, Print Poster |
+| `ACT_COOLING_SHELTERS` | Open public daytime cooling shelters | नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें | UI Card, Bulletin, Print Poster |
+| `ACT_ORS_DISPATCH` | Dispatch mobile patrols with ORS packets | बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें | UI Card, Bulletin, Print Poster |
+| `ACT_HOSPITAL_ALERT` | Issue hospital heatstroke bed reserve alert | शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें | UI Card, Bulletin, Print Poster |
 
 ---
 
