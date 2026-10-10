@@ -7,6 +7,7 @@
   <meta name="description" content="HeatShield — Community Heatwave Risk-to-Action Planner. Rule-backed heat index calculation, IMD alert integration, and actionable community playbooks.">
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
   <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
@@ -124,7 +125,7 @@
             <option value="DEMO_KOLKATA">Demo ward: Kolkata North (illustrative)</option>
           </optgroup>
           <optgroup label="Historical Heatwave Replay (Retrospective Illustration)">
-            <option value="REPLAY_AHMEDABAD_2010">REPLAY: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C / Grid 44.2°C)</option>
+            <option value="REPLAY_AHMEDABAD_2010">REPLAY: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C reported in the AMC Heat Action Plan (page not verified) / Grid 44.2°C)</option>
           </optgroup>
         </select>
       </div>
@@ -228,7 +229,7 @@
         </div>
         <div class="progress-wrap" id="progress-container" style="display: none;">
           <div class="progress-label" id="progress-label">0 of 0 actions done</div>
-          <div class="progress-bar-bg" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar-bg" role="progressbar" id="playbook-progressbar" aria-label="Action completion progress" aria-labelledby="progress-label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
           </div>
         </div>

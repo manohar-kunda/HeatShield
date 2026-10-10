@@ -10,8 +10,8 @@
   --text-muted: #475569;
   --text-sub: #64748b;
   
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
+  --primary: #0369a1;
+  --primary-hover: #075985;
   --primary-bg: #e0f2fe;
 
   --tier-below: #475569;
@@ -631,11 +631,12 @@ body {
 
 .app-footer a {
   color: var(--primary);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .app-footer a:hover {
-  text-decoration: underline;
+  color: var(--primary-hover);
 }
 
 /* Print Poster View (Hidden on screen) */

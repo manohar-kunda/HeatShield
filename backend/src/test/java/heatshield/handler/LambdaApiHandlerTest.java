@@ -175,7 +175,7 @@ class LambdaApiHandlerTest {
             "9876-543-210",
             "९८७६५४३२१०",
             "a@b.com",
-            "coordinator.field@city.gov.in",
+            "coordinator.field@fake-municipality.invalid",
             "hello\n a@b.com",
             "98765/43210",
             "98765,43210",

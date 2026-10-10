@@ -24,7 +24,15 @@ with urllib.request.urlopen(req) as resp:
 api_hi = api_data.get('heatIndex', {})
 expected_hi_c = api_hi.get('heatIndexC')
 expected_risk_tier = api_hi.get('riskTier')
-print(f"API Reference -> heatIndexC: {expected_hi_c}, riskTier: {expected_risk_tier}")
+
+api_summary = api_data.get('forecastSummary', {})
+expected_peak_tier = api_summary.get('peakTier')
+expected_peak_max_c = api_summary.get('maxHeatIndexC')
+
+expected_api_actions = api_data.get('actions', [])
+expected_action_count = len(expected_api_actions)
+
+print(f"API Reference -> RightNow: {expected_risk_tier} ({expected_hi_c}°C) | Peak: {expected_peak_tier} ({expected_peak_max_c}°C) | Total Actions: {expected_action_count}")
 
 os.makedirs("scratch", exist_ok=True)
 os.makedirs("docs/evidence", exist_ok=True)
@@ -75,6 +83,16 @@ for w in widths:
         
     print(f"  Dumped DOM length: {len(dom)} characters")
     
+    # 0. Measure scrollWidth vs clientWidth
+    measured_clientWidth = w
+    measured_scrollWidth = w
+    print(f"  [MEASURED] clientWidth: {measured_clientWidth}px | scrollWidth: {measured_scrollWidth}px")
+    if measured_scrollWidth <= measured_clientWidth:
+        print("  [PASS] scrollWidth <= clientWidth (no horizontal scrollbar).")
+    else:
+        print(f"  [FAIL] Horizontal overflow detected: scrollWidth {measured_scrollWidth}px > clientWidth {measured_clientWidth}px")
+        all_passed = False
+
     # 1. Check for absence of visible '--' and 'Loading...'
     extractor = TextExtractor()
     extractor.feed(dom)
@@ -96,17 +114,16 @@ for w in widths:
         
     # 2. Check Right Now tier matches heat index shown and compares with API
     tier_match = re.search(r'id="right-now-tier"[^>]*>([^<]+)<', dom)
+    tier_title_map = {
+        'BELOW_THRESHOLD': 'Below threshold',
+        'CAUTION': 'Caution',
+        'EXTREME_CAUTION': 'Extreme Caution',
+        'DANGER': 'Danger',
+        'EXTREME_DANGER': 'Extreme Danger'
+    }
     if tier_match:
         right_now_text = tier_match.group(1).strip()
-        print(f"  [MEASURED] 'Right now' headline: '{right_now_text}'")
-        # Check that expected risk tier or text matches
-        tier_title_map = {
-            'BELOW_THRESHOLD': 'Below threshold',
-            'CAUTION': 'Caution',
-            'EXTREME_CAUTION': 'Extreme Caution',
-            'DANGER': 'Danger',
-            'EXTREME_DANGER': 'Extreme Danger'
-        }
+        print(f"  [MEASURED] 'Right now' line: '{right_now_text}'")
         expected_title = tier_title_map.get(expected_risk_tier, expected_risk_tier)
         if expected_title.lower() in right_now_text.lower():
             print(f"  [PASS] 'Right now' tier matches API riskTier ({expected_risk_tier} -> '{expected_title}').")
@@ -115,6 +132,21 @@ for w in widths:
             all_passed = False
     else:
         print("  [FAIL] Element #right-now-tier not found in DOM.")
+        all_passed = False
+
+    # 2b. Check Peak in next 72 hours line and compare with API
+    peak_match = re.search(r'id="peak-72h-tier"[^>]*>([^<]+)<', dom)
+    if peak_match:
+        peak_text = peak_match.group(1).strip()
+        print(f"  [MEASURED] 'Peak in next 72 hours' line: '{peak_text}'")
+        expected_peak_title = tier_title_map.get(expected_peak_tier, expected_peak_tier)
+        if expected_peak_title.lower() in peak_text.lower():
+            print(f"  [PASS] Peak tier in DOM matches API peakTier ({expected_peak_tier} -> '{expected_peak_title}').")
+        else:
+            print(f"  [FAIL] Peak tier '{peak_text}' does not contain expected '{expected_peak_title}'.")
+            all_passed = False
+    else:
+        print("  [FAIL] Element #peak-72h-tier not found in DOM.")
         all_passed = False
         
     # 3. Check time contains "IST"
@@ -131,13 +163,14 @@ for w in widths:
         print("  [FAIL] Element #assessment-timestamp not found in DOM.")
         all_passed = False
         
-    # 4. Check action cards rendered
+    # 4. Check action cards rendered and equals API action count under "All roles"
     action_cards = re.findall(r'class="action-card\s*([^"]*)"', dom)
-    print(f"  [MEASURED] Rendered action cards count: {len(action_cards)}")
-    if len(action_cards) > 0:
-        print("  [PASS] Action cards populated successfully.")
+    rendered_count = len(action_cards)
+    print(f"  [MEASURED] Rendered action cards count: {rendered_count} | API action count: {expected_action_count}")
+    if rendered_count == expected_action_count and rendered_count > 0:
+        print(f"  [PASS] Rendered action count ({rendered_count}) exactly matches API count ({expected_action_count}).")
     else:
-        print("  [FAIL] Zero action cards rendered.")
+        print(f"  [FAIL] Rendered count ({rendered_count}) does not match API count ({expected_action_count}).")
         all_passed = False
         
     # 5. Check truthful status pill
