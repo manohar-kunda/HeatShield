@@ -16,7 +16,7 @@
 
 > *"In May 2024, cities across North and Central India experienced heat indices exceeding 50°C. Urban heat islands in densely built wards like Kalupur in Ahmedabad and Connaught Place in Delhi become dangerous for informal workers, transit commuters, and street vendors.*
 >
-> *Yet, traditional weather apps only give an ambient temperature number. They don't tell a municipal ward officer or community volunteer **what actions must be taken right now** to save lives.*
+> *Yet, traditional weather apps only give an ambient temperature number. They don't tell a municipal ward officer or community volunteer **what actions can be taken right now** to mitigate heat stress.*
 >
 > *This is **HeatShield** — an automated, community heatwave risk-to-action planner that translates ambient meteorological forecasts into transparent, rule-backed risk indicators and trackable, prioritised civic playbooks."*
 
@@ -46,9 +46,9 @@
 >
 > *HeatShield instantly escalates to **EXTREME DANGER (Red Alert)**. Notice how our engine flags that this apparent temperature (59.7°C) is outside the 80–110°F validation range, maintaining scientific honesty.*
 >
-> *Automatically, HeatShield triggers our **Mandatory Action Playbook**, adapted from the NDMA 2019 Guidelines and the Ahmedabad Heat Action Plan:*
+> *Automatically, HeatShield triggers our **Suggested Action Playbook**, adapted from the NDMA 2019 Guidelines and the Ahmedabad Heat Action Plan:*
 > - *Activating shaded drinking water kiosks at bus stands,*
-> - *Enforcing mandatory work-rest cycles for construction labor,*
+> - *Advising shaded rest cycles for outdoor labor,*
 > - *Opening daytime municipal cooling centers, and*
 > - *Alerting urban health centers to reserve heatstroke beds.*
 >

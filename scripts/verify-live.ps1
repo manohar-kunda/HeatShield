@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$false)]
     [string]$BaseUrl = "https://d2ijd5tuo68h8.cloudfront.net"
 )
@@ -198,32 +198,41 @@ try {
 
 # --- 7. Privacy Filter Rejection Test Suite ---
 Write-Host "`n>>> [7/7] Privacy Filter Rejection Test Suite" -ForegroundColor Yellow
-$privacyTestStrings = @(
-    "55555 12345",
-    "+91-55555-12345",
-    "5555-123-456",
-    "५५५५५१२३४५",
-    "fake-test@fake-domain.invalid",
-    "coordinator.field@fake-municipality.invalid",
-    "hello`n fake-test@fake-domain.invalid",
-    "55555/12345",
-    "55555,12345",
-    "55555_12345",
-    "55555`n12345"
+
+# Explicitly construct Devanagari digit string from Unicode code points (U+096B = ५ repeated 5 times, followed by U+0967..0x096B = १२३४५)
+$devanagariChars = @([char]0x096B, [char]0x096B, [char]0x096B, [char]0x096B, [char]0x096B, [char]0x0967, [char]0x0968, [char]0x0969, [char]0x096A, [char]0x096B)
+$devanagariPhone = -join $devanagariChars
+$devanagariHex = ($devanagariChars | ForEach-Object { "U+{0:X4}" -f [int]$_ }) -join " "
+
+$privacyTestItems = @(
+    @{ Name = "ASCII phone with space (55555 12345)"; Value = "55555 12345" },
+    @{ Name = "International prefix phone (+91-55555-12345)"; Value = "+91-55555-12345" },
+    @{ Name = "Hyphenated phone (5555-123-456)"; Value = "5555-123-456" },
+    @{ Name = "Devanagari 10-digit ($devanagariHex)"; Value = $devanagariPhone },
+    @{ Name = "Email address (fake-test@fake-domain.invalid)"; Value = "fake-test@fake-domain.invalid" },
+    @{ Name = "Coordinator email (coordinator.field@fake-municipality.invalid)"; Value = "coordinator.field@fake-municipality.invalid" },
+    @{ Name = "Multiline email (hello\n fake-test@fake-domain.invalid)"; Value = "hello`n fake-test@fake-domain.invalid" },
+    @{ Name = "Slash-delimited phone (55555/12345)"; Value = "55555/12345" },
+    @{ Name = "Comma-delimited phone (55555,12345)"; Value = "55555,12345" },
+    @{ Name = "Underscore-delimited phone (55555_12345)"; Value = "55555_12345" },
+    @{ Name = "Newline-delimited phone (55555\n12345)"; Value = "55555`n12345" }
 )
 
-foreach ($testStr in $privacyTestStrings) {
+foreach ($item in $privacyTestItems) {
+    $testName = $item.Name
+    $testVal = $item.Value
     try {
-        $pBody = @{
+        $pBodyJson = @{
             status = "COMPLETED"
-            note = "Testing note: $testStr"
+            note = "Testing note: $testVal"
         } | ConvertTo-Json
+        $pBodyBytes = [System.Text.Encoding]::UTF8.GetBytes($pBodyJson)
 
-        $res = Invoke-WebRequest -Uri "$BaseUrl/api/actions/ACT_WATER_KIOSKS?wardId=DEMO_AHMEDABAD" -Method Patch -Body $pBody -ContentType "application/json" -Headers @{"X-Workspace-Id"=$smokeWs} -UseBasicParsing
-        Report-Check "Privacy rejection: '$($testStr.Replace("`n", "\n"))'" $false "Expected 400 but got HTTP $($res.StatusCode)"
+        $res = Invoke-WebRequest -Uri "$BaseUrl/api/actions/ACT_WATER_KIOSKS?wardId=DEMO_AHMEDABAD" -Method Patch -Body $pBodyBytes -ContentType "application/json; charset=utf-8" -Headers @{"X-Workspace-Id"=$smokeWs} -UseBasicParsing
+        Report-Check "Privacy rejection: $testName" $false "Expected 400 but got HTTP $($res.StatusCode)"
     } catch {
         $code = $_.Exception.Response.StatusCode.value__
-        Report-Check "Privacy rejection: '$($testStr.Replace("`n", "\n"))'" ($code -eq 400) "Raw status code: HTTP $code"
+        Report-Check "Privacy rejection: $testName" ($code -eq 400) "Raw status code: HTTP $code"
     }
 }
 

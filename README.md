@@ -130,7 +130,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 | **Multi-Tenant Workspace Scoping** | **VERIFIED** | Live multi-workspace test in `scripts/verify-live.ps1` proving isolated status & notes across GUIDs. |
 | **Privacy Filter (Unicode & Multiline Emails)** | **VERIFIED** | 21 unit tests in `LambdaApiHandlerTest` and live HTTP 400 rejection suite in `scripts/verify-live.ps1`. |
 | **Content Security Policy (Zero Inline)** | **VERIFIED** | CloudFront response headers policy active; verified via live `curl -sI`. |
-| **Hindi Language Translations** | **PENDING REVIEW** | All 25 Hindi UI and bulletin strings are marked **PENDING HUMAN REVIEW** in the UI and exported to `docs/hindi-strings.csv`. |
+| **Live Headless Browser DOM Rendering** | **VERIFIED** | Automated Edge headless DOM verification (`tests/run-browser-checks.py`) passing at 360px, 768px, 1280px (no horizontal scroll, buttons enclosed, truthful status pill, no placeholder dashes). |
+| **Browser Interactive Clicks & Offline Queue Sync** | **NOT AUTOMATED** | Automated suite does not simulate user click flows (status toggle, note save, clipboard copy, simulation form submit, Service Worker offline queue background sync); these require manual evaluation. |
+| **API Throttling Protection** | **VERIFIED** | API Gateway HTTP API stage throttling configured at 25 rps (burst 50). Unreserved Lambda concurrency default pool is used (no reserved concurrency 10). |
+| **Hindi Language Translations** | **PENDING REVIEW** | All Hindi UI and bulletin strings are marked **PENDING HUMAN REVIEW** in the UI and exported to `docs/hindi-strings.csv` (summer advisory vs heatwave term flag noted). |
 
 ---
 

@@ -65,5 +65,10 @@ const formattedIso = formatIstTimestamp(tIso);
 console.log('ISO test:', formattedIso);
 assert(!formattedIso.includes('1970'), 'ISO format must not parse to 1970');
 assert(formattedIso.includes('2026'), 'ISO format must parse to 2026');
+assert(formattedIso.includes('IST'), 'ISO format must include IST');
+
+// 4. Timezone invariance: time zone must be IST (+05:30) regardless of local environment
+assert(formattedSec.includes('IST'), 'Must explicitly display IST');
+assert(formattedMil.includes('IST'), 'Must explicitly display IST');
 
 console.log('ALL TIMESTAMP TESTS PASSED!');
