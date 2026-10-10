@@ -1,0 +1,231 @@
+================================================================================
+HeatShield Stage 3 & Final Verification Evidence Record
+Timestamp: 2026-10-11T00:17:50+05:30
+Target URL: https://d2ijd5tuo68h8.cloudfront.net
+================================================================================
+
+1. API GATEWAY HTTP APIS LISTING (`aws apigatewayv2 get-apis`)
+--------------------------------------------------------------------------------
+{
+    "Items": [
+        {
+            "ApiEndpoint": "https://m4oh9vt5d8.execute-api.ap-south-1.amazonaws.com",
+            "ApiId": "m4oh9vt5d8",
+            "ApiKeySelectionExpression": "$request.header.x-api-key",
+            "CorsConfiguration": {
+                "AllowHeaders": [
+                    "content-type",
+                    "authorization",
+                    "x-workspace-id"
+                ],
+                "AllowMethods": [
+                    "GET",
+                    "POST",
+                    "PATCH",
+                    "OPTIONS"
+                ],
+                "AllowOrigins": [
+                    "*"
+                ],
+                "MaxAge": 600
+            },
+            "CreatedDate": "2026-10-09T17:15:15+00:00",
+            "DisableExecuteApiEndpoint": false,
+            "IpAddressType": "ipv4",
+            "Name": "heatshield-app",
+            "ProtocolType": "HTTP",
+            "RouteSelectionExpression": "$request.method $request.path",
+            "Tags": {
+                "aws:cloudformation:stack-name": "heatshield-app",
+                "aws:cloudformation:logical-id": "HeatShieldHttpApi",
+                "aws:cloudformation:stack-id": "arn:aws:cloudformation:ap-south-1:ACCOUNT_ID:stack/heatshield-app/be56aa20-c404-11f1-b31f-064d21c0d019",
+                "httpapi:createdBy": "SAM"
+            },
+            "Version": "1.0"
+        }
+    ]
+}
+
+2. ASSET HEADERS & CACHE CONTROL VERIFICATION
+--------------------------------------------------------------------------------
+URL: https://d2ijd5tuo68h8.cloudfront.net/
+Status: 200
+  Content-Type: text/html
+  ETag: "040177eec7303fb38e6c754f64d9fcc1"
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Cache: Miss from cloudfront
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+  X-Content-Type-Options: nosniff
+
+URL: https://d2ijd5tuo68h8.cloudfront.net/sw.js
+Status: 200
+  Content-Type: text/javascript
+  ETag: "a8496c0d3774aff54c8d1fff83104a3c"
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Cache: Miss from cloudfront
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+  X-Content-Type-Options: nosniff
+
+URL: https://d2ijd5tuo68h8.cloudfront.net/app.js
+Status: 200
+  Content-Type: text/javascript
+  ETag: "8e66c7121ca0a85045ec290eaf46b25b"
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Cache: Miss from cloudfront
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+  X-Content-Type-Options: nosniff
+
+URL: https://d2ijd5tuo68h8.cloudfront.net/style.css
+Status: 200
+  Content-Type: text/css
+  ETag: "17c36585ebe2d241603c20c67610341b"
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Cache: Miss from cloudfront
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+  X-Content-Type-Options: nosniff
+
+3. LIVE SCRIPT VERIFICATION PROTOCOL (verify-live.ps1)
+--------------------------------------------------------------------------------
+==========================================================
+ HeatShield Comprehensive Live Verification Protocol
+ Target URL: https://d2ijd5tuo68h8.cloudfront.net
+ Time:       2026-10-11 00:06:35 +05:30
+==========================================================
+
+>>> [1/7] HTML Content & Disclaimer Verification
+ [PASS] Root URL Status - HTTP 200
+ [PASS] Required string 'Suggested Ward Action Playbook' - Present in HTML: True
+ [PASS] Required string 'DRAFT' - Present in HTML: True
+ [PASS] Required string 'Open-Meteo.com' - Present in HTML: True
+ [PASS] Required string 'Demo ward:' - Present in HTML: True
+ [PASS] Required string 'Reset Demo' - Present in HTML: True
+ [PASS] Required string 'National emergency: <strong>112</strong>' - Present in HTML: True
+ [PASS] Required string 'DRAFT Ward Heat Advisory (illustrative)' - Present in HTML: True
+ [PASS] Required string 'PENDING HUMAN REVIEW' - Present in HTML: True
+ [PASS] Forbidden string 'Mandatory Ward' absent - Absent from HTML: True
+ [PASS] Forbidden string '1916' absent - Absent from HTML: True
+ [PASS] Forbidden string 'Issued under' absent - Absent from HTML: True
+ [PASS] Forbidden string 'MUNICIPAL WARD HEATWAVE ACTION NOTICE' absent - Absent from HTML: True
+
+>>> [2/7] Cache-Control Header Verification
+ [PASS] Root / Cache-Control - Header: Cache-Control: no-cache, no-store, must-revalidate
+ [PASS] /sw.js Cache-Control - Header: Cache-Control: no-cache, no-store, must-revalidate
+
+>>> [3/7] Security Headers Verification
+ [PASS] Header Content-Security-Policy - Found: True
+ [PASS] Header X-Content-Type-Options - Found: True
+ [PASS] Header X-Frame-Options - Found: True
+ [PASS] Header Strict-Transport-Security - Found: True
+ [PASS] Header Referrer-Policy - Found: True
+
+>>> [4/7] End-to-End API Smoke Flow
+ [PASS] GET /api/health - Status: UP, SnapStart: True
+ [PASS] POST /api/assessments - Assessment ID: bc7cc34b-1bca-4ebe-becc-4c3f56879477, Tier: EXTREME_DANGER
+ [PASS] GET /api/forecast - Actions returned: 5
+ [PASS] PATCH /api/actions - Status: COMPLETED
+
+>>> [5/7] Multi-Tenant Workspace Isolation
+ [PASS] Workspace Isolation - wsA status=IN_PROGRESS, wsB status=PENDING
+
+>>> [6/7] Unknown Ward Rejection (400 Bad Request)
+ [PASS] Unknown Ward Rejection - Raw status code: HTTP 400
+
+>>> [7/7] Privacy Filter Rejection Test Suite
+ [PASS] Privacy rejection: ASCII phone with space (55555 12345) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: International prefix phone (+91-55555-12345) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Hyphenated phone (5555-123-456) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Devanagari 10-digit (U+096B U+096B U+096B U+096B U+096B U+0967 U+0968 U+0969 U+096A U+096B) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Email address (fake-test@fake-domain.invalid) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Coordinator email (coordinator.field@fake-municipality.invalid) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Multiline email (hello\n fake-test@fake-domain.invalid) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Slash-delimited phone (55555/12345) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Comma-delimited phone (55555,12345) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Underscore-delimited phone (55555_12345) - Raw status code: HTTP 400
+ [PASS] Privacy rejection: Newline-delimited phone (55555\n12345) - Raw status code: HTTP 400
+
+==========================================================
+ Verification Summary: 37 / 37 Checks Passed (0 Failed)
+==========================================================
+
+4. STRONGER BROWSER DOM CHECKS (tests/run-browser-checks.py)
+--------------------------------------------------------------------------------
+Edge binary: C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
+Target URL: https://d2ijd5tuo68h8.cloudfront.net
+Fetching API reference from: https://d2ijd5tuo68h8.cloudfront.net/api/forecast?wardId=DEMO_AHMEDABAD
+API Reference -> heatIndexC: 29.3, riskTier: CAUTION
+
+========================================================
+Stronger Browser Check: Viewport Width 360px
+========================================================
+  Dumped DOM length: 19899 characters
+  [PASS] Zero visible '--' and zero 'Loading...' placeholder text.
+  [MEASURED] 'Right now' headline: 'Right now: Caution (heat index 29.3°C)'
+  [PASS] 'Right now' tier matches API riskTier (CAUTION -> 'Caution').
+  [MEASURED] Timestamp: 'Updated: 12:12 AM IST, 11 Oct 2026'
+  [PASS] Assessment time explicitly displays 'IST'.
+  [MEASURED] Rendered action cards count: 2
+  [PASS] Action cards populated successfully.
+  [MEASURED] Status pill: 'Live data'
+  [PASS] Truthful status pill is 'Live data'.
+  [PASS] Screenshot captured: E:\Projects\HeatShield\docs\evidence\ui-viewport-360px.png (40621 bytes)
+
+========================================================
+Stronger Browser Check: Viewport Width 768px
+========================================================
+  Dumped DOM length: 19899 characters
+  [PASS] Zero visible '--' and zero 'Loading...' placeholder text.
+  [MEASURED] 'Right now' headline: 'Right now: Caution (heat index 29.3°C)'
+  [PASS] 'Right now' tier matches API riskTier (CAUTION -> 'Caution').
+  [MEASURED] Timestamp: 'Updated: 12:13 AM IST, 11 Oct 2026'
+  [PASS] Assessment time explicitly displays 'IST'.
+  [MEASURED] Rendered action cards count: 2
+  [PASS] Action cards populated successfully.
+  [MEASURED] Status pill: 'Live data'
+  [PASS] Truthful status pill is 'Live data'.
+  [PASS] Screenshot captured: E:\Projects\HeatShield\docs\evidence\ui-viewport-768px.png (58704 bytes)
+
+========================================================
+Stronger Browser Check: Viewport Width 1280px
+========================================================
+  Dumped DOM length: 19899 characters
+  [PASS] Zero visible '--' and zero 'Loading...' placeholder text.
+  [MEASURED] 'Right now' headline: 'Right now: Caution (heat index 29.3°C)'
+  [PASS] 'Right now' tier matches API riskTier (CAUTION -> 'Caution').
+  [MEASURED] Timestamp: 'Updated: 12:13 AM IST, 11 Oct 2026'
+  [PASS] Assessment time explicitly displays 'IST'.
+  [MEASURED] Rendered action cards count: 2
+  [PASS] Action cards populated successfully.
+  [MEASURED] Status pill: 'Live data'
+  [PASS] Truthful status pill is 'Live data'.
+  [PASS] Screenshot captured: E:\Projects\HeatShield\docs\evidence\ui-viewport-1280px.png (61453 bytes)
+
+========================================================
+Manual Flow Automation Statement:
+Automated headless checks test static and data-driven DOM rendering.
+Interactive clicking flows (action status change, note typing, clipboard copy,
+What-if simulator submission, and Service Worker background offline sync)
+are not fully automated via headless CLI and should be tested manually in a live browser.
+========================================================
+ALL STRONGER BROWSER CHECKS PASSED SUCCESSFULLY.
+
+5. LIGHTHOUSE MOBILE SCORES & AUDIT BREAKDOWN
+--------------------------------------------------------------------------------
+Lighthouse Mobile Scores:
+  - Performance: 100/100
+  - Accessibility: 89/100
+  - Best Practices: 96/100
+  - SEO: 100/100
+  - Agentic Browsing: 100/100
+
+Failed Audits (score < 1.0, non-informative):
+  [errors-in-console] Browser errors were logged to the console (score: 0) 
+  [aria-progressbar-name] ARIA `progressbar` elements do not have accessible names. (score: 0) 
+  [color-contrast] Background and foreground colors do not have a sufficient contrast ratio. (score: 0) 
+  [link-in-text-block] Links rely on color to be distinguishable. (score: 0) 
+  [unminified-css] Minify CSS (score: 0.5) Est savings of 3 KiB
+  [unminified-javascript] Minify JavaScript (score: 0.5) Est savings of 5 KiB
+  [bf-cache] Page prevented back/forward cache restoration (score: 0) 2 failure reasons
+  [document-latency-insight] Document request latency (score: 0.5) Est savings of 11 KiB
+  [forced-reflow-insight] Forced reflow (score: 0) 
+  [network-dependency-tree-insight] Network dependency tree (score: 0) 
+  [render-blocking-insight] Render-blocking requests (score: 0) Est savings of 60 ms

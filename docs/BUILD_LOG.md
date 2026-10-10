@@ -33,3 +33,8 @@ Instead of inventing arbitrary numbers:
 ### 3. P0 Scope & Target Walking Skeleton
 - P0 Priority: Complete end-to-end user loop: 72h Open-Meteo forecast ingestion, heat index computation, action plan generation with deadlines, and interactive completion tracking.
 - Walking skeleton deploy scheduled for Gate 1 tonight.
+
+---
+
+## 2026-10-11 — Submission Hardening & Hygiene
+- Redacted AWS account ID from evidence files before first publication; timestamps preserved.
