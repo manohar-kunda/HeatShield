@@ -29,13 +29,16 @@ Please provide guidance on these specific questions in your comments or correcti
 3. **Temperature Units & Numerals**:
    - Are standard numerals (`112`, `108`, `42°C`) appropriate, or are Devanagari numerals expected in formal notices? (Our field research indicates Western Arabic digits `112` are standard across Indian emergency helplines to avoid misdialing).
 4. **Action Directives**:
-   - Review the verbs used in the 5 action directives (`संचालन सुनिश्चित करें`, `लागू करें`, `खोलें`, `भेजें`, `तैयार रखें`). Do they feel actionable and natural for municipal duty rosters?
+   - Review the verbs used in the 5 action directives (`संचालन सुनिश्चित करें`, `लागू करें`, `खोलें`, `भेजें`, `सतर्क करें`). Do they feel actionable and natural for municipal duty rosters?
+5. **New Weekday, Month, and Deadline Strings**:
+   - Rows marked `new, not reviewed` in the comment column represent newly localized time elements (weekdays, months, 24h deadline templates). Please check that `<weekday>, <date> <month>, <time> IST को` and `...IST से पहले` read naturally.
 
 ---
 
 ## How to Return Your Review
 
 In [`REVIEW_SHEET.csv`](file:///e:/Projects/HeatShield/docs/hindi-review/REVIEW_SHEET.csv):
+- Rows marked with `changed after first draft - reviewer please check` or `new, not reviewed` in the comment column require particular focus.
 - Enter **`ACCEPTED`**, **`ACCEPTED_WITH_EDITS`**, or **`REJECTED`** in the `reviewer_verdict` column.
 - If you have an edit, place the exact corrected Hindi text in the `suggested_correction` column.
 - Note any reasoning or nuances in the `comment` column.

@@ -30,9 +30,9 @@
 ---
 
 ### [01:50 - 02:20] Scene 4: What-If Simulator & Historical Replay
-- **Visual**: Click "⚡ What-If Simulator". Dial temperature to 44°C and 45% humidity. Then switch ward dropdown to "Historical Replay: Ahmedabad May 2010 Severe Heatwave".
+- **Visual**: Click "⚡ What-If Simulator". Dial temperature to 44°C and 45% humidity. Then switch ward dropdown to "Replay: Ahmedabad, May 2010 heatwave".
 - **Narration**:  
-  *"Coordinators don't have to wait for an actual disaster to prepare. Using the What-If Simulator, teams can test microclimate scenarios. Or they can load our Historical Replay mode—replaying the benchmark May 2010 Ahmedabad heatwave episode with both observed station data and reanalysis grid values to stress-test municipal resource allocation."*
+  *"Coordinators don't have to wait for an actual disaster to prepare. Using the What-If Simulator, teams can test microclimate scenarios. Or they can load our Historical Replay mode—replaying the benchmark May 2010 Ahmedabad heatwave episode with both observed station data (46.8°C) and reanalysis grid values (44.2°C) to stress-test municipal resource allocation."*
 
 ---
 

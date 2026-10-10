@@ -141,19 +141,19 @@ public class AssessmentService {
 
         if ("BEFORE_10_AM".equalsIgnoreCase(timeWindow)) {
             if (nowIst.getHour() < 10) {
-                return "Today, " + nowIst.format(DAY_MONTH_FMT) + ", before 10:00 AM";
+                return nowIst.format(DAY_MONTH_FMT) + ", before 10:00 AM IST";
             } else {
-                java.time.ZonedDateTime tomorrow = nowIst.plusDays(1);
-                return "Tomorrow, " + tomorrow.format(DAY_MONTH_FMT) + ", before 10:00 AM";
+                java.time.ZonedDateTime nextDay = nowIst.plusDays(1);
+                return nextDay.format(DAY_MONTH_FMT) + ", before 10:00 AM IST";
             }
         }
 
         if ("BEFORE_11_AM".equalsIgnoreCase(timeWindow)) {
             if (nowIst.getHour() < 11) {
-                return "Today, " + nowIst.format(DAY_MONTH_FMT) + ", before 11:00 AM";
+                return nowIst.format(DAY_MONTH_FMT) + ", before 11:00 AM IST";
             } else {
-                java.time.ZonedDateTime tomorrow = nowIst.plusDays(1);
-                return "Tomorrow, " + tomorrow.format(DAY_MONTH_FMT) + ", before 11:00 AM";
+                java.time.ZonedDateTime nextDay = nowIst.plusDays(1);
+                return nextDay.format(DAY_MONTH_FMT) + ", before 11:00 AM IST";
             }
         }
 

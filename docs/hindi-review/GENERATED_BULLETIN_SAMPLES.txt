@@ -1,0 +1,108 @@
+================================================================================
+GENERATED BULLETIN SAMPLES FOR HUMAN LINGUISTIC REVIEW
+Status: PENDING HUMAN REVIEW
+Date: 2026-10-11
+================================================================================
+
+### SCENARIO 1: LIVE FORECAST (DEMO_AHMEDABAD, EXTREME CAUTION PEAK)
+--------------------------------------------------------------------------------
+HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
+Issued: 01:10 AM IST, 13 Oct 2026
+Status: EXTREME CAUTION
+Current: 28.6C | Heat Index: 28.5C
+Peak in next 72 hours: Extreme Caution at Thu 15 Oct, 11:50 IST
+
+Summary:
+Heat cramps and heat exhaustion possible. Suggested shaded rest cycles for outdoor workers.
+
+Suggested Civic Actions:
+1. [DONE] Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs (Deadline: Sun 11 Oct, before 10:00 AM IST)
+2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours 12:00 to 16:00 IST)
+
+--- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
+वर्तमान स्थिति: अत्यधिक सावधानी
+अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (गुरुवार, 15 अक्टूबर, 11:50 IST को)
+
+सुझाए गए नागरिक कार्य (वार्ड स्तर):
+1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: रविवार, 11 अक्टूबर, 10:00 IST से पहले)
+2. [लंबित / PENDING] निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें (समय-सीमा: चरम घंटों में 12:00 से 16:00 IST)
+
+Emergency Contacts: National emergency: 112
+राष्ट्रीय आपातकालीन नंबर: 112
+Notice: DRAFT for coordinator review. Planning aid only.
+सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं, न ही चिकित्सा सलाह।
+Data: Open-Meteo.com (CC BY 4.0)
+मौसम डेटा: Open-Meteo.com (CC BY 4.0)
+
+
+### SCENARIO 2: WHAT-IF SIMULATION (EXTREME DANGER)
+--------------------------------------------------------------------------------
+HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
+Issued: 01:10 AM IST, 13 Oct 2026
+Status: EXTREME DANGER
+Current: 45.0C | Heat Index: 66.5C
+Peak in next 72 hours: not applicable (what-if, constant conditions)
+
+Summary:
+Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.
+
+Suggested Civic Actions:
+1. [DONE] Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs (Deadline: Sun 11 Oct, before 10:00 AM IST)
+2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours 12:00 to 16:00 IST)
+3. [PENDING] Open shaded or cooled community buildings and public shelters (Deadline: Sun 11 Oct, before 11:00 AM IST)
+4. [PENDING] Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies (Deadline: During peak hours 12:00 to 16:00 IST)
+5. [PENDING] Alert urban health centres to prepare for heat-related illnesses (Deadline: Immediate (within 30 mins, by 01:40))
+
+--- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
+वर्तमान स्थिति: अत्यधिक खतरा
+चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)
+
+सुझाए गए नागरिक कार्य (वार्ड स्तर):
+1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: रविवार, 11 अक्टूबर, 10:00 IST से पहले)
+2. [लंबित / PENDING] निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें (समय-सीमा: चरम घंटों में 12:00 से 16:00 IST)
+3. [लंबित / PENDING] नागरिकों के लिए छायादार या ठंडे सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें (समय-सीमा: रविवार, 11 अक्टूबर, 11:00 IST से पहले)
+4. [लंबित / PENDING] बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें (समय-सीमा: चरम घंटों में 12:00 से 16:00 IST)
+5. [लंबित / PENDING] शहरी स्वास्थ्य केंद्रों को गर्मी से संबंधित बीमारियों के लिए तैयार रहने हेतु सतर्क करें (समय-सीमा: तुरंत)
+
+Emergency Contacts: National emergency: 112
+राष्ट्रीय आपातकालीन नंबर: 112
+Notice: DRAFT for coordinator review. Planning aid only.
+सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं, न ही चिकित्सा सलाह।
+Data: Open-Meteo.com (CC BY 4.0)
+मौसम डेटा: Open-Meteo.com (CC BY 4.0)
+
+
+### SCENARIO 3: HISTORICAL REPLAY (AHMEDABAD MAY 2010 HEATWAVE)
+--------------------------------------------------------------------------------
+HEATWAVE ADVISORY (DRAFT) - Historical Replay: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C / Grid 44.2°C)
+Issued: 08:00 AM IST, 20 May 2010
+Status: DANGER
+Current: 34.2C | Heat Index: 36.1C
+Peak in next 72 hours: Danger at Fri 21 May, 15:00 IST
+
+Summary:
+Heat cramps or exhaustion likely, heatstroke possible. Open daytime cooling shelters.
+
+Suggested Civic Actions:
+1. [DONE] Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs (Deadline: Thu 20 May, before 10:00 AM IST)
+2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours 12:00 to 16:00 IST)
+3. [PENDING] Open shaded or cooled community buildings and public shelters (Deadline: Thu 20 May, before 11:00 AM IST)
+4. [PENDING] Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies (Deadline: During peak hours 12:00 to 16:00 IST)
+
+--- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
+वर्तमान स्थिति: खतरा
+अगले 72 घंटों में चरम जोखिम: खतरा (शुक्रवार, 21 मई, 15:00 IST को)
+
+सुझाए गए नागरिक कार्य (वार्ड स्तर):
+1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले)
+2. [लंबित / PENDING] निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें (समय-सीमा: चरम घंटों में 12:00 से 16:00 IST)
+3. [लंबित / PENDING] नागरिकों के लिए छायादार या ठंडे सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें (समय-सीमा: गुरुवार, 20 मई, 11:00 IST से पहले)
+4. [लंबित / PENDING] बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें (समय-सीमा: चरम घंटों में 12:00 से 16:00 IST)
+
+Emergency Contacts: National emergency: 112
+राष्ट्रीय आपातकालीन नंबर: 112
+Notice: DRAFT for coordinator review. Planning aid only.
+सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं, न ही चिकित्सा सलाह।
+Data: Open-Meteo.com (CC BY 4.0)
+मौसम डेटा: Open-Meteo.com (CC BY 4.0)
+

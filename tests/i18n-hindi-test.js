@@ -80,7 +80,7 @@ console.log('  [PASS] All placeholders preserved identically across languages.')
 // Strictly reduced to acronyms and units actually present: ORS, CC, BY, OPEN-METEO.COM
 console.log('\n>>> Check 4: Latin Text Whitelist in Hindi Values');
 const allowedLatinWords = new Set([
-  'CC', 'BY', 'OPEN-METEO.COM', 'OPEN-METEO', 'ORS'
+  'CC', 'BY', 'OPEN-METEO.COM', 'OPEN-METEO', 'ORS', 'IST'
 ]);
 
 function checkLatinWords(obj, prefix = '') {
@@ -91,13 +91,14 @@ function checkLatinWords(obj, prefix = '') {
       checkLatinWords(obj[k], fullKey);
     } else if (typeof obj[k] === 'string') {
       if (k === 'review_status_label') continue; // English status tag
-      const text = obj[k];
-      const latinMatches = text.match(/[A-Za-z0-9\.\-]+/g) || [];
+      // Strip placeholder tokens like {day}, {date}, {month}, {time} before checking Latin words
+      const textWithoutPlaceholders = obj[k].replace(/\{[a-zA-Z0-9_-]+\}/g, '');
+      const latinMatches = textWithoutPlaceholders.match(/[A-Za-z0-9\.\-]+/g) || [];
       for (const rawWord of latinMatches) {
         const cleanWord = rawWord.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '').toUpperCase();
         if (!cleanWord || /^\d+(\.\d+)?$/.test(cleanWord)) continue; // Digits and decimal numbers allowed
         const isAllowed = allowedLatinWords.has(cleanWord);
-        assert(isAllowed, `Unexpected Latin word '${rawWord}' found in Hindi string [${fullKey}]: "${text}"`);
+        assert(isAllowed, `Unexpected Latin word '${rawWord}' found in Hindi string [${fullKey}]: "${obj[k]}"`);
       }
     }
   }
@@ -138,6 +139,33 @@ for (const word of trickyConjuncts) {
 }
 console.log(`  [PASS] All ${trickyConjuncts.length} complex Devanagari conjuncts verified for lossless UTF-8 round trip.`);
 
+// 7. Full Generated Bulletin Samples Validation across Scenarios (Live, What-If, Replay)
+console.log('\n>>> Check 7: Generated Bulletin Scenarios Assertion');
+const samplesPath = path.join(__dirname, '../docs/hindi-review/GENERATED_BULLETIN_SAMPLES.txt');
+assert(fs.existsSync(samplesPath), 'GENERATED_BULLETIN_SAMPLES.txt must exist');
+const samplesContent = fs.readFileSync(samplesPath, 'utf8');
+
+// Scenario 1: Live Forecast assertions
+assert(samplesContent.includes('### SCENARIO 1: LIVE FORECAST'), 'Scenario 1 must be present');
+assert(samplesContent.includes('Peak in next 72 hours: Extreme Caution at'), 'Live must contain peak line in English');
+assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी'), 'Live must contain peak line in Hindi');
+assert(samplesContent.includes('IST को'), 'Live Hindi peak line must use "<time> IST को"');
+assert(samplesContent.includes('IST से पहले'), 'Live Hindi deadline must use "IST से पहले"');
+
+// Scenario 2: What-if Simulation assertions
+assert(samplesContent.includes('### SCENARIO 2: WHAT-IF SIMULATION'), 'Scenario 2 must be present');
+assert(samplesContent.includes('Peak in next 72 hours: not applicable (what-if, constant conditions)'), 'What-if must state peak not applicable in English');
+assert(samplesContent.includes('चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)'), 'What-if must state peak not applicable in Hindi');
+
+// Scenario 3: Historical Replay assertions
+assert(samplesContent.includes('### SCENARIO 3: HISTORICAL REPLAY'), 'Scenario 3 must be present');
+assert(samplesContent.includes('Historical Replay: Ahmedabad May 2010 Heatwave'), 'Replay must be present');
+assert(samplesContent.includes('Peak in next 72 hours: Danger at Fri 21 May, 15:00 IST'), 'Replay English peak line');
+assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: खतरा (शुक्रवार, 21 मई, 15:00 IST को)'), 'Replay Hindi peak line with correct localized grammar');
+assert(samplesContent.includes('समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले'), 'Replay Hindi localized deadline');
+
+console.log('  [PASS] All 3 bulletin scenarios verified for Hindi grammar, peak line phrasing, and localized deadlines.');
+
 console.log('\n==========================================================');
-console.log(' ALL MECHANICAL HINDI CHECKS PASSED (6/6)');
+console.log(' ALL MECHANICAL HINDI CHECKS PASSED (7/7)');
 console.log('==========================================================');

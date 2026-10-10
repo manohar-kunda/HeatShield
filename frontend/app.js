@@ -62,7 +62,7 @@ let I18N_HINDI = {
   bulletin_disclaimer: "सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं, न ही चिकित्सा सलाह।",
   bulletin_data_attribution: "मौसम डेटा: Open-Meteo.com (CC BY 4.0)",
   tiers: {
-    "BELOW_THRESHOLD": "सामान्य (सीमा से नीचे)",
+    "BELOW_THRESHOLD": "सीमा से नीचे",
     "CAUTION": "सावधानी",
     "EXTREME_CAUTION": "अत्यधिक सावधानी",
     "DANGER": "खतरा",
@@ -70,14 +70,44 @@ let I18N_HINDI = {
   },
   bulletin_current_status_prefix: "वर्तमान स्थिति:",
   bulletin_peak_prefix: "अगले 72 घंटों में चरम जोखिम:",
+  bulletin_peak_not_applicable: "चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)",
   bulletin_time_at: "को",
   bulletin_deadline_prefix: "समय-सीमा:",
+  weekdays: {
+    "Mon": "सोमवार",
+    "Tue": "मंगलवार",
+    "Wed": "बुधवार",
+    "Thu": "गुरुवार",
+    "Fri": "शुक्रवार",
+    "Sat": "शनिवार",
+    "Sun": "रविवार"
+  },
+  months: {
+    "Jan": "जनवरी",
+    "Feb": "फ़रवरी",
+    "Mar": "मार्च",
+    "Apr": "अप्रैल",
+    "May": "मई",
+    "Jun": "जून",
+    "Jul": "जुलाई",
+    "Aug": "अगस्त",
+    "Sep": "सितंबर",
+    "Oct": "अक्टूबर",
+    "Nov": "नवंबर",
+    "Dec": "दिसंबर"
+  },
+  deadlines: {
+    "immediate": "तुरंत",
+    "peak_hours": "चरम घंटों में 12:00 से 16:00 IST",
+    "before_time": "{day}, {date} {month}, {time} IST से पहले",
+    "historical_replay": "ऐतिहासिक: 21 मई 2010"
+  },
   actions: {
     "ACT_WATER_KIOSKS": "बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें",
     "ACT_OUTDOOR_WORK_ADVISORY": "निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें",
-    "ACT_COOLING_SHELTERS": "नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें",
+    "ACT_COOLING_SHELTERS": "नागरिकों के लिए छायादार या ठंडे सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें",
     "ACT_ORS_DISPATCH": "बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें",
-    "ACT_HOSPITAL_ALERT": "शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें"
+    "ACT_HOSPITAL_ALERT": "शहरी स्वास्थ्य केंद्रों को गर्मी से संबंधित बीमारियों के लिए तैयार रहने हेतु सतर्क करें"
   }
 };
 
@@ -208,22 +238,103 @@ function formatIstTimestamp(raw) {
   }
 }
 
-function formatPeakDateTime(raw) {
+function getIstParts(raw) {
   const dt = parseTimestamp(raw);
-  if (!dt) return 'Not available';
+  if (!dt) return null;
   try {
     const options = {
       timeZone: 'Asia/Kolkata',
       weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: false
     };
-    const formatted = new Intl.DateTimeFormat('en-IN', options).format(dt);
-    return `${formatted} IST`;
+    const parts = new Intl.DateTimeFormat('en-IN', options).formatToParts(dt);
+    const map = {};
+    parts.forEach(p => { map[p.type] = p.value; });
+    return map; // { weekday: 'Mon', day: '12', month: 'Oct', year: '2026', hour: '14', minute: '00' }
   } catch (e) {
-    return 'Upcoming';
+    return null;
   }
+}
+
+function formatPeakDateTime(raw) {
+  const parts = getIstParts(raw);
+  if (!parts) return 'Upcoming';
+  // English format: "Tue 13 Oct, 14:00 IST" or 12h: "Tue, 02:00 PM IST"
+  return `${parts.weekday} ${parts.day} ${parts.month}, ${parts.hour}:${parts.minute} IST`;
+}
+
+function formatPeakDateTimeHindi(raw) {
+  const parts = getIstParts(raw);
+  if (!parts) return '';
+  const dayHi = (I18N_HINDI && I18N_HINDI.weekdays && I18N_HINDI.weekdays[parts.weekday]) || parts.weekday;
+  const monthHi = (I18N_HINDI && I18N_HINDI.months && I18N_HINDI.months[parts.month]) || parts.month;
+  // Format: "<weekday>, <date> <month>, <time> IST को"
+  return `${dayHi}, ${parts.day} ${monthHi}, ${parts.hour}:${parts.minute} IST को`;
+}
+
+function localizeDeadlineText(rawDeadline, isHindi = false) {
+  if (!rawDeadline) return '';
+  if (!isHindi) return rawDeadline;
+
+  // If already Hindi or no I18N_HINDI
+  if (!I18N_HINDI || !I18N_HINDI.deadlines) return rawDeadline;
+
+  // Immediate: "Immediate (within 30 mins...)" -> "तुरंत"
+  if (/immediate/i.test(rawDeadline)) {
+    return I18N_HINDI.deadlines.immediate || 'तुरंत';
+  }
+
+  // Peak hours: "During peak hours 12:00 to 16:00 IST" or "PEAK_HOURS_12_TO_16"
+  if (/peak hours/i.test(rawDeadline) || /PEAK_HOURS/i.test(rawDeadline)) {
+    return I18N_HINDI.deadlines.peak_hours || 'चरम घंटों में 12:00 से 16:00 IST';
+  }
+
+  // Historical replay: "Historical"
+  if (/historical/i.test(rawDeadline)) {
+    return I18N_HINDI.deadlines.historical_replay || 'ऐतिहासिक: 21 मई 2010';
+  }
+
+  // Pattern: "Mon 12 Oct, before 10:00 AM IST" or "Today, Sun 11 Oct, before 10:00 AM" or "Tomorrow, Mon 12 Oct..."
+  // Extract weekday, day number, month, time
+  const match = rawDeadline.match(/(?:(?:Today|Tomorrow),\s+)?(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)(?:,\s*before\s*|\s*before\s*)(\d{1,2}:\d{2}(?:\s*[APap][Mm])?)/i);
+  if (match) {
+    const rawWk = match[1] || '';
+    const dayNum = match[2];
+    const rawMo = match[3];
+    const rawTime = match[4];
+
+    const dayHi = (rawWk && I18N_HINDI.weekdays && I18N_HINDI.weekdays[rawWk])
+      ? I18N_HINDI.weekdays[rawWk]
+      : (rawWk.toLowerCase().includes('today') ? 'आज' : (rawWk.toLowerCase().includes('tomorrow') ? 'कल' : rawWk));
+    const monthHi = (I18N_HINDI.months && I18N_HINDI.months[rawMo]) ? I18N_HINDI.months[rawMo] : rawMo;
+
+    // Convert 12h time to 24h if needed
+    let time24 = rawTime.trim();
+    if (/am|pm/i.test(time24)) {
+      const isPm = /pm/i.test(time24);
+      const isAm = /am/i.test(time24);
+      const parts = time24.replace(/[^\d:]/g, '').split(':');
+      let h = parseInt(parts[0], 10);
+      const m = parts[1] || '00';
+      if (isPm && h < 12) h += 12;
+      if (isAm && h === 12) h = 0;
+      time24 = `${String(h).padStart(2, '0')}:${m}`;
+    }
+
+    const tpl = I18N_HINDI.deadlines.before_time || '{day}, {date} {month}, {time} IST से पहले';
+    return tpl
+      .replace('{day}', dayHi)
+      .replace('{date}', dayNum)
+      .replace('{month}', monthHi)
+      .replace('{time}', time24);
+  }
+
+  return rawDeadline;
 }
 
 // --- Data Fetching ---
@@ -430,7 +541,9 @@ function renderRiskSummary(assessment) {
 
   rightNowTier.textContent = `Right now: ${currentMeta.title} (heat index ${currentHiC}°C)`;
 
-  if (summary && summary.peakWindowStart) {
+  if (assessment.dataSource === 'SIMULATION') {
+    peak72hTier.textContent = 'Peak: not applicable (what-if, constant conditions)';
+  } else if (summary && summary.peakWindowStart) {
     const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
     peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr} (heat index ${peakHiC}°C)`;
   } else {
@@ -456,7 +569,10 @@ function renderRiskSummary(assessment) {
     ambientConditions.textContent = '--';
   }
 
-  if (summary && summary.peakWindowStart) {
+  if (assessment.dataSource === 'SIMULATION') {
+    forecastPeakVal.textContent = 'Not applicable';
+    forecastSummaryText.textContent = 'What-if constant simulation (no forecast timeline)';
+  } else if (summary && summary.peakWindowStart) {
     const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
     forecastPeakVal.textContent = `${peakMeta.title}`;
     forecastSummaryText.textContent = `Expected around ${peakTimeStr} (${summary.maxHeatIndexC.toFixed(1)}°C)`;
@@ -599,7 +715,22 @@ function generateBulletinText(assessment) {
   let text = `HEATWAVE ADVISORY (DRAFT) - ${assessment.wardName || assessment.wardId}\n`;
   text += `Issued: ${timeStr}\n`;
   text += `Status: ${meta.title.toUpperCase()}\n`;
-  text += `Current: ${ambient}C | Heat Index: ${hiC}C\n\n`;
+  text += `Current: ${ambient}C | Heat Index: ${hiC}C\n`;
+
+  const summary = assessment.forecastSummary;
+  if (assessment.dataSource === 'SIMULATION') {
+    text += `Peak in next 72 hours: not applicable (what-if, constant conditions)\n\n`;
+  } else if (summary && summary.peakTier) {
+    const peakMeta = TIER_METADATA[summary.peakTier] || meta;
+    const peakTimeStr = summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '';
+    const peakLineEn = peakTimeStr
+      ? `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr}\n\n`
+      : `Peak in next 72 hours: ${peakMeta.title}\n\n`;
+    text += peakLineEn;
+  } else {
+    text += `\n`;
+  }
+
   text += `Summary:\n${meta.desc}\n\n`;
 
   text += `Suggested Civic Actions:\n`;
@@ -618,15 +749,16 @@ function generateBulletinText(assessment) {
   text += `\n--- ${hindiBulletinTitle} [${hindiStatus}] ---\n`;
   text += `${I18N_HINDI.bulletin_current_status_prefix || 'वर्तमान स्थिति:'} ${currentTierHindi}\n`;
 
-  const summary = assessment.forecastSummary;
-  if (summary && summary.peakTier) {
+  if (assessment.dataSource === 'SIMULATION') {
+    const notApplicableHi = I18N_HINDI.bulletin_peak_not_applicable || 'चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)';
+    text += `${notApplicableHi}\n`;
+  } else if (summary && summary.peakTier) {
     const peakTierHindi = hindiTiers[summary.peakTier] || summary.peakTier;
-    const peakTimeStr = summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '';
-    const atWord = I18N_HINDI.bulletin_time_at || 'को';
-    const peakLine = peakTimeStr
-      ? `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi} (${atWord} ${peakTimeStr})`
+    const peakTimeStrHi = summary.peakWindowStart ? formatPeakDateTimeHindi(summary.peakWindowStart) : '';
+    const peakLineHi = peakTimeStrHi
+      ? `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi} (${peakTimeStrHi})`
       : `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi}`;
-    text += `${peakLine}\n`;
+    text += `${peakLineHi}\n`;
   }
 
   text += `\n${hindiActionHeading}\n`;
@@ -635,8 +767,9 @@ function generateBulletinText(assessment) {
     const hindiAction = (I18N_HINDI && I18N_HINDI.actions && I18N_HINDI.actions[a.actionId])
       ? I18N_HINDI.actions[a.actionId]
       : (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
-    const deadlineStr = a.deadline || a.timeWindow || '';
-    const deadlinePart = deadlineStr ? ` (${I18N_HINDI.bulletin_deadline_prefix || 'समय-सीमा:'} ${deadlineStr})` : '';
+    const rawDeadlineStr = a.deadline || a.timeWindow || '';
+    const localizedDeadline = localizeDeadlineText(rawDeadlineStr, true);
+    const deadlinePart = localizedDeadline ? ` (${I18N_HINDI.bulletin_deadline_prefix || 'समय-सीमा:'} ${localizedDeadline})` : '';
     if (hindiAction) {
       text += `${i + 1}. ${mark} ${hindiAction}${deadlinePart}\n`;
     }

@@ -8,15 +8,39 @@ bulletin_disclaimer,WhatsApp broadcast bulletin footer disclaimer,"Notice: DRAFT
 bulletin_data_attribution,WhatsApp broadcast bulletin footer attribution,"Data: Open-Meteo.com (CC BY 4.0)","मौसम डेटा: Open-Meteo.com (CC BY 4.0)","मौसम डेटा: Open-Meteo.com (CC BY 4.0)","Weather Data: Open-Meteo.com (CC BY 4.0)",,,
 bulletin_current_status_prefix,WhatsApp broadcast bulletin current status line,"Current Status:","वर्तमान स्थिति:","वर्तमान स्थिति:","Current Status:",,,
 bulletin_peak_prefix,WhatsApp broadcast bulletin 72h peak line,"Peak in next 72 hours:","अगले 72 घंटों में चरम जोखिम:","अगले 72 घंटों में चरम जोखिम:","Peak Risk in Next 72 Hours:",,,
+bulletin_peak_not_applicable,"WhatsApp bulletin & UI risk summary what-if mode","Peak: not applicable (what-if, constant conditions)","चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)","चरम जोखिम: लागू नहीं (व्हाट-इफ परिदृश्य, स्थिर स्थितियाँ)","Peak risk: Not applicable (what-if scenario, constant conditions)",,,"new, not reviewed"
 bulletin_time_at,WhatsApp broadcast bulletin time connector,"at","को","को","at",,,
 bulletin_deadline_prefix,WhatsApp broadcast bulletin deadline prefix,"Deadline:","समय-सीमा:","समय-सीमा:","Deadline:",,,
-tier_BELOW_THRESHOLD,Risk tier label in Hindi bulletin,"Below threshold","सामान्य (सीमा से नीचे)","सामान्य (सीमा से नीचे)","Normal (Below threshold)",,,
+tier_BELOW_THRESHOLD,Risk tier label in Hindi bulletin,"Below threshold","सीमा से नीचे","सीमा से नीचे","Below threshold",,,"changed after first draft - reviewer please check: removed 'सामान्य ()' to match English"
 tier_CAUTION,Risk tier label in Hindi bulletin,"Caution","सावधानी","सावधानी","Caution",,,
 tier_EXTREME_CAUTION,Risk tier label in Hindi bulletin,"Extreme Caution","अत्यधिक सावधानी","अत्यधिक सावधानी","Extreme Caution",,,
 tier_DANGER,Risk tier label in Hindi bulletin,"Danger","खतरा","खतरा / चेतावनी","Danger",,,
 tier_EXTREME_DANGER,Risk tier label in Hindi bulletin,"Extreme Danger","अत्यधिक खतरा","अत्यधिक खतरा / आपातकालीन चेतावनी","Extreme Danger",,,
 ACT_WATER_KIOSKS,"UI action card, bulletin text, print poster item (CAUTION tier)",Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs,बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें,बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें,"Ensure inspection and operation of cold and shaded drinking water centres (Piyawa) at bus stands and major intersections",,,
 ACT_OUTDOOR_WORK_ADVISORY,"UI action card, bulletin text, print poster item (EXTREME_CAUTION tier)",Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors,निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें,निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें,"Enforce shaded rest in the afternoon and changes in working hours for construction workers and street vendors",,,"Removed 'अनिवार्य' because English source dropped 'mandatory'"
-ACT_COOLING_SHELTERS,"UI action card, bulletin text, print poster item (DANGER tier)",Open air-cooled municipal community halls and temples as daytime public cooling shelters,नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें,नागरिकों के लिए ठंडे/छायादार सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें,"Open air-conditioned/cooled community halls, dharmashalas and public cooling centres for citizens",,,"SUGGESTION: Drop 'वातानुकूलित' and 'धर्मशालाएं'; use neutral wording like 'ठंडे/छायादार सामुदायिक भवन और सार्वजनिक आश्रय स्थल'"
+ACT_COOLING_SHELTERS,"UI action card, bulletin text, print poster item (DANGER tier)",Open shaded or cooled community buildings and public shelters,नागरिकों के लिए छायादार या ठंडे सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें,नागरिकों के लिए छायादार या ठंडे सामुदायिक भवन और सार्वजनिक आश्रय स्थल खोलें,"Open shaded or cooled community buildings and public shelters for citizens",,,"changed after first draft - reviewer please check: standardized to neutral phrasing"
 ACT_ORS_DISPATCH,"UI action card, bulletin text, print poster item (DANGER tier)",Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies,बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें,बस्तियों और झुग्गी बस्तियों में ओआरएस (ORS) पैकेट व प्राथमिक उपचार किट के साथ आशा कार्यकर्ताओं की टीम भेजें,"Send teams of ASHA workers with ORS packets and first aid kits to settlements and slum areas",,,"SUGGESTION: Confirm whether 'आशा कार्यकर्ता' and 'झुग्गी क्षेत्र' are the standard municipal terms"
-ACT_HOSPITAL_ALERT,"UI action card, bulletin text, print poster item (EXTREME_DANGER tier)",Issue heatstroke bed reserve alert to urban health centres and stock IV rehydration fluids,शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें,शहरी स्वास्थ्य केंद्रों को हीटस्ट्रोक वार्ड तैयार रखने और आवश्यक जीवन रक्षक दवाइयों का भंडार रखने का अलर्ट जारी करें,"Keep heatstroke wards ready in urban health centres and ensure stock of essential life-saving medicines",,,"SUGGESTION: Soften to an alert/advisory; health worker should confirm the exact wording"
+ACT_HOSPITAL_ALERT,"UI action card, bulletin text, print poster item (EXTREME_DANGER tier)",Alert urban health centres to prepare for heat-related illnesses,शहरी स्वास्थ्य केंद्रों को गर्मी से संबंधित बीमारियों के लिए तैयार रहने हेतु सतर्क करें,शहरी स्वास्थ्य केंद्रों को गर्मी से संबंधित बीमारियों के लिए तैयार रहने हेतु सतर्क करें,"Alert urban health centres to prepare for heat-related illnesses",,,"changed after first draft - reviewer please check: aligned with NDMA Guideline 6.3 neutral scope"
+weekday_Mon,WhatsApp bulletin localized day name,Mon,सोमवार,सोमवार,Monday,,,new, not reviewed
+weekday_Tue,WhatsApp bulletin localized day name,Tue,मंगलवार,मंगलवार,Tuesday,,,new, not reviewed
+weekday_Wed,WhatsApp bulletin localized day name,Wed,बुधवार,बुधवार,Wednesday,,,new, not reviewed
+weekday_Thu,WhatsApp bulletin localized day name,Thu,गुरुवार,गुरुवार,Thursday,,,new, not reviewed
+weekday_Fri,WhatsApp bulletin localized day name,Fri,शुक्रवार,शुक्रवार,Friday,,,new, not reviewed
+weekday_Sat,WhatsApp bulletin localized day name,Sat,शनिवार,शनिवार,Saturday,,,new, not reviewed
+weekday_Sun,WhatsApp bulletin localized day name,Sun,रविवार,रविवार,Sunday,,,new, not reviewed
+month_Jan,WhatsApp bulletin localized month name,Jan,जनवरी,जनवरी,January,,,new, not reviewed
+month_Feb,WhatsApp bulletin localized month name,Feb,फ़रवरी,फ़रवरी,February,,,new, not reviewed
+month_Mar,WhatsApp bulletin localized month name,Mar,मार्च,मार्च,March,,,new, not reviewed
+month_Apr,WhatsApp bulletin localized month name,Apr,अप्रैल,अप्रैल,April,,,new, not reviewed
+month_May,WhatsApp bulletin localized month name,May,मई,मई,May,,,new, not reviewed
+month_Jun,WhatsApp bulletin localized month name,Jun,जून,जून,June,,,new, not reviewed
+month_Jul,WhatsApp bulletin localized month name,Jul,जुलाई,जुलाई,July,,,new, not reviewed
+month_Aug,WhatsApp bulletin localized month name,Aug,अगस्त,अगस्त,August,,,new, not reviewed
+month_Sep,WhatsApp bulletin localized month name,Sep,सितंबर,सितंबर,September,,,new, not reviewed
+month_Oct,WhatsApp bulletin localized month name,Oct,अक्टूबर,अक्टूबर,October,,,new, not reviewed
+month_Nov,WhatsApp bulletin localized month name,Nov,नवंबर,नवंबर,November,,,new, not reviewed
+month_Dec,WhatsApp bulletin localized month name,Dec,दिसंबर,दिसंबर,December,,,new, not reviewed
+deadline_immediate,WhatsApp bulletin localized deadline,Immediate,तुरंत,तुरंत,Immediately,,,new, not reviewed
+deadline_peak_hours,WhatsApp bulletin localized deadline,During peak hours 12:00 to 16:00 IST,चरम घंटों में 12:00 से 16:00 IST,चरम घंटों में 12:00 से 16:00 IST,During peak hours 12:00 to 16:00 IST,,,new, not reviewed
+deadline_before_time,WhatsApp bulletin localized deadline template,"{day} {date} {month}, before {time} IST","{day}, {date} {month}, {time} IST से पहले","{day}, {date} {month}, {time} IST से पहले","Before {time} IST on {day}, {date} {month}",,,new, not reviewed
+deadline_historical_replay,WhatsApp bulletin localized deadline,Historical: 21 May 2010,ऐतिहासिक: 21 मई 2010,ऐतिहासिक: 21 मई 2010,Historical: 21 May 2010,,,new, not reviewed

@@ -97,17 +97,17 @@ class AssessmentServiceTest {
         // AND all 5 actions must be activated
         assertThat(assessment.actions()).hasSize(5);
 
-        // Verify deadline for BEFORE_10_AM is "Today" because current IST is 08:00 AM
+        // Verify deadline for BEFORE_10_AM is today (Sat 10 Oct) because current IST is 08:00 AM
         heatshield.domain.TrackedAction kioskAction = assessment.actions().stream()
                 .filter(a -> a.actionId().equals("ACT_WATER_KIOSKS"))
                 .findFirst().orElseThrow();
-        assertThat(kioskAction.deadline()).contains("Today").contains("before 10:00 AM");
+        assertThat(kioskAction.deadline()).contains("Sat 10 Oct").contains("before 10:00 AM IST");
     }
 
     @Test
-    @DisplayName("IST deadline formats correctly for afternoon evaluations (Tomorrow)")
+    @DisplayName("IST deadline formats deterministically for afternoon evaluations (Next Day weekday & date)")
     void testDeadlineFormattingAfternoon() {
-        // Current instantaneous: 14:30 IST (09:00 UTC)
+        // Current instantaneous: 14:30 IST (09:00 UTC) on Sat 10 Oct 2026
         java.time.Instant afternoonUtc = java.time.Instant.parse("2026-10-10T09:00:00Z");
         java.time.Clock fixedClock = java.time.Clock.fixed(afternoonUtc, java.time.ZoneId.of("Asia/Kolkata"));
         AssessmentService fixedService = new AssessmentService(playbookService, repository, fixedClock);
@@ -135,7 +135,7 @@ class AssessmentServiceTest {
         heatshield.domain.TrackedAction kioskAction = assessment.actions().stream()
                 .filter(a -> a.actionId().equals("ACT_WATER_KIOSKS"))
                 .findFirst().orElseThrow();
-        // Since it's already 14:30 IST (past 10:00 AM), deadline for water kiosks must be TOMORROW
-        assertThat(kioskAction.deadline()).contains("Tomorrow").contains("before 10:00 AM");
+        // Since it's already 14:30 IST (past 10:00 AM) on Sat 10 Oct, deadline for water kiosks must be Sun 11 Oct
+        assertThat(kioskAction.deadline()).contains("Sun 11 Oct").contains("before 10:00 AM IST");
     }
 }

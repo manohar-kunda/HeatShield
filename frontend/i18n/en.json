@@ -19,13 +19,43 @@
   },
   "bulletin_current_status_prefix": "Current Status:",
   "bulletin_peak_prefix": "Peak in next 72 hours:",
+  "bulletin_peak_not_applicable": "Peak: not applicable (what-if, constant conditions)",
   "bulletin_time_at": "at",
   "bulletin_deadline_prefix": "Deadline:",
+  "weekdays": {
+    "Mon": "Mon",
+    "Tue": "Tue",
+    "Wed": "Wed",
+    "Thu": "Thu",
+    "Fri": "Fri",
+    "Sat": "Sat",
+    "Sun": "Sun"
+  },
+  "months": {
+    "Jan": "Jan",
+    "Feb": "Feb",
+    "Mar": "Mar",
+    "Apr": "Apr",
+    "May": "May",
+    "Jun": "Jun",
+    "Jul": "Jul",
+    "Aug": "Aug",
+    "Sep": "Sep",
+    "Oct": "Oct",
+    "Nov": "Nov",
+    "Dec": "Dec"
+  },
+  "deadlines": {
+    "immediate": "Immediate (within 30 mins)",
+    "peak_hours": "During peak hours 12:00 to 16:00 IST",
+    "before_time": "{day} {date} {month}, before {time} IST",
+    "historical_replay": "Historical: 21 May 2010"
+  },
   "actions": {
     "ACT_WATER_KIOSKS": "Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs",
     "ACT_OUTDOOR_WORK_ADVISORY": "Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors",
-    "ACT_COOLING_SHELTERS": "Open air-cooled municipal community halls and temples as daytime public cooling shelters",
+    "ACT_COOLING_SHELTERS": "Open shaded or cooled community buildings and public shelters",
     "ACT_ORS_DISPATCH": "Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies",
-    "ACT_HOSPITAL_ALERT": "Issue heatstroke bed reserve alert to urban health centres and stock IV rehydration fluids"
+    "ACT_HOSPITAL_ALERT": "Alert urban health centres to prepare for heat-related illnesses"
   }
 }

@@ -157,6 +157,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 - [3-Minute Demo Video Script](docs/DEMO_SCRIPT.md)
 - [Submission Form Answers Guide](docs/submission/FORM_ANSWERS.md)
 - [Originality & Clean-Room Statement](docs/ORIGINALITY.md)
+- [Adding a New Ward Guide](docs/ADD_A_WARD.md)
 - [Architecture Decision Records (ADRs)](docs/decisions/)
 - [Emergency Rollback Guide](docs/ROLLBACK.md)
 
