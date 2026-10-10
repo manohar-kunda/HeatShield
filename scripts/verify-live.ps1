@@ -47,7 +47,7 @@ try {
         "Open-Meteo.com",
         "Demo ward:",
         "Reset Demo",
-        "National emergency: 112",
+        "National emergency: <strong>112</strong>",
         "DRAFT Ward Heat Advisory (illustrative)",
         "PENDING HUMAN REVIEW"
     )
@@ -199,17 +199,17 @@ try {
 # --- 7. Privacy Filter Rejection Test Suite ---
 Write-Host "`n>>> [7/7] Privacy Filter Rejection Test Suite" -ForegroundColor Yellow
 $privacyTestStrings = @(
-    "98765 43210",
-    "+91-98765-43210",
-    "9876-543-210",
-    "९८७६५४३२१०",
-    "a@b.com",
-    "coordinator.field@city.gov.in",
-    "hello`n a@b.com",
-    "98765/43210",
-    "98765,43210",
-    "98765_43210",
-    "98765`n43210"
+    "55555 12345",
+    "+91-55555-12345",
+    "5555-123-456",
+    "५५५५५१२३४५",
+    "fake-test@fake-domain.invalid",
+    "coordinator.field@fake-municipality.invalid",
+    "hello`n fake-test@fake-domain.invalid",
+    "55555/12345",
+    "55555,12345",
+    "55555_12345",
+    "55555`n12345"
 )
 
 foreach ($testStr in $privacyTestStrings) {

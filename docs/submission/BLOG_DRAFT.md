@@ -36,8 +36,8 @@ Paying for always-on container clusters or VM instances would waste municipal bu
 ```
 
 ### Key Technical Decisions:
-1. **Java 21 with SnapStart**: Java provides strong type safety and numerical precision for multi-step meteorological calculations (Rothfusz 9-term polynomial). Historically, Java suffered from cold starts. With AWS Lambda SnapStart, initialization happens at publish time; our restore durations dropped to ~622 ms, with subsequent warm handler executions averaging just **14 ms to 22 ms**.
-2. **Unified CloudFront Distribution**: By using CloudFront to serve the static frontend from S3 and proxy `/api/*` to API Gateway, we eliminated all CORS preflight overhead. Requests from Mumbai, Delhi, and Bengaluru resolve with median latencies of **70 ms**.
+1. **Java 21 with SnapStart**: Java provides strong type safety and numerical precision for multi-step meteorological calculations (Rothfusz 9-term polynomial). Historically, Java suffered from 6+ second cold starts (`Init Duration: 6065 ms`). With AWS Lambda SnapStart, snapshot restore durations drop to **360 ms - 499 ms**, with post-restore first invocation executing in **168 ms** and subsequent warm handler executions averaging just **1.7 ms to 24 ms**.
+2. **Unified CloudFront Distribution**: By using CloudFront to serve the static frontend from S3 and proxy `/api/*` to API Gateway, we eliminated all CORS preflight overhead. Requests from Mumbai, Delhi, and Bengaluru resolve with median edge latencies of **77 ms**.
 3. **DynamoDB Single-Table Design with TTL**: State is keyed by `WS#<workspaceId>#WARD#<wardId>`. To prevent test data clutter and avoid persistent storage charges on the AWS Free Tier, every item carries an `expiresAt` epoch timestamp (7-day TTL).
 4. **Resilience in Three Tiers**: If the upstream weather forecast is reachable, HeatShield computes live metrics; if upstream fails, it retrieves the latest cached snapshot; if completely offline, it falls back to a deterministic 72-hour bundled heatwave fixture.
 

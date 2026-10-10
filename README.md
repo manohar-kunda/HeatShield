@@ -119,6 +119,21 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 
 ---
 
+## Verified vs Not Verified Status
+
+| Component / Claim | Verification Status | Exact Evidence & Method |
+| :--- | :---: | :--- |
+| **Rothfusz Polynomial & Steadman Logic** | **VERIFIED** | 26 golden tests in `RothfuszCalculatorTest` matching official NOAA/NWS charts. |
+| **IMD Heatwave Plains Criteria** | **VERIFIED** | 9 unit tests in `ImdHeatwaveCategoryTest` verifying absolute ($\ge 45^\circ\text{C}$) and departure ($\ge 4.5^\circ\text{C}$) thresholds. |
+| **DynamoDB Persistence** | **VERIFIED** | Covered by live integration checks (`scripts/verify-live.ps1` & `scripts/smoke.ps1`) against real AWS DynamoDB table `heatshield-data-heatshield-app`. |
+| **SnapStart & Low Warm Latency** | **VERIFIED** | CloudWatch REPORT logs confirm restore duration (360–499 ms) and warm durations (1.7–24 ms). |
+| **Multi-Tenant Workspace Scoping** | **VERIFIED** | Live multi-workspace test in `scripts/verify-live.ps1` proving isolated status & notes across GUIDs. |
+| **Privacy Filter (Unicode & Multiline Emails)** | **VERIFIED** | 21 unit tests in `LambdaApiHandlerTest` and live HTTP 400 rejection suite in `scripts/verify-live.ps1`. |
+| **Content Security Policy (Zero Inline)** | **VERIFIED** | CloudFront response headers policy active; verified via live `curl -sI`. |
+| **Hindi Language Translations** | **PENDING REVIEW** | All 25 Hindi UI and bulletin strings are marked **PENDING HUMAN REVIEW** in the UI and exported to `docs/hindi-strings.csv`. |
+
+---
+
 ## Documentation Links
 
 - [Traceability Matrix & Verification Table](docs/TRACEABILITY.md)

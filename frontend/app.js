@@ -234,25 +234,34 @@ function setupEventListeners() {
 // --- Data Fetching ---
 async function fetchForecast(wardId, live = true) {
   setLoadingState(true);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+    dataSourceBadge.textContent = 'Network Slow (>3s) - Falling back';
+  }, 3000);
+
   try {
     const url = `${API_BASE}/api/forecast?wardId=${encodeURIComponent(wardId)}&live=${live}`;
     const res = await fetch(url, {
+      signal: controller.signal,
       headers: { 'X-Workspace-Id': CURRENT_WORKSPACE_ID }
     });
+    clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     currentAssessment = data;
     renderAll(data);
     localStorage.setItem(`heatshield_cache_${wardId}`, JSON.stringify(data));
   } catch (err) {
-    console.warn('Network fetch error, attempting local cache fallback:', err);
+    clearTimeout(timeoutId);
+    console.warn('Network fetch error or >3s timeout, attempting local cache fallback:', err);
     const cached = localStorage.getItem(`heatshield_cache_${wardId}`);
     if (cached) {
       currentAssessment = JSON.parse(cached);
       currentAssessment.dataSource = 'CLIENT_OFFLINE_CACHE';
       renderAll(currentAssessment);
     } else {
-      renderErrorState('Unable to reach server. Please check internet connection.');
+      renderErrorState('Network timeout (>3s) or offline. Please check your connection.');
     }
   } finally {
     setLoadingState(false);

@@ -1,0 +1,207 @@
+======================================================================
+HEATSHIELD POST-DEPLOY VERIFICATION RECORD
+Date: Sat Oct 10 2026 23:05:00 IST
+Target URL: https://d2ijd5tuo68h8.cloudfront.net
+Distribution ID: E2REXQRKCWEVMK
+Stack Name: heatshield-app
+Region: ap-south-1
+Account ID: ****0597
+======================================================================
+
+1. CLOUDFORMATION STACK STATUS & OUTPUTS
+----------------------------------------------------------------------
+Stack Status: UPDATE_COMPLETE
+
+Outputs:
+- CloudFrontUrl: https://d2ijd5tuo68h8.cloudfront.net
+- DynamoDbTableName: heatshield-data-heatshield-app
+- FrontendBucketName: heatshield-frontend-****0597-ap-south-1
+- CloudFrontDistributionId: E2REXQRKCWEVMK
+- HttpApiUrl: https://m4oh9vt5d8.execute-api.ap-south-1.amazonaws.com
+
+2. ROOT (/) HEADERS VIA curl -sI
+----------------------------------------------------------------------
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 12228
+Connection: keep-alive
+Server: AmazonS3
+Date: Sat, 10 Oct 2026 17:05:29 GMT
+Last-Modified: Sat, 10 Oct 2026 17:03:01 GMT
+ETag: "8d5addf7c69485fbd430622f67644493"
+x-amz-server-side-encryption: AES256
+Cache-Control: no-cache, no-store, must-revalidate
+Accept-Ranges: bytes
+X-Cache: Miss from cloudfront
+Via: 1.1 41c2e3235cfb12d3956a1f2d45e2eb52.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: HYD57-P2
+X-Amz-Cf-Id: RO7r9Vk_yr867aC32PbsY6yL6L0N31DDjMIMvKYc4DD2e7yXe5utAw==
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+3. /sw.js HEADERS VIA curl -sI
+----------------------------------------------------------------------
+HTTP/1.1 200 OK
+Content-Type: text/javascript
+Content-Length: 2486
+Connection: keep-alive
+Server: AmazonS3
+Date: Sat, 10 Oct 2026 17:05:42 GMT
+Last-Modified: Sat, 10 Oct 2026 17:04:37 GMT
+ETag: "74353a7bc6511e87f39e85fdb26469a7"
+x-amz-server-side-encryption: AES256
+Cache-Control: no-cache, no-store, must-revalidate
+Accept-Ranges: bytes
+X-Cache: Miss from cloudfront
+Via: 1.1 9f108a0af4513d6b3d18db352c0e42aa.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: HYD57-P2
+X-Amz-Cf-Id: kQh25N_-rO4fWXr48sSAKMV5sQlDj4yMGASXp6HZWrq5kKpw9b-UwA==
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+4. LAMBDA CONFIGURATION & CONCURRENCY
+----------------------------------------------------------------------
+Function Name: heatshield-app-HeatShieldFunction-5y0N3kQrRMxP
+Runtime: java21
+MemorySize: 512 MB
+Timeout: 10s
+Reserved Concurrency: Unreserved (Account Default pool)
+SnapStart Configuration:
+  ApplyOn: PublishedVersions
+  OptimizationStatus: On (Active on Version 4)
+Live Alias:
+  Name: live
+  FunctionVersion: 4
+
+5. API GATEWAY HTTP API & THROTTLING
+----------------------------------------------------------------------
+API ID: m4oh9vt5d8
+Protocol: HTTP
+Endpoint: https://m4oh9vt5d8.execute-api.ap-south-1.amazonaws.com
+Default Route Settings:
+  ThrottlingBurstLimit: 50
+  ThrottlingRateLimit: 25.0
+  DetailedMetricsEnabled: false
+
+6. EVENTBRIDGE SCHEDULED RULES
+----------------------------------------------------------------------
+Rule Name: heatshield-app-HeatShieldFunctionHourlyWarmupSchedu-olYgUZCDLbGr
+State: ENABLED
+Schedule: rate(4 hours)
+Description: Periodic ingestion and cache pre-warming for demo wards
+
+7. LIVE CLOUDWATCH LOG REPORT EXCERPTS
+----------------------------------------------------------------------
+[Version Publish Init Baseline]:
+INIT_START Runtime Version: java:21.mainline.v83
+Picked up JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+INIT_REPORT Init Duration: 6065.88 ms
+
+[SnapStart Restore Excerpt]:
+RESTORE_REPORT Restore Duration: 443.98 ms
+
+[Invocation 1 - Initial post-restore first execution]:
+REPORT RequestId: e7edf7ad-1f89-4015-99a6-4c9f7f17a06e
+  Duration: 168.31 ms
+  Billed Duration: 313 ms
+  Memory Size: 512 MB
+  Max Memory Used: 159 MB
+  Restore Duration: 443.98 ms
+  Billed Restore Duration: 144 ms
+
+[Invocation 2 - Forecast Ingestion & Calculation]:
+REPORT RequestId: db48483e-b392-4706-8b01-51d9d958361a
+  Duration: 2340.31 ms
+  Billed Duration: 2341 ms
+  Memory Size: 512 MB
+  Max Memory Used: 174 MB
+
+[Invocation 3 - Warm Assessment Generation]:
+REPORT RequestId: 3c6ce5e5-55de-4b5a-b529-65e11ca8a357
+  Duration: 246.92 ms
+  Billed Duration: 247 ms
+  Memory Size: 512 MB
+  Max Memory Used: 175 MB
+
+[Invocation 4 - Warm DynamoDB Action Status Mutation]:
+REPORT RequestId: d75dcfd0-99b4-41a3-9d87-421883a06524
+  Duration: 12.38 ms
+  Billed Duration: 13 ms
+  Memory Size: 512 MB
+  Max Memory Used: 176 MB
+
+[Invocation 5 - Steady-State Health Probe]:
+REPORT RequestId: ae718f3f-153e-496e-a6b1-19ef46a75dda
+  Duration: 1.68 ms
+  Billed Duration: 2 ms
+  Memory Size: 512 MB
+  Max Memory Used: 177 MB
+
+8. AUTOMATED VERIFY-LIVE SCRIPT RUN (37/37 PASSED)
+----------------------------------------------------------------------
+==========================================================
+ HeatShield Comprehensive Live Verification Protocol
+ Target URL: https://d2ijd5tuo68h8.cloudfront.net
+ Time:       2026-10-10 22:36:48 +05:30
+==========================================================
+
+>>> [1/7] HTML Content & Disclaimer Verification
+ [PASS] Root URL Status - HTTP 200
+ [PASS] Required string 'Suggested Ward Action Playbook' - Present in HTML: True
+ [PASS] Required string 'DRAFT' - Present in HTML: True
+ [PASS] Required string 'Open-Meteo.com' - Present in HTML: True
+ [PASS] Required string 'Demo ward:' - Present in HTML: True
+ [PASS] Required string 'Reset Demo' - Present in HTML: True
+ [PASS] Required string 'National emergency: <strong>112</strong>' - Present in HTML: True
+ [PASS] Required string 'DRAFT Ward Heat Advisory (illustrative)' - Present in HTML: True
+ [PASS] Required string 'PENDING HUMAN REVIEW' - Present in HTML: True
+ [PASS] Forbidden string 'Mandatory Ward' absent - Absent from HTML: True
+ [PASS] Forbidden string '1916' absent - Absent from HTML: True
+ [PASS] Forbidden string 'Issued under' absent - Absent from HTML: True
+ [PASS] Forbidden string 'MUNICIPAL WARD HEATWAVE ACTION NOTICE' absent - Absent from HTML: True
+
+>>> [2/7] Cache-Control Header Verification
+ [PASS] Root / Cache-Control - Header: Cache-Control: no-cache, no-store, must-revalidate
+ [PASS] /sw.js Cache-Control - Header: Cache-Control: no-cache, no-store, must-revalidate
+
+>>> [3/7] Security Headers Verification
+ [PASS] Header Content-Security-Policy - Found: True
+ [PASS] Header X-Content-Type-Options - Found: True
+ [PASS] Header X-Frame-Options - Found: True
+ [PASS] Header Strict-Transport-Security - Found: True
+ [PASS] Header Referrer-Policy - Found: True
+
+>>> [4/7] End-to-End API Smoke Flow
+ [PASS] GET /api/health - Status: UP, SnapStart: True
+ [PASS] POST /api/assessments - Assessment ID: 18ce6d84-a208-4360-9b32-fccec1e1d160, Tier: EXTREME_DANGER
+ [PASS] GET /api/forecast - Actions returned: 5
+ [PASS] PATCH /api/actions - Status: COMPLETED
+
+>>> [5/7] Multi-Tenant Workspace Isolation
+ [PASS] Workspace Isolation - wsA status=IN_PROGRESS, wsB status=PENDING
+
+>>> [6/7] Unknown Ward Rejection (400 Bad Request)
+ [PASS] Unknown Ward Rejection - Raw status code: HTTP 400
+
+>>> [7/7] Privacy Filter Rejection Test Suite
+ [PASS] Privacy rejection: '55555 12345' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '+91-55555-12345' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '5555-123-456' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '५५५५५१२३४५' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: 'fake-test@fake-domain.invalid' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: 'coordinator.field@fake-municipality.invalid' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: 'hello\n fake-test@fake-domain.invalid' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '55555/12345' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '55555,12345' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '55555_12345' - Raw status code: HTTP 400
+ [PASS] Privacy rejection: '55555\n12345' - Raw status code: HTTP 400
+
+==========================================================
+ Verification Summary: 37 / 37 Checks Passed (0 Failed)
+==========================================================
