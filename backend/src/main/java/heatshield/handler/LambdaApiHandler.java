@@ -255,7 +255,6 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
         if ("REPLAY_AHMEDABAD_2010".equalsIgnoreCase(wardId)) {
             List<HourlyHeatIndexPoint> replayPoints = ForecastIngestionService.createAhmedabad2010ReplayFixture();
             ForecastWindowSummary replaySummary = ForecastIngestionService.computeWindowSummary(replayPoints);
-            HourlyHeatIndexPoint peak = replayPoints.get(0);
             
             // Historic clock anchored to 20 May 2010 08:00 AM IST
             Instant historicInstant = Instant.parse("2010-05-20T02:30:00Z");
@@ -265,11 +264,17 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
                     java.time.Clock.fixed(historicInstant, ForecastIngestionService.IST_ZONE)
             );
 
+            // Find the 08:00 AM IST point (row 8, 2010-05-20T08:00) or default to first
+            HourlyHeatIndexPoint currentPoint = replayPoints.stream()
+                    .filter(pt -> pt.timestamp().equals(historicInstant))
+                    .findFirst()
+                    .orElse(replayPoints.get(0));
+
             WardAssessment replayAssessment = historicService.createAssessmentWithForecast(
                     wardId,
-                    "Historical Replay: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C / Grid 44.2°C)",
-                    peak.temperatureC(),
-                    peak.humidityPct(),
+                    "Historical Replay: Ahmedabad May 2010 Heatwave",
+                    currentPoint.temperatureC(),
+                    currentPoint.humidityPct(),
                     6.8, // Severe heatwave departure
                     "HISTORICAL_REPLAY_2010",
                     replaySummary,

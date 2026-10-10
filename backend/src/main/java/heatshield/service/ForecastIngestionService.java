@@ -214,36 +214,19 @@ public class ForecastIngestionService {
 
     /**
      * Historical heatwave replay fixture: Ahmedabad 20-22 May 2010.
-     * Sourced from Open-Meteo Historical Weather API & AMC Heat Action Plan baseline studies:
-     * - Observed Station Max: 46.8°C (IMD Ahmedabad Airport Station 42647, 21 May 2010)
-     * - ERA5 Reanalysis Grid (23.0°N, 72.6°E): 44.2°C dry-bulb peak, 24% RH
-     * Anchored to historic timestamps in Asia/Kolkata (2010-05-20T00:00:00+05:30).
+     * Sourced directly from Open-Meteo Historical Weather API archive response (docs/data/replay-ahmedabad-2010-raw.json, CC BY 4.0):
+     * - Latitude 23.0225°N, Longitude 72.5714°E, 72 hourly rows from 2010-05-20T00:00 to 2010-05-22T23:00 IST.
+     * - Recomputed using the production Rothfusz engine.
      */
     public static List<HourlyHeatIndexPoint> createAhmedabad2010ReplayFixture() {
-        List<HourlyHeatIndexPoint> points = new ArrayList<>();
-        // Fixed historic reference: 20 May 2010 00:00:00 IST
-        java.time.ZonedDateTime historicStart = java.time.ZonedDateTime.of(2010, 5, 20, 0, 0, 0, 0, IST_ZONE);
-        Instant start = historicStart.toInstant();
-
-        for (int i = 0; i < 72; i++) {
-            Instant timestamp = start.plus(Duration.ofHours(i));
-            int hourOfDay = i % 24;
-
-            // Historical episode diurnal variation matching reanalysis profile (trough 32.5°C at 05:00, peak 44.2°C at 15:00)
-            double tempC = 38.35 + 5.85 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
-            double rhPct = 34.0 - 10.0 * Math.sin((hourOfDay - 9.0) * Math.PI / 12.0);
-
-            HeatIndexResult hi = RothfuszCalculator.calculate(tempC, rhPct);
-            points.add(new HourlyHeatIndexPoint(
-                    timestamp,
-                    Math.round(tempC * 10.0) / 10.0,
-                    Math.round(rhPct * 10.0) / 10.0,
-                    hi.heatIndexC(),
-                    hi.heatIndexF(),
-                    hi.riskTier()
-            ));
+        try (java.io.InputStream is = ForecastIngestionService.class.getResourceAsStream("/replay/ahmedabad-2010-raw.json")) {
+            if (is != null) {
+                String jsonStr = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                return parseForecastJson(jsonStr);
+            }
+        } catch (Exception e) {
+            // Fallback only if resource read fails
         }
-
-        return points;
+        return Collections.emptyList();
     }
 }

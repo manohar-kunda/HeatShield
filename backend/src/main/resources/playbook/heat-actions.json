@@ -8,7 +8,7 @@
     "targetGroup": "GENERAL_PUBLIC",
     "timeWindow": "BEFORE_10_AM",
     "priority": "HIGH",
-    "sourceReference": "NDMA Guidelines 2019 - Ward-Level Measure 3.2"
+    "sourceReference": "adapted from NDMA heat wave guidelines (section not verified)"
   },
   {
     "actionId": "ACT_OUTDOOR_WORK_ADVISORY",
@@ -19,7 +19,7 @@
     "targetGroup": "OUTDOOR_WORKERS",
     "timeWindow": "PEAK_HOURS_12_TO_16",
     "priority": "HIGH",
-    "sourceReference": "Ahmedabad HAP 2023 - Labour Welfare Protocol 5"
+    "sourceReference": "adapted from NDMA heat wave guidelines (section not verified)"
   },
   {
     "actionId": "ACT_COOLING_SHELTERS",
@@ -30,7 +30,7 @@
     "targetGroup": "INFORMAL_SETTLEMENTS",
     "timeWindow": "BEFORE_11_AM",
     "priority": "URGENT",
-    "sourceReference": "Ahmedabad HAP 2023 - Public Infrastructure Protocol 2"
+    "sourceReference": "adapted from NDMA heat wave guidelines (section not verified)"
   },
   {
     "actionId": "ACT_ORS_DISPATCH",
@@ -41,7 +41,7 @@
     "targetGroup": "ELDERLY_AND_CHILDREN",
     "timeWindow": "PEAK_HOURS_12_TO_16",
     "priority": "URGENT",
-    "sourceReference": "NDMA Guidelines 2019 - Public Health Preparedness 4.1"
+    "sourceReference": "adapted from NDMA heat wave guidelines (section not verified)"
   },
   {
     "actionId": "ACT_HOSPITAL_ALERT",
@@ -52,6 +52,6 @@
     "targetGroup": "GENERAL_PUBLIC",
     "timeWindow": "IMMEDIATE",
     "priority": "CRITICAL",
-    "sourceReference": "NDMA Guidelines 2019 - Hospital Emergency Preparedness 6.3"
+    "sourceReference": "adapted from NDMA heat wave guidelines (section not verified)"
   }
 ]

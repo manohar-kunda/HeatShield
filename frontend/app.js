@@ -597,7 +597,7 @@ function renderRiskSummary(assessment) {
   }
 
   if (assessment.dataSource === 'HISTORICAL_REPLAY_2010') {
-    imdCriteriaDesc.textContent = 'RETROSPECTIVE ILLUSTRATION using reanalysis data, not a forecast. (Station 46.8°C / Grid 44.2°C)';
+    imdCriteriaDesc.textContent = 'RETROSPECTIVE ILLUSTRATION using Open-Meteo ERA5 archive rows, not a forecast. (Station 46.8°C cited from AMC HAP).';
   }
 }
 

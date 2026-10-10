@@ -160,8 +160,8 @@ assert(samplesContent.includes('चरम जोखिम: लागू नह�
 // Scenario 3: Historical Replay assertions
 assert(samplesContent.includes('### SCENARIO 3: HISTORICAL REPLAY'), 'Scenario 3 must be present');
 assert(samplesContent.includes('Historical Replay: Ahmedabad May 2010 Heatwave'), 'Replay must be present');
-assert(samplesContent.includes('Peak in next 72 hours: Danger at Fri 21 May, 15:00 IST'), 'Replay English peak line');
-assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: खतरा (शुक्रवार, 21 मई, 15:00 IST को)'), 'Replay Hindi peak line with correct localized grammar');
+assert(samplesContent.includes('Peak in next 72 hours: Danger at Thu 20 May, 13:00 IST'), 'Replay English peak line');
+assert(samplesContent.includes('अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 13:00 IST को)'), 'Replay Hindi peak line with correct localized grammar');
 assert(samplesContent.includes('समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले'), 'Replay Hindi localized deadline');
 
 console.log('  [PASS] All 3 bulletin scenarios verified for Hindi grammar, peak line phrasing, and localized deadlines.');

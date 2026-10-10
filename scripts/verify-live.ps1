@@ -66,7 +66,9 @@ try {
         "Issued under",
         "MUNICIPAL WARD HEATWAVE ACTION NOTICE",
         "Severe Heatwave",
-        "docs/ACCESSIBILITY.md"
+        "docs/ACCESSIBILITY.md",
+        "44.2°C at 15:00",
+        "sin((hour-9)"
     )
 
     foreach ($forb in $forbiddenStrings) {

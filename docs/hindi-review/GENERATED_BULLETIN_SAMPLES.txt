@@ -74,11 +74,11 @@ Data: Open-Meteo.com (CC BY 4.0)
 
 ### SCENARIO 3: HISTORICAL REPLAY (AHMEDABAD MAY 2010 HEATWAVE)
 --------------------------------------------------------------------------------
-HEATWAVE ADVISORY (DRAFT) - Historical Replay: Ahmedabad May 2010 Heatwave (Observed Station 46.8°C / Grid 44.2°C)
+HEATWAVE ADVISORY (DRAFT) - Historical Replay: Ahmedabad May 2010 Heatwave
 Issued: 08:00 AM IST, 20 May 2010
 Status: DANGER
-Current: 34.2C | Heat Index: 36.1C
-Peak in next 72 hours: Danger at Fri 21 May, 15:00 IST
+Current: 33.2C | Heat Index: 35.7C
+Peak in next 72 hours: Danger at Thu 20 May, 13:00 IST
 
 Summary:
 Heat cramps or exhaustion likely, heatstroke possible. Open daytime cooling shelters.
@@ -91,7 +91,7 @@ Suggested Civic Actions:
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
 वर्तमान स्थिति: खतरा
-अगले 72 घंटों में चरम जोखिम: खतरा (शुक्रवार, 21 मई, 15:00 IST को)
+अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 13:00 IST को)
 
 सुझाए गए नागरिक कार्य (वार्ड स्तर):
 1. [पूर्ण / DONE] बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें (समय-सीमा: गुरुवार, 20 मई, 10:00 IST से पहले)
