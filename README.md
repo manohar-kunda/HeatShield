@@ -70,9 +70,9 @@ flowchart TD
 - **Runtime**: Amazon Corretto / Java 21 (`release 21`).
 - **Framework**: Zero DI framework (pure POJO architecture).
 - **Packaging**: Uber-jar produced via `maven-shade-plugin` (measured size: **10.0 MB**).
-- **Testing**: 54 automated tests passing (26 golden tests vs NWS charts, IMD evaluation tests, playbook slice tests, forecast parsing tests, and API contract tests).
+- **Testing**: 68 automated tests passing (26 golden tests vs NWS charts, IMD evaluation tests, playbook slice tests, forecast parsing tests, and API contract & hardened privacy filter tests).
 - **Infrastructure as Code**: AWS SAM (`template.yaml`).
-- **AWS Services**: AWS Lambda (SnapStart enabled), Amazon API Gateway HTTP API, Amazon DynamoDB On-Demand (TTL enabled), Amazon S3 + CloudFront (HTTPS with OAC), Amazon CloudWatch, AWS Budgets.
+- **AWS Services**: AWS Lambda (SnapStart enabled), Amazon API Gateway HTTP API (stage throttling at 25 rps burst 50), Amazon DynamoDB On-Demand (TTL enabled), Amazon S3 + CloudFront (HTTPS with OAC), Amazon CloudWatch, AWS Budgets.
 - **Production URL**: [`https://d2ijd5tuo68h8.cloudfront.net`](https://d2ijd5tuo68h8.cloudfront.net)
 
 ---

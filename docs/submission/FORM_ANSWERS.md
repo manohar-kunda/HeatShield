@@ -34,7 +34,7 @@
 > **Question**: How did you verify your project and ensure originality?
 >
 > **Answer**:
-> All code was authored from scratch following hackathon opening on October 8, 2026. Scientific equations are verified against NOAA/NWS test charts across 26 golden unit tests (54/54 automated tests passing). End-to-end integration is proven by automated smoke scripts, multi-tenant workspace isolation tests, and live CloudFront latency benchmarks ($p_{50} = 77\text{ ms}$). To test severe scenarios outside mild autumn weather, HeatShield includes an ERA5-anchored historical replay of the May 2010 Ahmedabad heatwave.
+> All code was authored from scratch following hackathon opening on October 8, 2026. Scientific equations are verified against NOAA/NWS test charts across 26 golden unit tests (68/68 automated tests passing). End-to-end integration is proven by automated smoke scripts, multi-tenant workspace isolation tests, and live CloudFront latency benchmarks ($p_{50} = 77\text{ ms}$). To test severe scenarios outside mild autumn weather, HeatShield includes an ERA5-anchored historical replay of the May 2010 Ahmedabad heatwave.
 
 ### 4. Accessibility & Open Data
 > **Question**: How is your solution accessible and what data sources are leveraged?

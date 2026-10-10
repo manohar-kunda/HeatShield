@@ -1,9 +1,9 @@
-const CACHE_NAME = 'heatshield-v2';
+const CACHE_NAME = 'heatshield-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css',
-  './app.js',
+  './style.css?v=3',
+  './app.js?v=3',
   './manifest.json'
 ];
 
@@ -52,8 +52,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For HTML / root navigation: Network-first, fallback to cache
-  if (url.pathname === '/' || url.pathname.endsWith('/index.html')) {
+  // For HTML and JS: Network-first, fallback to cache
+  if (url.pathname === '/' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('.js')) {
     event.respondWith(
       fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For other static assets (css, js, manifest, icons): Stale-while-revalidate
+  // For other static assets (css, icons, manifest): Stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {

@@ -1,6 +1,7 @@
 /**
- * HeatShield — Production Client Application
- * Zero dependencies, pure vanilla ES6, offline-first with background queue.
+ * HeatShield — Production Client Application v3
+ * Zero external libraries, resilient rendering, truthful dataSource pill,
+ * offline queue, accessible native controls, no emoji.
  */
 
 const API_BASE = window.location.origin.includes('localhost')
@@ -20,32 +21,32 @@ const CURRENT_WORKSPACE_ID = getOrCreateWorkspaceId();
 
 const TIER_METADATA = {
   BELOW_THRESHOLD: {
-    title: 'Below Threshold / Not Rated',
-    icon: 'ℹ️',
+    title: 'Below threshold',
+    iconSymbol: '#icon-info',
     cssClass: 'tier-below',
     desc: 'Conditions within normal operational tolerances. Routine surveillance.'
   },
   CAUTION: {
-    title: 'Caution (Yellow Alert)',
-    icon: '🟡',
+    title: 'Caution',
+    iconSymbol: '#icon-alert-triangle',
     cssClass: 'tier-caution',
     desc: 'Fatigue possible with prolonged exposure. Activate shaded hydration kiosks.'
   },
   EXTREME_CAUTION: {
-    title: 'Extreme Caution (Amber Alert)',
-    icon: '🟠',
+    title: 'Extreme Caution',
+    iconSymbol: '#icon-alert-triangle',
     cssClass: 'tier-extreme-caution',
-    desc: 'Heat cramps and heat exhaustion possible. Mandatory shaded rest cycles for outdoor workers.'
+    desc: 'Heat cramps and heat exhaustion possible. Suggested shaded rest cycles for outdoor workers.'
   },
   DANGER: {
-    title: 'Danger (Orange Alert)',
-    icon: '🚨',
+    title: 'Danger',
+    iconSymbol: '#icon-alert-triangle',
     cssClass: 'tier-danger',
     desc: 'Heat cramps or exhaustion likely, heatstroke possible. Open daytime cooling shelters.'
   },
   EXTREME_DANGER: {
-    title: 'Extreme Danger (Red Alert)',
-    icon: '🛑',
+    title: 'Extreme Danger',
+    iconSymbol: '#icon-alert-triangle',
     cssClass: 'tier-extreme-danger',
     desc: 'Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.'
   }
@@ -61,184 +62,132 @@ const resetDemoBtn = document.getElementById('reset-demo-btn');
 const toggleWhatifBtn = document.getElementById('toggle-whatif-btn');
 const whatifForm = document.getElementById('whatif-form');
 const resetSimBtn = document.getElementById('reset-sim-btn');
-const networkBadge = document.getElementById('network-badge');
+const localHelplineInput = document.getElementById('local-helpline-input');
 const dataSourceBadge = document.getElementById('datasource-badge');
 
 const tierBanner = document.getElementById('tier-banner');
 const tierIcon = document.getElementById('tier-icon');
-const tierTitle = document.getElementById('tier-title');
+const rightNowTier = document.getElementById('right-now-tier');
+const peak72hTier = document.getElementById('peak-72h-tier');
 const tierDesc = document.getElementById('tier-desc');
 const hiShadeVal = document.getElementById('hi-shade-val');
 const hiShadeF = document.getElementById('hi-shade-f');
 const hiSunVal = document.getElementById('hi-sun-val');
 const ambientConditions = document.getElementById('ambient-conditions');
-const extrapolationBadge = document.getElementById('extrapolation-badge');
+const forecastPeakVal = document.getElementById('forecast-peak-val');
+const forecastSummaryText = document.getElementById('forecast-summary-text');
 const imdSignalVal = document.getElementById('imd-signal-val');
 const imdCriteriaDesc = document.getElementById('imd-criteria-desc');
 const assessmentTimestamp = document.getElementById('assessment-timestamp');
 
-const forecastSection = document.getElementById('forecast-section');
-const forecastPeakBadge = document.getElementById('forecast-peak-badge');
-const forecastSummaryText = document.getElementById('forecast-summary-text');
-const timelineTrack = document.getElementById('timeline-track');
-const tierHoursSummary = document.getElementById('tier-hours-summary');
-
-const actionsList = document.getElementById('actions-list');
+const progressContainer = document.getElementById('progress-container');
 const progressLabel = document.getElementById('progress-label');
 const progressBarFill = document.getElementById('progress-bar-fill');
-const filterChips = document.querySelectorAll('.filter-chip');
+const roleFilterSelect = document.getElementById('role-filter-select');
+const actionsList = document.getElementById('actions-list');
 
 const bulletinPreview = document.getElementById('bulletin-preview');
 const copyWhatsappBtn = document.getElementById('copy-whatsapp-btn');
+const copyBtnText = document.getElementById('copy-btn-text');
+const copyAnnouncement = document.getElementById('copy-announcement');
 const printBulletinBtn = document.getElementById('print-bulletin-btn');
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-  setupNetworkListeners();
+  initHelplineField();
   setupEventListeners();
   registerServiceWorker();
   fetchForecast(wardSelect.value, true);
 });
 
-// --- Network & Offline Queue ---
-function setupNetworkListeners() {
-  function updateOnlineStatus() {
-    if (navigator.onLine) {
-      networkBadge.textContent = '● Online';
-      networkBadge.className = 'badge badge-online';
-      flushOfflineQueue();
-    } else {
-      networkBadge.textContent = '○ Offline (Cached)';
-      networkBadge.className = 'badge badge-offline';
+function initHelplineField() {
+  if (localHelplineInput) {
+    const saved = localStorage.getItem('heatshield_local_helpline') || '';
+    localHelplineInput.value = saved;
+    localHelplineInput.addEventListener('change', () => {
+      localStorage.setItem('heatshield_local_helpline', localHelplineInput.value.trim());
+      if (currentAssessment) renderBulletin(currentAssessment);
+    });
+  }
+}
+
+// --- Date & Timestamp Parsing Pure Helper ---
+function parseTimestamp(raw) {
+  if (!raw) return null;
+  if (typeof raw === 'string') {
+    const d = new Date(raw);
+    if (!isNaN(d.getTime())) return d;
+    const n = parseFloat(raw);
+    if (!isNaN(n)) return parseTimestamp(n);
+  }
+  if (typeof raw === 'number') {
+    // If epoch is in seconds (< 1e11), convert to milliseconds
+    if (raw < 1e11) {
+      return new Date(raw * 1000);
     }
+    return new Date(raw);
   }
-
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-  updateOnlineStatus();
+  return null;
 }
 
-function queueOfflineAction(wardId, actionId, status, note) {
-  const queue = JSON.parse(localStorage.getItem('heatshield_offline_queue') || '[]');
-  queue.push({ wardId, actionId, status, note, timestamp: Date.now() });
-  localStorage.setItem('heatshield_offline_queue', JSON.stringify(queue));
-  dataSourceBadge.textContent = `Queued (${queue.length})`;
-}
-
-async function flushOfflineQueue() {
-  const queue = JSON.parse(localStorage.getItem('heatshield_offline_queue') || '[]');
-  if (queue.length === 0) return;
-
-  const remaining = [];
-  for (const item of queue) {
-    try {
-      const res = await fetch(`${API_BASE}/api/actions/${item.actionId}?wardId=${encodeURIComponent(item.wardId)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: item.status, note: item.note })
-      });
-      if (!res.ok) throw new Error('Sync failed');
-    } catch (e) {
-      remaining.push(item);
-    }
-  }
-
-  localStorage.setItem('heatshield_offline_queue', JSON.stringify(remaining));
-  if (remaining.length === 0) {
-    dataSourceBadge.textContent = 'Synced';
-  } else {
-    dataSourceBadge.textContent = `Queued (${remaining.length})`;
+function formatIstTimestamp(raw) {
+  const dt = parseTimestamp(raw);
+  if (!dt) return 'Not available';
+  
+  try {
+    const options = {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    };
+    const formatter = new Intl.DateTimeFormat('en-IN', options);
+    const parts = formatter.formatToParts(dt);
+    const partMap = {};
+    parts.forEach(p => { partMap[p.type] = p.value; });
+    const time = `${partMap.hour}:${partMap.minute} ${partMap.dayPeriod.toUpperCase()}`;
+    const date = `${partMap.day} ${partMap.month} ${partMap.year}`;
+    return `${time} IST, ${date}`;
+  } catch (e) {
+    return dt.toLocaleString();
   }
 }
 
-// --- Event Listeners ---
-function setupEventListeners() {
-  wardSelect.addEventListener('change', () => {
-    fetchForecast(wardSelect.value, true);
-  });
-
-  fetchLiveBtn.addEventListener('click', () => {
-    fetchForecast(wardSelect.value, true);
-  });
-
-  if (resetDemoBtn) {
-    resetDemoBtn.addEventListener('click', () => {
-      if (confirm('Reset local demo workspace? This clears locally modified notes, statuses, and offline cache.')) {
-        // Clear cached ward data and offline queue
-        Object.keys(localStorage).forEach(k => {
-          if (k.startsWith('heatshield_cache_') || k === 'heatshield_offline_queue') {
-            localStorage.removeItem(k);
-          }
-        });
-        // Generate fresh workspace ID
-        const newWs = 'ws-' + Math.random().toString(36).substring(2, 10);
-        localStorage.setItem('heatshield_workspace_id', newWs);
-        window.location.reload();
-      }
-    });
+function formatPeakDateTime(raw) {
+  const dt = parseTimestamp(raw);
+  if (!dt) return 'Not available';
+  try {
+    const options = {
+      timeZone: 'Asia/Kolkata',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    return new Intl.DateTimeFormat('en-IN', options).format(dt);
+  } catch (e) {
+    return 'Upcoming';
   }
-
-  toggleWhatifBtn.addEventListener('click', () => {
-    const isHidden = whatifForm.hidden;
-    whatifForm.hidden = !isHidden;
-    toggleWhatifBtn.setAttribute('aria-expanded', String(isHidden));
-    toggleWhatifBtn.textContent = isHidden ? '✕ Close Simulator' : '⚡ What-If Simulator';
-  });
-
-  whatifForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const tempC = parseFloat(document.getElementById('sim-temp').value);
-    const humidityPct = parseFloat(document.getElementById('sim-humidity').value);
-    const depVal = document.getElementById('sim-departure').value;
-    const imdDepartureC = depVal !== '' ? parseFloat(depVal) : null;
-
-    await runWhatIfAssessment({
-      wardId: wardSelect.value,
-      wardName: wardSelect.options[wardSelect.selectedIndex].text,
-      temperatureC: tempC,
-      humidityPct: humidityPct,
-      imdDepartureC: imdDepartureC
-    });
-  });
-
-  resetSimBtn.addEventListener('click', () => {
-    whatifForm.hidden = true;
-    toggleWhatifBtn.setAttribute('aria-expanded', 'false');
-    toggleWhatifBtn.textContent = '⚡ What-If Simulator';
-    fetchForecast(wardSelect.value, true);
-  });
-
-  filterChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      filterChips.forEach(c => {
-        c.classList.remove('active');
-        c.setAttribute('aria-selected', 'false');
-      });
-      chip.classList.add('active');
-      chip.setAttribute('aria-selected', 'true');
-      currentFilter = chip.getAttribute('data-filter');
-      renderActions(currentAssessment ? currentAssessment.actions : []);
-    });
-  });
-
-  copyWhatsappBtn.addEventListener('click', () => {
-    copyBulletinToClipboard();
-  });
-
-  printBulletinBtn.addEventListener('click', () => {
-    preparePrintPoster();
-    window.print();
-  });
 }
 
 // --- Data Fetching ---
 async function fetchForecast(wardId, live = true) {
   setLoadingState(true);
   const controller = new AbortController();
+  
+  // 3s timer updates feedback without aborting the actual network request
+  const slowWarningTimer = setTimeout(() => {
+    dataSourceBadge.textContent = 'Still loading...';
+    dataSourceBadge.className = 'pill pill-saved';
+  }, 3000);
+
+  // 12s client timeout guarantees server has ample opportunity to respond (Lambda worst case 10s)
   const timeoutId = setTimeout(() => {
     controller.abort();
-    dataSourceBadge.textContent = 'Network Slow (>3s) - Falling back';
-  }, 3000);
+  }, 12000);
 
   try {
     const url = `${API_BASE}/api/forecast?wardId=${encodeURIComponent(wardId)}&live=${live}`;
@@ -246,26 +195,50 @@ async function fetchForecast(wardId, live = true) {
       signal: controller.signal,
       headers: { 'X-Workspace-Id': CURRENT_WORKSPACE_ID }
     });
+    clearTimeout(slowWarningTimer);
     clearTimeout(timeoutId);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
     const data = await res.json();
     currentAssessment = data;
     renderAll(data);
     localStorage.setItem(`heatshield_cache_${wardId}`, JSON.stringify(data));
   } catch (err) {
+    clearTimeout(slowWarningTimer);
     clearTimeout(timeoutId);
-    console.warn('Network fetch error or >3s timeout, attempting local cache fallback:', err);
+    console.warn('Network fetch error or timeout, checking fallback:', err);
+    
     const cached = localStorage.getItem(`heatshield_cache_${wardId}`);
     if (cached) {
-      currentAssessment = JSON.parse(cached);
-      currentAssessment.dataSource = 'CLIENT_OFFLINE_CACHE';
-      renderAll(currentAssessment);
+      try {
+        currentAssessment = JSON.parse(cached);
+        currentAssessment.dataSource = 'STALE_CACHE';
+        renderAll(currentAssessment);
+      } catch (parseErr) {
+        handleFetchFailure(err);
+      }
     } else {
-      renderErrorState('Network timeout (>3s) or offline. Please check your connection.');
+      handleFetchFailure(err);
     }
   } finally {
     setLoadingState(false);
   }
+}
+
+function handleFetchFailure(err) {
+  dataSourceBadge.textContent = 'Could not load';
+  dataSourceBadge.className = 'pill pill-error';
+
+  let msg = 'Server error encountered while retrieving weather data.';
+  if (!navigator.onLine) {
+    msg = 'Offline. No network connection detected.';
+  } else if (err.name === 'AbortError') {
+    msg = 'Request timed out after 12 seconds. Server is slow to respond.';
+  }
+  renderErrorState(msg);
 }
 
 async function runWhatIfAssessment(payload) {
@@ -281,6 +254,7 @@ async function runWhatIfAssessment(payload) {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    data.dataSource = 'SIMULATION';
     currentAssessment = data;
     renderAll(data);
   } catch (err) {
@@ -295,7 +269,7 @@ async function updateActionStatus(actionId, status, note) {
   const wardId = currentAssessment.wardId;
 
   // Optimistic UI update
-  const action = currentAssessment.actions.find(a => a.actionId === actionId);
+  const action = (currentAssessment.actions || []).find(a => a.actionId === actionId);
   if (action) {
     action.status = status;
     if (note !== undefined) action.note = note;
@@ -310,7 +284,6 @@ async function updateActionStatus(actionId, status, note) {
       alert('Note exceeds maximum length of 200 characters.');
       return;
     }
-    // Strip everything except letters and digits (handles spaces, dashes, slashes, underscores, commas, newlines)
     const strippedNonAlphanumeric = note.replace(/[^\p{L}\p{Nd}]/gu, '');
     if (/\p{Nd}{10,}/u.test(strippedNonAlphanumeric)) {
       alert('Privacy alert: Phone numbers or citizen identifiers cannot be entered in notes.');
@@ -343,215 +316,182 @@ async function updateActionStatus(actionId, status, note) {
   }
 }
 
-// --- Rendering ---
+// --- Isolated Section Rendering ---
 function renderAll(assessment) {
-  renderHeaderStatus(assessment);
-  renderRiskSummary(assessment);
-  renderForecastTimeline(assessment);
-  renderActions(assessment.actions);
-  updateProgress(assessment.actions);
-  renderBulletin(assessment);
+  try { renderHeaderStatus(assessment); } catch (e) { console.error('Error rendering header status:', e); }
+  try { renderRiskSummary(assessment); } catch (e) { console.error('Error rendering risk summary:', e); }
+  try { renderActions(assessment ? assessment.actions : []); } catch (e) { console.error('Error rendering actions:', e); }
+  try { updateProgress(assessment ? assessment.actions : []); } catch (e) { console.error('Error rendering progress:', e); }
+  try { renderBulletin(assessment); } catch (e) { console.error('Error rendering bulletin:', e); }
 }
 
 function renderHeaderStatus(assessment) {
-  const ds = assessment.dataSource || 'UNKNOWN';
-  dataSourceBadge.textContent = ds.replace(/_/g, ' ');
+  const ds = (assessment && assessment.dataSource) ? assessment.dataSource : 'UNKNOWN';
+  
   if (ds === 'LIVE_OPEN_METEO') {
-    dataSourceBadge.className = 'badge badge-online';
-  } else if (ds === 'STALE_CACHE' || ds === 'CLIENT_OFFLINE_CACHE') {
-    dataSourceBadge.className = 'badge badge-offline';
+    dataSourceBadge.textContent = 'Live data';
+    dataSourceBadge.className = 'pill pill-live';
+  } else if (ds === 'STALE_CACHE') {
+    dataSourceBadge.textContent = 'Saved data (stale)';
+    dataSourceBadge.className = 'pill pill-saved';
+  } else if (ds === 'CLIENT_OFFLINE_CACHE') {
+    dataSourceBadge.textContent = 'Offline sample';
+    dataSourceBadge.className = 'pill pill-sample';
+  } else if (ds === 'HISTORICAL_REPLAY_2010') {
+    dataSourceBadge.textContent = 'Replay (past event)';
+    dataSourceBadge.className = 'pill pill-replay';
+  } else if (ds === 'SIMULATION') {
+    dataSourceBadge.textContent = 'Simulation';
+    dataSourceBadge.className = 'pill pill-sample';
   } else {
-    dataSourceBadge.className = 'badge badge-source';
+    dataSourceBadge.textContent = 'Could not load';
+    dataSourceBadge.className = 'pill pill-error';
   }
 
-  if (assessment.timestamp) {
-    const dt = new Date(assessment.timestamp);
-    assessmentTimestamp.textContent = `Updated: ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${dt.toLocaleDateString()})`;
+  if (assessment && assessment.timestamp) {
+    assessmentTimestamp.textContent = `Updated: ${formatIstTimestamp(assessment.timestamp)}`;
+  } else {
+    assessmentTimestamp.textContent = 'Updated: Not available';
   }
 }
 
 function renderRiskSummary(assessment) {
-  const tierKey = assessment.operationalTier || 'BELOW_THRESHOLD';
-  const meta = TIER_METADATA[tierKey] || TIER_METADATA.BELOW_THRESHOLD;
+  if (!assessment) return;
 
-  tierBanner.className = `tier-banner ${meta.cssClass}`;
-  tierIcon.textContent = meta.icon;
-  tierTitle.textContent = meta.title;
-  tierDesc.textContent = meta.desc;
-
+  const summary = assessment.forecastSummary;
   const hi = assessment.heatIndex;
-  if (hi) {
-    hiShadeVal.textContent = `${hi.heatIndexC.toFixed(1)}°C`;
-    hiShadeF.textContent = `${hi.heatIndexF.toFixed(1)}°F (Apparent)`;
-    hiSunVal.textContent = `${hi.sunExposureC.toFixed(1)}°C`;
-    ambientConditions.textContent = `${hi.ambientTempC.toFixed(1)}°C / ${hi.relativeHumidityPct.toFixed(0)}%`;
 
-    if (hi.isExtrapolated) {
-      extrapolationBadge.textContent = '⚠️ Outside 80-110°F validated range';
-      extrapolationBadge.style.color = '#fbbf24';
-    } else {
-      extrapolationBadge.textContent = '✓ NWS Rothfusz Validated Range';
-      extrapolationBadge.style.color = '#94a3b8';
-    }
+  // 1. Right now tier vs Peak in next 72 hours tier
+  const currentTierKey = (hi && hi.riskTier) ? hi.riskTier : (assessment.operationalTier || 'BELOW_THRESHOLD');
+  const currentMeta = TIER_METADATA[currentTierKey] || TIER_METADATA.BELOW_THRESHOLD;
+
+  const peakTierKey = summary ? summary.peakTier : (assessment.operationalTier || currentTierKey);
+  const peakMeta = TIER_METADATA[peakTierKey] || TIER_METADATA.BELOW_THRESHOLD;
+
+  // The composite card follows the peak tier styling
+  tierBanner.className = `tier-callout ${peakMeta.cssClass}`;
+  tierIcon.querySelector('use').setAttribute('href', peakMeta.iconSymbol);
+
+  const currentHiC = hi ? hi.heatIndexC.toFixed(1) : '--';
+  const peakHiC = summary ? summary.maxHeatIndexC.toFixed(1) : currentHiC;
+
+  rightNowTier.textContent = `Right now: ${currentMeta.title} (heat index ${currentHiC}°C)`;
+
+  if (summary && summary.peakWindowStart) {
+    const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
+    peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr} (heat index ${peakHiC}°C)`;
+  } else {
+    peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} (heat index ${peakHiC}°C)`;
   }
 
-  const imd = assessment.imdCategory || 'NORMAL';
-  imdSignalVal.textContent = imd.replace(/_/g, ' ');
+  tierDesc.textContent = peakMeta.desc;
+
+  // 2. Simple Stats
+  if (hi) {
+    const ambient = (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC);
+    const humidity = (hi.relativeHumidityPct !== undefined ? hi.relativeHumidityPct : hi.humidityPct);
+    const sunC = (hi.sunExposureC !== undefined ? hi.sunExposureC : hi.sunExposureHeatIndexC);
+
+    hiShadeVal.textContent = `${hi.heatIndexC.toFixed(1)}°C`;
+    hiShadeF.textContent = `${hi.heatIndexF.toFixed(1)}°F`;
+    hiSunVal.textContent = `${sunC.toFixed(1)}°C`;
+    ambientConditions.textContent = `${ambient.toFixed(1)}°C / ${humidity.toFixed(0)}% RH`;
+  } else {
+    hiShadeVal.textContent = 'Not available';
+    hiShadeF.textContent = '--';
+    hiSunVal.textContent = 'Not available';
+    ambientConditions.textContent = '--';
+  }
+
+  if (summary && summary.peakWindowStart) {
+    const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
+    forecastPeakVal.textContent = `${peakMeta.title}`;
+    forecastSummaryText.textContent = `Expected around ${peakTimeStr} (${summary.maxHeatIndexC.toFixed(1)}°C)`;
+  } else {
+    forecastPeakVal.textContent = 'Not available';
+    forecastSummaryText.textContent = 'Peak window data unavailable';
+  }
+
+  // 3. IMD Signal
+  let imdRaw = assessment.imdCategory || 'NORMAL';
+  if (imdRaw === 'NORMAL') {
+    imdSignalVal.textContent = 'No heatwave signal (indicative)';
+    imdCriteriaDesc.textContent = 'Indicative signal from model forecast, not an official IMD warning.';
+  } else if (imdRaw === 'HEAT_WAVE') {
+    imdSignalVal.textContent = 'Heatwave signal';
+    imdCriteriaDesc.textContent = 'Observed or forecast ambient temperature meets IMD heatwave criteria.';
+  } else if (imdRaw === 'SEVERE_HEAT_WAVE') {
+    imdSignalVal.textContent = 'Severe heatwave signal';
+    imdCriteriaDesc.textContent = 'Ambient temperature exceeds IMD severe heatwave criteria (≥47°C or ≥6.4°C departure).';
+  } else {
+    imdSignalVal.textContent = imdRaw.replace(/_/g, ' ');
+  }
+
   if (assessment.dataSource === 'HISTORICAL_REPLAY_2010') {
     imdCriteriaDesc.textContent = 'RETROSPECTIVE ILLUSTRATION using reanalysis data, not a forecast. (Station 46.8°C / Grid 44.2°C)';
-  } else {
-    imdCriteriaDesc.textContent = 'Indicative signal from model forecast, not an IMD warning';
-  }
-  if (imd === 'SEVERE_HEAT_WAVE' || imd === 'HEAT_WAVE') {
-    imdSignalVal.className = 'metric-value text-danger';
-  } else {
-    imdSignalVal.className = 'metric-value';
-  }
-}
-
-function renderForecastTimeline(assessment) {
-  const summary = assessment.forecastSummary;
-  const hourly = assessment.hourlyForecast || [];
-
-  if (!summary || hourly.length === 0) {
-    forecastSummaryText.textContent = '72-Hour continuous hourly timeline available when fetching live or simulation profiles.';
-    timelineTrack.innerHTML = '<div class="timeline-chip">Hourly data not present for this assessment.</div>';
-    tierHoursSummary.innerHTML = '';
-    forecastPeakBadge.textContent = 'Peak: N/A';
-    return;
-  }
-
-  // Peak badge
-  const peakTierMeta = TIER_METADATA[summary.peakTier] || TIER_METADATA.BELOW_THRESHOLD;
-  forecastPeakBadge.textContent = `Peak: ${summary.maxHeatIndexC.toFixed(1)}°C (${peakTierMeta.title.split(' ')[0]})`;
-
-  // Summary text
-  const startDt = new Date(summary.peakWindowStart);
-  const endDt = new Date(summary.peakWindowEnd);
-  forecastSummaryText.textContent = `Peak thermal stress window predicted between ${startDt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} and ${endDt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}. Prepare preemptive actions.`;
-
-  // Timeline track
-  timelineTrack.innerHTML = '';
-  hourly.forEach((pt, idx) => {
-    const chip = document.createElement('div');
-    const isPeak = Math.abs(pt.heatIndexC - summary.maxHeatIndexC) < 0.1;
-    chip.className = `timeline-chip ${isPeak ? 'chip-peak' : ''}`;
-
-    const dt = new Date(pt.timestamp);
-    const timeStr = `${dt.getHours()}:00`;
-
-    const dotClass = getDotClass(pt.tier);
-
-    chip.innerHTML = `
-      <span class="timeline-time">${timeStr}</span>
-      <span class="timeline-temp">${pt.temperatureC.toFixed(0)}°</span>
-      <span class="timeline-sub" style="font-size:0.65rem; color:#94a3b8;">${pt.heatIndexC.toFixed(0)}° HI</span>
-      <span class="timeline-tier-dot ${dotClass}" title="${pt.tier}"></span>
-    `;
-    timelineTrack.appendChild(chip);
-  });
-
-  // Hours per tier pills
-  tierHoursSummary.innerHTML = '';
-  if (summary.hoursPerTier) {
-    for (const [tier, count] of Object.entries(summary.hoursPerTier)) {
-      if (count > 0) {
-        const pill = document.createElement('span');
-        pill.className = 'hour-pill';
-        const meta = TIER_METADATA[tier] || { title: tier };
-        pill.innerHTML = `<strong>${count} hrs</strong> in ${meta.title.split(' ')[0]}`;
-        tierHoursSummary.appendChild(pill);
-      }
-    }
-  }
-}
-
-function getDotClass(tier) {
-  switch (tier) {
-    case 'EXTREME_DANGER': return 'dot-extreme-danger';
-    case 'DANGER': return 'dot-danger';
-    case 'EXTREME_CAUTION': return 'dot-extreme-caution';
-    case 'CAUTION': return 'dot-caution';
-    default: return 'dot-below';
   }
 }
 
 function renderActions(actions) {
   actionsList.innerHTML = '';
-  if (!actions || actions.length === 0) {
-    actionsList.innerHTML = '<div class="loading-state">No immediate operational actions required for this tier. Maintain monitoring.</div>';
-    return;
-  }
+  const list = actions || [];
 
-  const filtered = actions.filter(act => {
-    if (currentFilter === 'ALL') return true;
-    if (currentFilter === 'SANITATION') return act.ownerRole.includes('SANITATION');
-    if (currentFilter === 'LABOUR') return act.ownerRole.includes('LABOUR');
-    if (currentFilter === 'HEALTH') return act.ownerRole.includes('HEALTH') || act.ownerRole.includes('MEDICAL');
-    if (currentFilter === 'RELIEF') return act.ownerRole.includes('RELIEF') || act.ownerRole.includes('COORDINATOR');
-    return true;
-  });
+  const filtered = currentFilter === 'ALL'
+    ? list
+    : list.filter(a => a.ownerRole === currentFilter);
 
   if (filtered.length === 0) {
-    actionsList.innerHTML = '<div class="loading-state">No actions match the selected role filter.</div>';
+    actionsList.innerHTML = '<div class="empty-state">No suggested actions for the selected filter.</div>';
     return;
   }
 
-  filtered.forEach(action => {
+  filtered.forEach((action) => {
     const card = document.createElement('div');
-    const statusClass = action.status === 'COMPLETED' ? 'status-completed' : (action.status === 'IN_PROGRESS' ? 'status-in-progress' : '');
-    card.className = `action-card ${statusClass}`;
+    const isDone = action.status === 'COMPLETED';
+    const isInProgress = action.status === 'IN_PROGRESS';
+    card.className = `action-card ${isDone ? 'status-done' : ''} ${isInProgress ? 'status-inprogress' : ''}`;
 
-    const priorityClass = action.priority === 'CRITICAL' ? 'badge-critical' : (action.priority === 'URGENT' ? 'badge-urgent' : 'badge-high');
+    const deadlineText = action.deadline || action.timeWindow || 'Before peak hours';
+    const cleanHindiTitle = (action.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
 
     card.innerHTML = `
-      <div class="action-top">
-        <div class="action-title-group">
-          <h3>${escapeHtml(action.title)}</h3>
-          <div class="action-hindi-title">${escapeHtml(action.hindiTitle || '')} <small style="font-size:0.7em; color:#94a3b8; font-style:normal;">[PENDING HUMAN REVIEW]</small></div>
-        </div>
-        <span class="action-priority-badge ${priorityClass}">${action.priority}</span>
+      <div class="action-top-row">
+        <h3 class="action-title">${escapeHtml(action.title)}</h3>
+        <span class="action-priority"><svg class="icon icon-inline" aria-hidden="true"><use href="#icon-clock"/></svg>${escapeHtml(action.priority || 'MEDIUM')}</span>
       </div>
-
-      <div class="action-meta-grid">
-        <div class="action-meta-item">
-          <span>Role: <strong>${formatRole(action.ownerRole)}</strong></span>
-        </div>
-        <div class="action-meta-item">
-          <span>Target: <strong>${formatTarget(action.targetGroup)}</strong></span>
-        </div>
-        <div class="action-meta-item action-deadline">
-          <span>⏰ <strong>${escapeHtml(action.deadline || action.timeWindow)}</strong></span>
-        </div>
+      ${cleanHindiTitle ? `<p class="action-hindi">${escapeHtml(cleanHindiTitle)} <small>[PENDING HUMAN REVIEW]</small></p>` : ''}
+      <div class="action-meta">
+        <span>Role: ${formatRole(action.ownerRole)}</span>
+        <span>Deadline: ${escapeHtml(deadlineText)}</span>
+        <span>Source: ${escapeHtml(action.sourceReference || 'NDMA Guidelines')}</span>
       </div>
-
-      <div style="font-size: 0.72rem; color: #64748b;">
-        Source: ${escapeHtml(action.sourceReference || 'NDMA / AMC HAP')}
-      </div>
-
-      <div class="action-status-bar">
-        <div class="status-toggle-group" role="group" aria-label="Action Status">
-          <button class="status-btn ${action.status === 'PENDING' ? 'active-pending' : ''}" data-status="PENDING">PENDING</button>
-          <button class="status-btn ${action.status === 'IN_PROGRESS' ? 'active-in-progress' : ''}" data-status="IN_PROGRESS">IN PROGRESS</button>
-          <button class="status-btn ${action.status === 'COMPLETED' ? 'active-completed' : ''}" data-status="COMPLETED">COMPLETED</button>
-        </div>
-        <input type="text" class="action-note-input" maxlength="200" placeholder="Field note (max 200 chars - no names/phones)" value="${escapeHtml(action.note || '')}" />
+      <div class="action-controls">
+        <select class="action-status-select" aria-label="Action status">
+          <option value="PENDING" ${action.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+          <option value="IN_PROGRESS" ${action.status === 'IN_PROGRESS' ? 'selected' : ''}>In progress</option>
+          <option value="COMPLETED" ${action.status === 'COMPLETED' ? 'selected' : ''}>Done</option>
+        </select>
+        <input type="text" class="action-note-input" maxlength="200" placeholder="Coordinator note (no personal data)" value="${escapeHtml(action.note || '')}" />
+        <button type="button" class="action-save-btn">Save</button>
       </div>
     `;
 
-    // Wire status toggles
-    const statusButtons = card.querySelectorAll('.status-btn');
+    const statusSelect = card.querySelector('.action-status-select');
     const noteInput = card.querySelector('.action-note-input');
+    const saveBtn = card.querySelector('.action-save-btn');
 
-    statusButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const newStatus = btn.getAttribute('data-status');
-        updateActionStatus(action.actionId, newStatus, noteInput.value.trim());
-      });
+    statusSelect.addEventListener('change', () => {
+      updateActionStatus(action.actionId, statusSelect.value, noteInput.value.trim());
     });
 
-    noteInput.addEventListener('change', () => {
-      updateActionStatus(action.actionId, action.status, noteInput.value.trim());
+    saveBtn.addEventListener('click', () => {
+      updateActionStatus(action.actionId, statusSelect.value, noteInput.value.trim());
+    });
+
+    noteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        updateActionStatus(action.actionId, statusSelect.value, noteInput.value.trim());
+      }
     });
 
     actionsList.appendChild(card);
@@ -560,22 +500,34 @@ function renderActions(actions) {
 
 function updateProgress(actions) {
   if (!actions || actions.length === 0) {
-    progressLabel.textContent = '0 / 0 Completed';
+    progressContainer.style.display = 'none';
+    progressLabel.textContent = '0 of 0 actions done';
     progressBarFill.style.width = '0%';
     return;
   }
 
+  progressContainer.style.display = 'block';
   const completed = actions.filter(a => a.status === 'COMPLETED').length;
   const total = actions.length;
   const pct = Math.round((completed / total) * 100);
 
-  progressLabel.textContent = `${completed} of ${total} Completed (${pct}%)`;
+  progressLabel.textContent = `${completed} of ${total} actions done`;
   progressBarFill.style.width = `${pct}%`;
+  progressBarFill.parentElement.setAttribute('aria-valuenow', pct);
 }
 
 function renderBulletin(assessment) {
+  if (!assessment) {
+    bulletinPreview.textContent = 'No assessment loaded.';
+    copyWhatsappBtn.disabled = true;
+    printBulletinBtn.disabled = true;
+    return;
+  }
+
   const text = generateBulletinText(assessment);
   bulletinPreview.textContent = text;
+  copyWhatsappBtn.disabled = false;
+  printBulletinBtn.disabled = false;
 }
 
 function generateBulletinText(assessment) {
@@ -583,52 +535,63 @@ function generateBulletinText(assessment) {
   const tier = assessment.operationalTier || 'BELOW_THRESHOLD';
   const meta = TIER_METADATA[tier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = assessment.heatIndex;
-  const actions = assessment.actions || [];
+  const ambient = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC).toFixed(1) : '--';
+  const hiC = hi ? hi.heatIndexC.toFixed(1) : '--';
 
-  const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const timeStr = formatIstTimestamp(assessment.timestamp);
 
-  let text = `🚨 *HEATSHIELD WARD ADVISORY (DRAFT)* 🚨\n`;
-  text += `⚠️ *Notice:* DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice.\n`;
-  text += `📍 *Ward:* ${assessment.wardName || assessment.wardId}\n`;
-  text += `📅 *Issued:* ${dateStr} at ${timeStr}\n`;
-  text += `⚠️ *Alert Tier:* ${meta.title.toUpperCase()}\n`;
-  if (hi) {
-    text += `🌡️ *Heat Index:* ${hi.heatIndexC.toFixed(1)}°C (Sun: ${hi.sunExposureC.toFixed(1)}°C)\n`;
-  }
-  text += `ℹ️ *Guidance:* ${meta.desc}\n\n`;
+  let text = `HEATWAVE ADVISORY (DRAFT) - ${assessment.wardName || assessment.wardId}\n`;
+  text += `Issued: ${timeStr}\n`;
+  text += `Status: ${meta.title.toUpperCase()}\n`;
+  text += `Current: ${ambient}C | Heat Index: ${hiC}C\n\n`;
+  text += `Summary:\n${meta.desc}\n\n`;
 
-  text += `📋 *SUGGESTED WARD ACTIONS:*\n`;
-  actions.forEach((a, i) => {
-    const statusIcon = a.status === 'COMPLETED' ? '✅' : (a.status === 'IN_PROGRESS' ? '⏳' : '⭕');
-    text += `${i + 1}. ${statusIcon} [${a.status}] ${a.title}\n`;
-    if (a.hindiTitle) {
-      text += `   👉 ${a.hindiTitle} [PENDING HUMAN REVIEW]\n`;
-    }
+  text += `Suggested Civic Actions:\n`;
+  (assessment.actions || []).forEach((a, i) => {
+    const mark = a.status === 'COMPLETED' ? '[DONE]' : '[PENDING]';
+    text += `${i + 1}. ${mark} ${a.title} (Deadline: ${a.deadline || a.timeWindow})\n`;
   });
 
-  const localHelplineInput = document.getElementById('local-helpline-input');
   const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
-  const emergencyStr = localHelpline ? `National emergency: 112 | Local helpline: ${localHelpline}` : `National emergency: 112`;
+  const emergencyStr = localHelpline ? `National emergency: 112 | Public office: ${localHelpline}` : `National emergency: 112`;
 
-  text += `\n📞 *Emergency Contacts:* ${emergencyStr}\n`;
-  text += `🛡️ *HeatShield* — Community Heatwave Risk-to-Action Planner\n`;
-  text += `🌐 Weather data: Open-Meteo.com (CC BY 4.0)`;
+  text += `\nEmergency Contacts: ${emergencyStr}\n`;
+  text += `Notice: DRAFT for coordinator review. Planning aid only.\n`;
+  text += `Data: Open-Meteo.com (CC BY 4.0)\n`;
 
   return text;
 }
 
 function copyBulletinToClipboard() {
   const text = generateBulletinText(currentAssessment);
-  navigator.clipboard.writeText(text).then(() => {
-    const original = copyWhatsappBtn.innerHTML;
-    copyWhatsappBtn.innerHTML = '<span>✓</span> Copied to Clipboard!';
+  if (!text) return;
+
+  function onCopied() {
+    copyBtnText.textContent = 'Copied';
+    copyAnnouncement.textContent = 'Bulletin copied to clipboard successfully.';
     setTimeout(() => {
-      copyWhatsappBtn.innerHTML = original;
+      copyBtnText.textContent = 'Copy text';
+      copyAnnouncement.textContent = '';
     }, 2500);
-  }).catch(err => {
-    alert('Failed to copy: ' + err.message);
-  });
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onCopied).catch(() => {
+      fallbackSelectAndCopy();
+    });
+  } else {
+    fallbackSelectAndCopy();
+  }
+}
+
+function fallbackSelectAndCopy() {
+  const range = document.createRange();
+  range.selectNodeContents(bulletinPreview);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  copyBtnText.textContent = 'Selected (Press Ctrl+C)';
+  copyAnnouncement.textContent = 'Bulletin text selected. Press Ctrl+C to copy.';
 }
 
 function preparePrintPoster() {
@@ -641,20 +604,19 @@ function preparePrintPoster() {
   const tierMeta = TIER_METADATA[currentAssessment.operationalTier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = currentAssessment.heatIndex;
 
-  const localHelplineInput = document.getElementById('local-helpline-input');
   const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
   if (printHelplineSpan) {
-    printHelplineSpan.textContent = localHelpline ? `| Local helpline: ${localHelpline}` : '';
+    printHelplineSpan.textContent = localHelpline ? `| Public office: ${localHelpline}` : '';
   }
 
   meta.innerHTML = `
     <p><strong>Ward / Jurisdiction:</strong> ${escapeHtml(currentAssessment.wardName || currentAssessment.wardId)}</p>
-    <p><strong>Date & Time of Assessment:</strong> ${new Date().toLocaleString('en-IN')}</p>
-    <p><strong>Ambient / Heat Index:</strong> ${hi ? `${hi.ambientTempC.toFixed(1)}°C / Heat Index: ${hi.heatIndexC.toFixed(1)}°C (Sun: ${hi.sunExposureC.toFixed(1)}°C)` : 'N/A'}</p>
+    <p><strong>Date & Time of Assessment:</strong> ${formatIstTimestamp(currentAssessment.timestamp)}</p>
+    <p><strong>Ambient / Heat Index:</strong> ${hi ? `${hi.temperatureC || hi.ambientTempC}°C / Heat Index: ${hi.heatIndexC.toFixed(1)}°C` : 'N/A'}</p>
   `;
 
   tier.innerHTML = `
-    <div>${tierMeta.icon} ${tierMeta.title.toUpperCase()}</div>
+    <div>${tierMeta.title.toUpperCase()}</div>
     <div style="font-size: 11pt; font-weight: normal; margin-top: 4pt;">${tierMeta.desc}</div>
   `;
 
@@ -662,24 +624,139 @@ function preparePrintPoster() {
   (currentAssessment.actions || []).forEach((a, idx) => {
     const div = document.createElement('div');
     div.className = 'print-poster-action-item';
+    const cleanHindi = (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
     div.innerHTML = `
       <p><strong>${idx + 1}. [${a.status}] ${escapeHtml(a.title)}</strong></p>
-      <p style="font-style: italic; color: #444;">${escapeHtml(a.hindiTitle || '')} <small>[PENDING HUMAN REVIEW]</small></p>
+      ${cleanHindi ? `<p style="font-style: italic; color: #444;">${escapeHtml(cleanHindi)} <small>[PENDING HUMAN REVIEW]</small></p>` : ''}
       <p><small>Role: ${formatRole(a.ownerRole)} | Deadline: ${escapeHtml(a.deadline || a.timeWindow)} | Source: ${escapeHtml(a.sourceReference || '')}</small></p>
     `;
     acts.appendChild(div);
   });
 }
 
-// --- Helpers ---
+// --- Offline Queue Handling ---
+function queueOfflineAction(wardId, actionId, status, note) {
+  const queue = JSON.parse(localStorage.getItem('heatshield_offline_queue') || '[]');
+  queue.push({ wardId, actionId, status, note, timestamp: Date.now() });
+  localStorage.setItem('heatshield_offline_queue', JSON.stringify(queue));
+  dataSourceBadge.textContent = `Queued (${queue.length})`;
+}
+
+async function flushOfflineQueue() {
+  const queue = JSON.parse(localStorage.getItem('heatshield_offline_queue') || '[]');
+  if (queue.length === 0) return;
+
+  const remaining = [];
+  for (const item of queue) {
+    try {
+      const res = await fetch(`${API_BASE}/api/actions/${item.actionId}?wardId=${encodeURIComponent(item.wardId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: item.status, note: item.note })
+      });
+      if (!res.ok) throw new Error('Sync failed');
+    } catch (e) {
+      remaining.push(item);
+    }
+  }
+
+  localStorage.setItem('heatshield_offline_queue', JSON.stringify(remaining));
+  if (remaining.length === 0) {
+    dataSourceBadge.textContent = 'Live data';
+    dataSourceBadge.className = 'pill pill-live';
+  } else {
+    dataSourceBadge.textContent = `Queued (${remaining.length})`;
+  }
+}
+
+// --- Event Listeners ---
+function setupEventListeners() {
+  window.addEventListener('online', flushOfflineQueue);
+
+  wardSelect.addEventListener('change', () => {
+    fetchForecast(wardSelect.value, true);
+  });
+
+  fetchLiveBtn.addEventListener('click', () => {
+    fetchForecast(wardSelect.value, true);
+  });
+
+  resetDemoBtn.addEventListener('click', () => {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('heatshield_cache_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem('heatshield_offline_queue');
+    fetchForecast(wardSelect.value, true);
+  });
+
+  toggleWhatifBtn.addEventListener('click', () => {
+    const isHidden = whatifForm.hidden;
+    whatifForm.hidden = !isHidden;
+    toggleWhatifBtn.setAttribute('aria-expanded', String(!isHidden));
+  });
+
+  whatifForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tempC = parseFloat(document.getElementById('sim-temp').value);
+    const humidityPct = parseFloat(document.getElementById('sim-humidity').value);
+    const depVal = document.getElementById('sim-departure').value;
+    const imdDepartureC = depVal !== '' ? parseFloat(depVal) : null;
+
+    await runWhatIfAssessment({
+      wardId: wardSelect.value,
+      wardName: wardSelect.options[wardSelect.selectedIndex].text,
+      temperatureC: tempC,
+      humidityPct: humidityPct,
+      imdDepartureC: imdDepartureC
+    });
+  });
+
+  resetSimBtn.addEventListener('click', () => {
+    whatifForm.hidden = true;
+    toggleWhatifBtn.setAttribute('aria-expanded', 'false');
+    fetchForecast(wardSelect.value, true);
+  });
+
+  roleFilterSelect.addEventListener('change', () => {
+    currentFilter = roleFilterSelect.value;
+    renderActions(currentAssessment ? currentAssessment.actions : []);
+  });
+
+  copyWhatsappBtn.addEventListener('click', copyBulletinToClipboard);
+
+  printBulletinBtn.addEventListener('click', () => {
+    preparePrintPoster();
+    window.print();
+  });
+}
+
+function setLoadingState(loading) {
+  if (loading) {
+    dataSourceBadge.textContent = 'Loading...';
+    dataSourceBadge.className = 'pill pill-muted';
+  }
+}
+
+function renderErrorState(msg) {
+  actionsList.innerHTML = `<div class="empty-state" style="color: #991b1b;">${escapeHtml(msg)}</div>`;
+}
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.log('SW registration skipped or failed:', err);
+    });
+  }
+}
+
 function formatRole(role) {
   if (!role) return 'Unassigned';
   return role.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function formatTarget(target) {
-  if (!target) return 'All Citizens';
-  return target.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
 
 function escapeHtml(str) {
@@ -691,22 +768,4 @@ function escapeHtml(str) {
     "'": '&#39;',
     '"': '&quot;'
   }[tag] || tag));
-}
-
-function setLoadingState(loading) {
-  if (loading) {
-    dataSourceBadge.textContent = 'Syncing...';
-  }
-}
-
-function renderErrorState(msg) {
-  actionsList.innerHTML = `<div class="loading-state" style="color: #f87171;">⚠️ ${escapeHtml(msg)}</div>`;
-}
-
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-      console.log('SW registration skipped or failed:', err);
-    });
-  }
 }

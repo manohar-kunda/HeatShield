@@ -3,216 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="HeatShield — Community Heatwave Risk-to-Action Planner. Rule-backed heat index calculation, IMD alert integration, and actionable community playbooks.">
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-  <!-- Header & Status Bar -->
+  <!-- Inline SVG Sprite: Zero Emoji, Pure Accessible SVG Symbols -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"/>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+    </symbol>
+    <symbol id="icon-rotate-ccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="1 4 1 10 7 10"/>
+      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+    </symbol>
+    <symbol id="icon-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="21" x2="4" y2="14"/>
+      <line x1="4" y1="10" x2="4" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12" y2="3"/>
+      <line x1="20" y1="21" x2="20" y2="16"/>
+      <line x1="20" y1="12" x2="20" y2="3"/>
+      <line x1="1" y1="14" x2="7" y2="14"/>
+      <line x1="9" y1="8" x2="15" y2="8"/>
+      <line x1="17" y1="16" x2="23" y2="16"/>
+    </symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </symbol>
+    <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </symbol>
+    <symbol id="icon-thermometer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+    </symbol>
+    <symbol id="icon-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="1" y1="1" x2="23" y2="23"/>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9"/>
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+      <line x1="12" y1="20" x2="12.01" y2="20"/>
+    </symbol>
+  </svg>
+
+  <!-- (1) Header with Shield Icon, Title, and Truthful Pill -->
   <header class="app-header">
     <div class="header-content">
       <div class="brand">
-        <span class="logo-icon" aria-hidden="true">🛡️</span>
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#icon-shield"/></svg>
         <div>
           <h1 class="brand-title">HeatShield</h1>
           <p class="brand-subtitle">Community Heatwave Risk-to-Action Planner</p>
         </div>
       </div>
       <div class="header-badges">
-        <span id="network-badge" class="badge badge-online">● Online</span>
-        <span id="datasource-badge" class="badge badge-source">Syncing...</span>
+        <span id="datasource-badge" class="pill pill-muted" role="status">Loading...</span>
       </div>
     </div>
   </header>
 
   <main class="main-container">
-    <!-- Coordinator Safety & Planning Disclaimer -->
+    <!-- (2) DRAFT Notice Banner -->
     <div class="disclaimer-banner" role="note">
-      ⚠️ <strong>Notice:</strong> DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice. National emergency: <strong>112</strong>.
+      <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-info"/></svg>
+      <span><strong>DRAFT for coordinator review.</strong> Planning aid only. Not an official notice, not an IMD warning, not medical advice. National emergency: <strong>112</strong>.</span>
     </div>
 
-    <!-- Ward Ingestion & Simulator Controls -->
+    <!-- (3) Controls Card -->
     <section class="card controls-card" aria-labelledby="controls-heading">
-      <div class="section-header">
-        <h2 id="controls-heading">Ward Monitoring & Ingestion</h2>
-        <button id="toggle-whatif-btn" class="btn btn-secondary btn-sm" aria-expanded="false">
-          ⚡ What-If Simulator
+      <h2 id="controls-heading" class="card-title">Ward Monitoring & Forecast</h2>
+      
+      <div class="form-group">
+        <label for="ward-select" class="form-label">Target Ward / Zone:</label>
+        <select id="ward-select" class="form-select">
+          <optgroup label="Live Forecast Monitoring (Illustrative Demo Wards)">
+            <option value="DEMO_AHMEDABAD" selected>Demo ward: Ahmedabad Central (illustrative)</option>
+            <option value="DEMO_DELHI">Demo ward: Delhi Central (illustrative)</option>
+            <option value="DEMO_NAGPUR">Demo ward: Nagpur Central (illustrative)</option>
+            <option value="DEMO_HYDERABAD">Demo ward: Hyderabad Old City (illustrative)</option>
+            <option value="DEMO_KOLKATA">Demo ward: Kolkata North (illustrative)</option>
+          </optgroup>
+          <optgroup label="Historical Heatwave Replay (Retrospective Illustration)">
+            <option value="REPLAY_AHMEDABAD_2010">REPLAY: Ahmedabad May 2010 Severe Heatwave (Observed Station 46.8°C / Grid 44.2°C)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button id="fetch-live-btn" class="btn btn-primary">
+          <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-refresh"/></svg>
+          Get forecast
+        </button>
+        <button id="toggle-whatif-btn" class="btn btn-secondary" aria-expanded="false">
+          <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-sliders"/></svg>
+          What-if
+        </button>
+        <button id="reset-demo-btn" class="btn btn-secondary" title="Clear local demo workspace and cached state">
+          <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-rotate-ccw"/></svg>
+          Reset Demo
         </button>
       </div>
 
-      <div class="controls-grid">
-        <div class="form-group">
-          <label for="ward-select">Target Ward / Zone:</label>
-          <select id="ward-select" class="form-control">
-            <optgroup label="Live Forecast Monitoring (Illustrative Demo Wards)">
-              <option value="DEMO_AHMEDABAD" selected>Demo ward: Ahmedabad Central (illustrative)</option>
-              <option value="DEMO_DELHI">Demo ward: Delhi Central (illustrative)</option>
-              <option value="DEMO_NAGPUR">Demo ward: Nagpur Central (illustrative)</option>
-              <option value="DEMO_HYDERABAD">Demo ward: Hyderabad Old City (illustrative)</option>
-              <option value="DEMO_KOLKATA">Demo ward: Kolkata North (illustrative)</option>
-            </optgroup>
-            <optgroup label="Historical Heatwave Replay (Retrospective Illustration)">
-              <option value="REPLAY_AHMEDABAD_2010">⚠️ REPLAY: Ahmedabad May 2010 Severe Heatwave (Observed Station 46.8°C / Grid 44.2°C)</option>
-            </optgroup>
-          </select>
+      <details class="settings-details">
+        <summary class="settings-summary">Bulletin settings</summary>
+        <div class="form-group" style="margin-top: 0.75rem;">
+          <label for="local-helpline-input" class="form-label">Public office helpline (optional coordinator field):</label>
+          <input type="text" id="local-helpline-input" class="form-input" placeholder="e.g. 079-2535-0000 (kept locally, not sent to server)" maxlength="50">
         </div>
-
-        <div class="form-group">
-          <label for="local-helpline-input">Local Helpline (optional coordinator field):</label>
-          <input type="text" id="local-helpline-input" class="form-control" placeholder="Optional ward helpline (leave blank for 112)" maxlength="50">
-        </div>
-
-        <div class="controls-actions">
-          <button id="fetch-live-btn" class="btn btn-primary">
-            <span class="btn-icon">🔄</span> Fetch Live Weather
-          </button>
-          <button id="reset-demo-btn" class="btn btn-secondary" title="Clear local demo workspace and cached state">
-            <span class="btn-icon">🗑️</span> Reset Demo
-          </button>
-        </div>
-      </div>
+      </details>
 
       <!-- What-If Simulator Form (Collapsible) -->
       <form id="whatif-form" class="whatif-panel" hidden>
-        <div class="whatif-divider"><span>Simulation Mode</span></div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="sim-temp">Ambient Temp (°C):</label>
-            <input type="number" id="sim-temp" class="form-control" min="20" max="55" step="0.5" value="41.5" required>
-          </div>
-          <div class="form-group">
-            <label for="sim-humidity">Relative Humidity (%):</label>
-            <input type="number" id="sim-humidity" class="form-control" min="5" max="100" step="1" value="45" required>
-          </div>
-          <div class="form-group">
-            <label for="sim-departure">IMD Departure from Normal (°C):</label>
-            <input type="number" id="sim-departure" class="form-control" min="-5" max="15" step="0.5" value="5.0" placeholder="Optional">
-          </div>
+        <h3 class="whatif-title">Simulation Parameters</h3>
+        <div class="form-group">
+          <label for="sim-temp" class="form-label">Ambient Temp (°C):</label>
+          <input type="number" id="sim-temp" class="form-input" min="20" max="55" step="0.5" value="41.5" required>
         </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-warning">Run What-If Assessment</button>
+        <div class="form-group">
+          <label for="sim-humidity" class="form-label">Relative Humidity (%):</label>
+          <input type="number" id="sim-humidity" class="form-input" min="5" max="100" step="1" value="45" required>
+        </div>
+        <div class="form-group">
+          <label for="sim-departure" class="form-label">IMD Departure from Normal (°C):</label>
+          <input type="number" id="sim-departure" class="form-input" min="-5" max="15" step="0.5" value="5.0" placeholder="Optional">
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">Run What-If Assessment</button>
           <button type="button" id="reset-sim-btn" class="btn btn-secondary">Reset to Live</button>
         </div>
       </form>
     </section>
 
-    <!-- Operational Risk Summary Card -->
-    <section class="card risk-card" id="risk-summary-section" aria-labelledby="risk-heading">
-      <div class="section-header">
-        <h2 id="risk-heading">Operational Hazard Assessment</h2>
-        <span id="assessment-timestamp" class="timestamp-text">Updated: --</span>
+    <!-- (4) Result Card -->
+    <section class="card result-card" id="risk-summary-section" aria-labelledby="result-heading">
+      <div class="result-header">
+        <h2 id="result-heading" class="card-title">Operational Risk Assessment</h2>
+        <span id="assessment-timestamp" class="timestamp-text" role="status">Updated: Loading...</span>
       </div>
 
-      <div class="risk-overview-grid">
-        <!-- Main Composite Tier Badge -->
-        <div class="tier-banner" id="tier-banner">
-          <span class="tier-icon" id="tier-icon" aria-hidden="true">⚠️</span>
-          <div>
-            <div class="tier-label-small">COMPOSITE OPERATIONAL TIER</div>
-            <div class="tier-label-large" id="tier-title">CALCULATING...</div>
-            <div class="tier-description" id="tier-desc">Evaluating heat indices and thresholds.</div>
-          </div>
+      <!-- Main Signals: Right Now vs Peak in next 72 hours -->
+      <div class="tier-callout" id="tier-banner">
+        <div class="tier-callout-icon" id="tier-icon-container">
+          <svg class="icon icon-xl" id="tier-icon" aria-hidden="true"><use href="#icon-info"/></svg>
         </div>
-
-        <!-- Metric Cards -->
-        <div class="metrics-grid">
-          <div class="metric-box">
-            <div class="metric-label">Heat Index (Shade)</div>
-            <div class="metric-value" id="hi-shade-val">--°C</div>
-            <div class="metric-sub" id="hi-shade-f">--°F</div>
-          </div>
-
-          <div class="metric-box">
-            <div class="metric-label">Direct Sunlight Index</div>
-            <div class="metric-value text-danger" id="hi-sun-val">--°C</div>
-            <div class="metric-sub">+15°F (+8.3°C) NWS Solar Allowance</div>
-          </div>
-
-          <div class="metric-box">
-            <div class="metric-label">Ambient Conditions</div>
-            <div class="metric-value" id="ambient-conditions">--°C / --%</div>
-            <div class="metric-sub" id="extrapolation-badge">NWS Validated Range</div>
-          </div>
-
-          <div class="metric-box">
-            <div class="metric-label">IMD Heatwave Signal</div>
-            <div class="metric-value" id="imd-signal-val">NORMAL</div>
-            <div class="metric-sub" id="imd-criteria-desc">Indicative signal from model forecast, not an IMD warning</div>
-          </div>
+        <div class="tier-callout-content">
+          <div class="tier-headline" id="right-now-tier">Right now: Loading...</div>
+          <div class="tier-headline-sub" id="peak-72h-tier">Peak in next 72 hours: Loading...</div>
+          <p class="tier-desc" id="tier-desc">Evaluating heat indices and thresholds.</p>
         </div>
+      </div>
+
+      <!-- Three Simple Stats & IMD Signal -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Heat index in shade</div>
+          <div class="stat-value" id="hi-shade-val">Loading...</div>
+          <div class="stat-sub" id="hi-shade-f">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">In direct sun (up to +15°F)</div>
+          <div class="stat-value" id="hi-sun-val">Loading...</div>
+          <div class="stat-sub" id="ambient-conditions">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Peak time and tier</div>
+          <div class="stat-value" id="forecast-peak-val">Loading...</div>
+          <div class="stat-sub" id="forecast-summary-text">Analyzing 72h window...</div>
+        </div>
+      </div>
+
+      <div class="imd-box">
+        <div class="imd-title">IMD Heatwave Signal (Indicative)</div>
+        <div class="imd-status" id="imd-signal-val">No heatwave signal (indicative)</div>
+        <div class="imd-sub" id="imd-criteria-desc">Indicative signal from model forecast, not an official IMD warning.</div>
       </div>
     </section>
 
-    <!-- 72-Hour Peak Thermal Stress Window -->
-    <section class="card forecast-card" id="forecast-section" aria-labelledby="forecast-heading">
-      <div class="section-header">
-        <h2 id="forecast-heading">72-Hour Peak Stress Window</h2>
-        <span id="forecast-peak-badge" class="badge badge-accent">Peak: --</span>
-      </div>
-      <p class="section-intro" id="forecast-summary-text">
-        Analyzing thermal accumulation across upcoming 72 hours.
-      </p>
-
-      <!-- Mini Chart / Timeline -->
-      <div class="timeline-container" id="timeline-container" tabindex="0" role="region" aria-label="Hourly Heat Index Timeline">
-        <div class="timeline-track" id="timeline-track">
-          <!-- Dynamically populated hourly chips -->
-        </div>
-      </div>
-
-      <div class="tier-hours-summary" id="tier-hours-summary">
-        <!-- Aggregated hours chips -->
-      </div>
-    </section>
-
-    <!-- Suggested Action Playbook -->
+    <!-- (5) Suggested Action Playbook -->
     <section class="card actions-card" aria-labelledby="actions-heading">
-      <div class="section-header actions-header-flex">
+      <div class="actions-header">
         <div>
-          <h2 id="actions-heading">Suggested Ward Action Playbook</h2>
-          <p class="section-intro">Operational planning suggestions adapted from NDMA 2019 Guidelines & Ahmedabad Heat Action Plan (AMC 2023).</p>
+          <h2 id="actions-heading" class="card-title">Suggested Ward Action Playbook</h2>
+          <p class="card-intro">Operational planning suggestions adapted from NDMA Guidelines and municipal Heat Action Plans.</p>
         </div>
-        <div class="action-progress-container">
-          <div class="progress-label" id="progress-label">0 / 0 Completed</div>
+        <div class="progress-wrap" id="progress-container" style="display: none;">
+          <div class="progress-label" id="progress-label">0 of 0 actions done</div>
           <div class="progress-bar-bg" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
           </div>
         </div>
       </div>
 
-      <!-- Action Role Filter -->
-      <div class="filter-bar" role="tablist" aria-label="Filter actions by role">
-        <button class="filter-chip active" data-filter="ALL" role="tab" aria-selected="true">All Roles</button>
-        <button class="filter-chip" data-filter="SANITATION" role="tab" aria-selected="false">Sanitation</button>
-        <button class="filter-chip" data-filter="LABOUR" role="tab" aria-selected="false">Labour Welfare</button>
-        <button class="filter-chip" data-filter="HEALTH" role="tab" aria-selected="false">Public Health</button>
-        <button class="filter-chip" data-filter="RELIEF" role="tab" aria-selected="false">Relief & Shelters</button>
+      <!-- Filter Controls: Native Select for Accessibility & Clean Layout -->
+      <div class="filter-group">
+        <label for="role-filter-select" class="form-label">Show actions for:</label>
+        <select id="role-filter-select" class="form-select">
+          <option value="ALL" selected>Show: All roles</option>
+          <option value="SANITATION">Sanitation</option>
+          <option value="LABOUR">Labour Welfare</option>
+          <option value="HEALTH">Public Health</option>
+          <option value="RELIEF">Relief & Shelters</option>
+        </select>
       </div>
 
       <!-- Action Cards List -->
       <div class="actions-list" id="actions-list" aria-live="polite">
-        <div class="loading-state">Loading action playbook...</div>
+        <div class="empty-state" role="status">Loading action playbook...</div>
       </div>
     </section>
 
-    <!-- Ward Bulletin & Community Broadcast -->
+    <!-- (6) Bulletin & Dispatch -->
     <section class="card bulletin-card" aria-labelledby="bulletin-heading">
-      <div class="section-header">
-        <h2 id="bulletin-heading">Ward Public Bulletin & Dispatch</h2>
-        <div class="bulletin-buttons">
-          <button id="copy-whatsapp-btn" class="btn btn-whatsapp">
-            <span>📱</span> Copy WhatsApp Alert
+      <div class="bulletin-header">
+        <h2 id="bulletin-heading" class="card-title">Ward Public Bulletin & Dispatch</h2>
+        <div class="btn-row">
+          <button id="copy-whatsapp-btn" class="btn btn-secondary" disabled>
+            <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-copy"/></svg>
+            <span id="copy-btn-text">Copy text</span>
           </button>
-          <button id="print-bulletin-btn" class="btn btn-secondary">
-            <span>🖨️</span> Print A4 Notice
+          <button id="print-bulletin-btn" class="btn btn-secondary" disabled>
+            <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-printer"/></svg>
+            Print A4 notice
           </button>
         </div>
       </div>
 
+      <div id="copy-announcement" class="sr-only" aria-live="polite"></div>
+
       <div class="bulletin-preview" id="bulletin-preview">
-        <!-- Rendered formatted bulletin text -->
+        Waiting for forecast data...
       </div>
     </section>
   </main>
@@ -235,23 +294,18 @@
     </div>
     <div class="print-poster-footer">
       <p><strong>Notice:</strong> DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice.</p>
-      <p>National emergency: <strong>112</strong> <span id="print-local-helpline"></span> | Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com (CC BY 4.0)</a></p>
+      <p>National emergency: <strong>112</strong> <span id="print-local-helpline"></span> | Weather data: Open-Meteo.com (CC BY 4.0)</p>
     </div>
   </div>
 
   <footer class="app-footer">
     <div class="footer-content">
-      <div class="footer-text">
-        <p><strong>HeatShield</strong> — Built for Bharat Builds Tour 2026 / Environmental Hacks.</p>
-        <p>Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="footer-link">Open-Meteo.com (CC BY 4.0)</a> | Targeting WCAG 2.1 AA; checklist and Lighthouse results in <a href="docs/ACCESSIBILITY.md" class="footer-link">docs/ACCESSIBILITY.md</a>.</p>
-      </div>
-      <div class="privacy-badge">
-        <span>🔒 Zero PII Protocol</span>
-        <small>Designed not to collect personal data. Free-text notes are screened but should never contain personal details.</small>
-      </div>
+      <p><strong>HeatShield</strong> — Built for Bharat Builds Tour 2026 / Environmental Hacks.</p>
+      <p>Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com (CC BY 4.0)</a> | Targeting WCAG 2.1 AA (see docs/ACCESSIBILITY.md).</p>
+      <p><small>Designed not to collect personal data. Free-text notes are screened but should never contain personal details.</small></p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

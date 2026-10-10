@@ -55,7 +55,7 @@ Crucially, HeatShield enforces the **72-Hour Peak Composite Tier Rule**: actions
 
 ## Results & Reflections
 
-- **54 automated unit tests** verify every formula, boundary condition, and privacy constraint.
+- **68 automated unit and contract tests** verify every formula, boundary condition, and privacy constraint.
 - **55.4 KB uncompressed frontend** loads instantly even on throttled 2G connections.
 - **Lighthouse audit**: 98 Performance, 96 Accessibility, 100 Best Practices.
 - **Zero PII**: Ward-level planning ensures citizen privacy is preserved by design.
