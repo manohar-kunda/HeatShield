@@ -190,7 +190,22 @@ for w in widths:
             print(f"  [FAIL] Status pill in unexpected state: '{badge_text}'")
             all_passed = False
             
-    # 6. Check screenshot
+    # 6. Check Hindi bulletin preview exists, contains Devanagari and contains 'PENDING HUMAN REVIEW'
+    bulletin_match = re.search(r'id="bulletin-preview"[^>]*>([\s\S]*?)<\/div>', dom)
+    if bulletin_match:
+        bulletin_text = bulletin_match.group(1).strip()
+        has_devanagari = bool(re.search(r'[\u0900-\u097F]', bulletin_text))
+        has_pending = "PENDING HUMAN REVIEW" in bulletin_text
+        if has_devanagari and has_pending:
+            print("  [PASS] Bulletin preview contains live Devanagari text and '[PENDING HUMAN REVIEW]' tag.")
+        else:
+            print(f"  [FAIL] Bulletin preview check failed: has_devanagari={has_devanagari}, has_pending={has_pending}")
+            all_passed = False
+    else:
+        print("  [FAIL] Element #bulletin-preview not found in DOM.")
+        all_passed = False
+
+    # 7. Check screenshot
     if os.path.exists(ss_path) and os.path.getsize(ss_path) > 0:
         print(f"  [PASS] Screenshot captured: {ss_path} ({os.path.getsize(ss_path)} bytes)")
     else:

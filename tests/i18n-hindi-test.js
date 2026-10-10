@@ -77,11 +77,10 @@ checkPlaceholders(en, hi);
 console.log('  [PASS] All placeholders preserved identically across languages.');
 
 // 4. Character allowlist: No unexpected Latin text in Hindi values
-// Allowed Latin: Units & acronyms (NDMA, IMD, WhatsApp, A4, CC BY 4.0, Open-Meteo, ORS, IV, PENDING HUMAN REVIEW, etc.)
+// Strictly reduced to acronyms and units actually present: ORS, CC, BY, OPEN-METEO.COM
 console.log('\n>>> Check 4: Latin Text Whitelist in Hindi Values');
 const allowedLatinWords = new Set([
-  'NDMA', 'IMD', 'WHATSAPP', 'A4', 'CC', 'BY', '4.0', 'OPEN-METEO.COM', 'OPEN-METEO',
-  'ORS', 'IV', 'PENDING', 'HUMAN', 'REVIEW', 'DONE'
+  'CC', 'BY', 'OPEN-METEO.COM', 'OPEN-METEO', 'ORS'
 ]);
 
 function checkLatinWords(obj, prefix = '') {
@@ -96,10 +95,8 @@ function checkLatinWords(obj, prefix = '') {
       const latinMatches = text.match(/[A-Za-z0-9\.\-]+/g) || [];
       for (const rawWord of latinMatches) {
         const cleanWord = rawWord.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '').toUpperCase();
-        if (!cleanWord || /^\d+$/.test(cleanWord)) continue; // Digits allowed
-        const isAllowed = allowedLatinWords.has(cleanWord) ||
-                          cleanWord === 'OPEN-METEO' ||
-                          cleanWord === 'OPEN-METEO.COM';
+        if (!cleanWord || /^\d+(\.\d+)?$/.test(cleanWord)) continue; // Digits and decimal numbers allowed
+        const isAllowed = allowedLatinWords.has(cleanWord);
         assert(isAllowed, `Unexpected Latin word '${rawWord}' found in Hindi string [${fullKey}]: "${text}"`);
       }
     }
@@ -110,7 +107,7 @@ console.log('  [PASS] All Latin words in Hindi strings conform to approved acron
 
 // 5. WhatsApp copy text round-trips as UTF-8
 console.log('\n>>> Check 5: WhatsApp Bulletin Text UTF-8 Round-Trip');
-const sampleBulletin = `HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central\nIssued: 11:10 PM IST, 10 Oct 2026\nStatus: EXTREME CAUTION\n\n--- ${hi.bulletin_header_title} [${hi.review_status_label}] ---\n${hi.bulletin_suggested_actions_heading}\n1. [पूर्ण / DONE] ${hi.actions.ACT_WATER_KIOSKS}\n2. [लंबित / PENDING] ${hi.actions.ACT_OUTDOOR_WORK_ADVISORY}\n\nEmergency Contacts: National emergency: 112\n${hi.bulletin_emergency_contact}\nNotice: DRAFT for coordinator review. Planning aid only.\n${hi.bulletin_disclaimer}\nData: Open-Meteo.com (CC BY 4.0)\n${hi.bulletin_data_attribution}`;
+const sampleBulletin = `HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central\nIssued: 11:10 PM IST, 10 Oct 2026\nStatus: EXTREME CAUTION\n\n--- ${hi.bulletin_header_title} [${hi.review_status_label}] ---\n${hi.bulletin_current_status_prefix} ${hi.tiers.EXTREME_CAUTION}\n${hi.bulletin_peak_prefix} ${hi.tiers.EXTREME_CAUTION} (${hi.bulletin_time_at} Tue, 12:00 pm IST)\n\n${hi.bulletin_suggested_actions_heading}\n1. [पूर्ण / DONE] ${hi.actions.ACT_WATER_KIOSKS} (${hi.bulletin_deadline_prefix} Tomorrow, before 10:00 AM IST)\n2. [लंबित / PENDING] ${hi.actions.ACT_OUTDOOR_WORK_ADVISORY} (${hi.bulletin_deadline_prefix} During peak hours 12:00 to 16:00 IST)\n\nEmergency Contacts: National emergency: 112\n${hi.bulletin_emergency_contact}\nNotice: DRAFT for coordinator review. Planning aid only.\n${hi.bulletin_disclaimer}\nData: Open-Meteo.com (CC BY 4.0)\n${hi.bulletin_data_attribution}`;
 
 const buf = Buffer.from(sampleBulletin, 'utf8');
 const roundTripped = buf.toString('utf8');
@@ -119,6 +116,28 @@ assert(roundTripped.includes('वार्ड ग्रीष्म पराम
 assert(roundTripped.includes('112'), 'Helpline preserved');
 console.log(`  [PASS] WhatsApp bulletin text round-tripped cleanly (${buf.length} bytes, 0 corruption).`);
 
+// 6. Tricky Devanagari conjuncts round-trip test (नुक्ता, हलन्त, संयुक्ताक्षर, चंद्रबिंदु, विसर्ग)
+console.log('\n>>> Check 6: Tricky Devanagari Conjuncts & Diacritics Round-Trip');
+const trickyConjuncts = [
+  'ग्रीष्म', // हलन्त + ष + म
+  'प्याऊ', // प + य + आ + ऊ
+  'श्रमिकों', // श्र + म + ि + क + ों
+  'झुग्गी', // झ + ु + ग + ् + ग + ी
+  'डॉक्टर', // ॉ (चन्द्र)
+  'आर्द्रता', // र् (रेफ़)
+  'पुनर्जलीकरण', // र् (रेफ़)
+  'प्राथमिक', // प्र
+  'चिकित्सा', // त्स
+  'वातानुकूलित' // त + ा + न + ु + क + ू
+];
+
+for (const word of trickyConjuncts) {
+  const wBuf = Buffer.from(word, 'utf8');
+  const wDec = wBuf.toString('utf8');
+  assert.strictEqual(word, wDec, `Devanagari conjunct '${word}' failed UTF-8 round trip`);
+}
+console.log(`  [PASS] All ${trickyConjuncts.length} complex Devanagari conjuncts verified for lossless UTF-8 round trip.`);
+
 console.log('\n==========================================================');
-console.log(' ALL MECHANICAL HINDI CHECKS PASSED (5/5)');
+console.log(' ALL MECHANICAL HINDI CHECKS PASSED (6/6)');
 console.log('==========================================================');

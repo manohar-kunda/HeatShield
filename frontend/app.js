@@ -59,11 +59,22 @@ let I18N_HINDI = {
   bulletin_header_title: "वार्ड ग्रीष्म परामर्श (प्रारूप)",
   bulletin_suggested_actions_heading: "सुझाए गए नागरिक कार्य (वार्ड स्तर):",
   bulletin_emergency_contact: "राष्ट्रीय आपातकालीन नंबर: 112",
-  bulletin_disclaimer: "सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं।",
+  bulletin_disclaimer: "सूचना: प्रारूप - केवल समन्वयकों की योजना सहायता हेतु। आधिकारिक चेतावनी नहीं, न ही चिकित्सा सलाह।",
   bulletin_data_attribution: "मौसम डेटा: Open-Meteo.com (CC BY 4.0)",
+  tiers: {
+    "BELOW_THRESHOLD": "सामान्य (सीमा से नीचे)",
+    "CAUTION": "सावधानी",
+    "EXTREME_CAUTION": "अत्यधिक सावधानी",
+    "DANGER": "खतरा",
+    "EXTREME_DANGER": "अत्यधिक खतरा"
+  },
+  bulletin_current_status_prefix: "वर्तमान स्थिति:",
+  bulletin_peak_prefix: "अगले 72 घंटों में चरम जोखिम:",
+  bulletin_time_at: "को",
+  bulletin_deadline_prefix: "समय-सीमा:",
   actions: {
     "ACT_WATER_KIOSKS": "बस स्टैंड और प्रमुख चौराहों पर ठंडे व छायादार पेयजल केंद्रों (प्याऊ) का निरीक्षण व संचालन सुनिश्चित करें",
-    "ACT_OUTDOOR_WORK_ADVISORY": "निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में अनिवार्य छायादार विश्राम और काम के घंटों में बदलाव लागू करें",
+    "ACT_OUTDOOR_WORK_ADVISORY": "निर्माण श्रमिकों और सड़क विक्रेताओं के लिए दोपहर में छायादार विश्राम और काम के घंटों में बदलाव लागू करें",
     "ACT_COOLING_SHELTERS": "नागरिकों के लिए वातानुकूलित सामुदायिक भवन, धर्मशालाएं और सार्वजनिक कूलिंग सेंटर खोलें",
     "ACT_ORS_DISPATCH": "बस्तियों और झुग्गी क्षेत्रों में ओआरएस (ORS) पैकेट और प्राथमिक चिकित्सा किट के साथ आशा कार्यकर्ताओं की टीम भेजें",
     "ACT_HOSPITAL_ALERT": "शहरी स्वास्थ्य केंद्रों में हीटस्ट्रोक वार्ड तैयार रखें और आवश्यक जीवन रक्षक दवाइयों का भंडार सुनिश्चित करें"
@@ -601,16 +612,33 @@ function generateBulletinText(assessment) {
   const hindiStatus = (I18N_HINDI && I18N_HINDI.review_status_label) ? I18N_HINDI.review_status_label : 'PENDING HUMAN REVIEW';
   const hindiBulletinTitle = (I18N_HINDI && I18N_HINDI.bulletin_header_title) ? I18N_HINDI.bulletin_header_title : 'वार्ड ग्रीष्म परामर्श (प्रारूप)';
   const hindiActionHeading = (I18N_HINDI && I18N_HINDI.bulletin_suggested_actions_heading) ? I18N_HINDI.bulletin_suggested_actions_heading : 'सुझाए गए नागरिक कार्य (वार्ड स्तर):';
+  const hindiTiers = (I18N_HINDI && I18N_HINDI.tiers) ? I18N_HINDI.tiers : {};
+  const currentTierHindi = hindiTiers[tier] || tier;
 
   text += `\n--- ${hindiBulletinTitle} [${hindiStatus}] ---\n`;
-  text += `${hindiActionHeading}\n`;
+  text += `${I18N_HINDI.bulletin_current_status_prefix || 'वर्तमान स्थिति:'} ${currentTierHindi}\n`;
+
+  const summary = assessment.forecastSummary;
+  if (summary && summary.peakTier) {
+    const peakTierHindi = hindiTiers[summary.peakTier] || summary.peakTier;
+    const peakTimeStr = summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '';
+    const atWord = I18N_HINDI.bulletin_time_at || 'को';
+    const peakLine = peakTimeStr
+      ? `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi} (${atWord} ${peakTimeStr})`
+      : `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi}`;
+    text += `${peakLine}\n`;
+  }
+
+  text += `\n${hindiActionHeading}\n`;
   (assessment.actions || []).forEach((a, i) => {
     const mark = a.status === 'COMPLETED' ? '[पूर्ण / DONE]' : '[लंबित / PENDING]';
     const hindiAction = (I18N_HINDI && I18N_HINDI.actions && I18N_HINDI.actions[a.actionId])
       ? I18N_HINDI.actions[a.actionId]
       : (a.hindiTitle || '').replace(/\s*\(PENDING HUMAN REVIEW\)/i, '');
+    const deadlineStr = a.deadline || a.timeWindow || '';
+    const deadlinePart = deadlineStr ? ` (${I18N_HINDI.bulletin_deadline_prefix || 'समय-सीमा:'} ${deadlineStr})` : '';
     if (hindiAction) {
-      text += `${i + 1}. ${mark} ${hindiAction}\n`;
+      text += `${i + 1}. ${mark} ${hindiAction}${deadlinePart}\n`;
     }
   });
 

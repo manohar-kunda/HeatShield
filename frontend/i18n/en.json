@@ -8,11 +8,22 @@
   "bulletin_header_title": "HEATWAVE ADVISORY (DRAFT)",
   "bulletin_suggested_actions_heading": "Suggested Civic Actions:",
   "bulletin_emergency_contact": "National emergency: 112",
-  "bulletin_disclaimer": "Notice: DRAFT for coordinator review. Planning aid only.",
+  "bulletin_disclaimer": "Notice: DRAFT for coordinator review. Planning aid only. Not an official notice, not an IMD warning, not medical advice.",
   "bulletin_data_attribution": "Data: Open-Meteo.com (CC BY 4.0)",
+  "tiers": {
+    "BELOW_THRESHOLD": "Below threshold",
+    "CAUTION": "Caution",
+    "EXTREME_CAUTION": "Extreme Caution",
+    "DANGER": "Danger",
+    "EXTREME_DANGER": "Extreme Danger"
+  },
+  "bulletin_current_status_prefix": "Current Status:",
+  "bulletin_peak_prefix": "Peak in next 72 hours:",
+  "bulletin_time_at": "at",
+  "bulletin_deadline_prefix": "Deadline:",
   "actions": {
     "ACT_WATER_KIOSKS": "Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs",
-    "ACT_OUTDOOR_WORK_ADVISORY": "Enforce mandatory work-rest cycles and shaded rest breaks for outdoor laborers and street vendors",
+    "ACT_OUTDOOR_WORK_ADVISORY": "Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors",
     "ACT_COOLING_SHELTERS": "Open air-cooled municipal community halls and temples as daytime public cooling shelters",
     "ACT_ORS_DISPATCH": "Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies",
     "ACT_HOSPITAL_ALERT": "Issue heatstroke bed reserve alert to urban health centres and stock IV rehydration fluids"

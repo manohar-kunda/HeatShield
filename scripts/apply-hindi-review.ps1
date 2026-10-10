@@ -36,8 +36,17 @@ if (-not (Test-Path $hiJsonPath)) {
 
 $hiData = Get-Content $hiJsonPath -Raw -Encoding utf8 | ConvertFrom-Json
 
-# 1. Parse CSV rows
-$rows = Import-Csv -Path $ReviewSheet -Encoding utf8
+# 1. Parse CSV rows (Handling UTF-8 with or without BOM)
+$csvBytes = [System.IO.File]::ReadAllBytes((Resolve-Path $ReviewSheet))
+$encoding = [System.Text.Encoding]::UTF8
+if ($csvBytes.Length -ge 3 -and $csvBytes[0] -eq 0xEF -and $csvBytes[1] -eq 0xBB -and $csvBytes[2] -eq 0xBF) {
+    # Skip BOM bytes
+    $csvText = $encoding.GetString($csvBytes, 3, $csvBytes.Length - 3)
+} else {
+    $csvText = $encoding.GetString($csvBytes)
+}
+
+$rows = $csvText | ConvertFrom-Csv
 $appliedCount = 0
 
 foreach ($row in $rows) {
@@ -52,6 +61,9 @@ foreach ($row in $rows) {
 
         if ($key.StartsWith("ACT_")) {
             $hiData.actions.$key = $correction
+        } elseif ($key.StartsWith("tier_")) {
+            $tierName = $key.Substring(5)
+            $hiData.tiers.$tierName = $correction
         } else {
             $hiData.$key = $correction
         }
