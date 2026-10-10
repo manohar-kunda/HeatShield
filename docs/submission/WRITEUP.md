@@ -74,9 +74,9 @@ Existing weather apps display current ambient readings, but fail municipal field
 
 ## 4. Engineering Verification & Quality Record
 
-- **Unit & Contract Tests**: **54 automated JUnit 5 tests** covering Rothfusz polynomial precision, IMD classification, composite peak logic, IST deadline formatting, and security allowlists.
+- **Unit & Contract Tests**: **68 automated JUnit 5 tests** covering Rothfusz polynomial precision, IMD classification, composite peak logic, IST deadline formatting, and security/privacy allowlists.
 - **Bundle Size**: **55.45 KB** total uncompressed static bundle (~14.3 KB gzipped), well within the 100 KB low-bandwidth budget.
-- **Performance & Latency**: CloudFront $p_{50}$ median latency of **70 ms**, Lambda handler warm CPU duration of **~18 ms**.
+- **Performance & Latency**: CloudFront $p_{50}$ median latency of **77 ms**, steady-state warm Lambda execution of **14 ms - 22 ms (average ~18 ms)**. Early post-restore first-invocation figures (182.63 ms) marked as UNVERIFIED pending live CloudWatch REPORT line validation.
 - **Accessibility & Lighthouse**: **98 Performance**, **96 Accessibility**, **100 Best Practices** targeting WCAG 2.1 AA.
 - **Clean-Room Independence**: 100% newly written from scratch starting October 8, 2026. Zero legacy code or fabricated deliverables.
 

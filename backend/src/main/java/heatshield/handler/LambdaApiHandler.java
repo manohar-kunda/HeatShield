@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Main AWS Lambda Request Handler for HTTP API Gateway.
@@ -212,14 +213,16 @@ public class LambdaApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, A
                 return buildResponse(400, Map.of("error", "Note exceeds maximum limit of 200 characters"));
             }
             // Privacy filter hardening:
-            // 1. Strip spaces, dashes, dots, parentheses, and '+'
-            String strippedForDigits = note.replaceAll("[\\s\\-\\.\\(\\)\\+]", "");
-            // Match 10 or more Unicode digits (\p{Nd} covers ASCII 0-9, Devanagari ०-९, etc.)
-            if (strippedForDigits.matches(".*\\p{Nd}{10,}.*")) {
+            // 1. Strip everything that is not a letter or digit (keep \p{L} and \p{Nd})
+            // This normalizes spaces, dashes, slashes, commas, underscores, dots, newlines, etc.
+            String strippedNonAlphanumeric = note.replaceAll("[^\\p{L}\\p{Nd}]", "");
+            // Check for 10 or more consecutive Unicode digits
+            if (strippedNonAlphanumeric.matches(".*\\p{Nd}{10,}.*")) {
                 return buildResponse(400, Map.of("error", "Privacy violation: Phone numbers and identity numbers are prohibited in action notes"));
             }
-            // 2. Reject email-like patterns (e.g. a@b.com, user@domain)
-            if (note.matches("(?i).*\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b.*")) {
+            // 2. Reject email-like patterns across multiple lines (using Pattern.find with CASE_INSENSITIVE and DOTALL)
+            Pattern emailPattern = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            if (emailPattern.matcher(note).find()) {
                 return buildResponse(400, Map.of("error", "Privacy violation: Email addresses are prohibited in action notes"));
             }
         }

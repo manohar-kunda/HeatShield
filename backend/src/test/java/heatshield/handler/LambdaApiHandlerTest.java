@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -174,16 +175,25 @@ class LambdaApiHandlerTest {
             "9876-543-210",
             "९८७६५४३२१०",
             "a@b.com",
-            "coordinator.field@city.gov.in"
+            "coordinator.field@city.gov.in",
+            "hello\n a@b.com",
+            "98765/43210",
+            "98765,43210",
+            "98765_43210",
+            "98765\n43210"
     })
-    @DisplayName("Hardened privacy filter rejects spaced/dashed phones, Devanagari numerals, and email addresses")
+    @DisplayName("Hardened privacy filter rejects phones with separators/newlines, Devanagari numerals, and multiline emails")
     void testHardenedPrivacyFilterRejections(String sensitiveInput) throws Exception {
-        String patchBody = """
-                {
-                  "status": "COMPLETED",
-                  "note": "Update note: %s"
-                }
-                """.formatted(sensitiveInput);
+        // Pre-create assessment
+        handler.handleRequest(createEvent("POST", "/api/assessments", """
+                {"wardId":"DEMO_AHMEDABAD","wardName":"Ahmedabad","temperatureC":39.0,"humidityPct":50.0}
+                """, null), null);
+
+        Map<String, Object> patchMap = new HashMap<>();
+        patchMap.put("status", "COMPLETED");
+        patchMap.put("note", "Update note: " + sensitiveInput);
+        String patchBody = MAPPER.writeValueAsString(patchMap);
+
         Map<String, String> qp = Map.of("wardId", "DEMO_AHMEDABAD");
         APIGatewayV2HTTPEvent patchEvent = createEvent("PATCH", "/api/actions/ACT_WATER_KIOSKS", patchBody, qp);
         APIGatewayV2HTTPResponse response = handler.handleRequest(patchEvent, null);
@@ -191,6 +201,34 @@ class LambdaApiHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(400);
         JsonNode json = MAPPER.readTree(response.getBody());
         assertThat(json.get("error").asText()).contains("Privacy violation");
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "Placed 6 tents and 4 coolers near gate 2",
+            "Refilled 3 water kiosks with 500L tankers",
+            "Shift 1 completed by 11:30 AM with 12 workers on shaded break"
+    })
+    @DisplayName("Permitted civic operational notes with small quantities are accepted")
+    void testPermittedCivicNotes(String validNote) throws Exception {
+        // Pre-create assessment
+        handler.handleRequest(createEvent("POST", "/api/assessments", """
+                {"wardId":"DEMO_AHMEDABAD","wardName":"Ahmedabad","temperatureC":39.0,"humidityPct":50.0}
+                """, null), null);
+
+        Map<String, Object> patchMap = new HashMap<>();
+        patchMap.put("status", "COMPLETED");
+        patchMap.put("note", validNote);
+        String patchBody = MAPPER.writeValueAsString(patchMap);
+
+        Map<String, String> qp = Map.of("wardId", "DEMO_AHMEDABAD");
+        APIGatewayV2HTTPEvent patchEvent = createEvent("PATCH", "/api/actions/ACT_WATER_KIOSKS", patchBody, qp);
+        APIGatewayV2HTTPResponse response = handler.handleRequest(patchEvent, null);
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        JsonNode json = MAPPER.readTree(response.getBody());
+        assertThat(json.get("status").asText()).isEqualTo("COMPLETED");
+        assertThat(json.get("note").asText()).isEqualTo(validNote);
     }
 
     private APIGatewayV2HTTPEvent createEvent(String method, String path, String body, Map<String, String> queryParams) {

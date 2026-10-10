@@ -22,13 +22,20 @@ Measurements collected across 20 consecutive requests against `/api/health` foll
 | **GET /api/health (CloudFront edge)** | 20 | 53 | **77** | 290 | 1286 | Health baseline through edge proxy |
 | **GET /api/health (Direct API)** | 20 | 45 | **53** | 85 | 158 | Direct connection to `ap-south-1` HTTP API |
 
+### Caching Layers & Data Tiering Architecture
+HeatShield implements three explicit caching and resilience tiers:
+1. **Tier 1 (In-Memory per Execution Environment)**: `ForecastIngestionService` maintains a concurrent in-memory cache with a 30-minute expiration per Lambda execution environment. Measured in: **GET /api/forecast (cache hit)**.
+2. **Tier 2 (DynamoDB Snapshot Persistence)**: When live weather is ingested or custom assessments are computed, the full assessment snapshot is stored in DynamoDB under the partition key `WS#<workspaceId>#WARD#<wardId>`. If external APIs are unavailable, this snapshot is served. Measured in: **GET /api/forecast (cache hit)** and **POST /api/assessments**.
+3. **Tier 3 (Bundled Deterministic Fallback)**: If both external weather APIs and DynamoDB read paths are unreachable, the application falls back to a bundled 72-hour synthetic baseline heatwave fixture.
+*(Note: CloudFront does NOT cache `/api/*` routes; API responses are routed directly to API Gateway with caching disabled).*
+
 ### Component Breakdown & Latency Transition Explanation
-1. **Initial Post-Restore First Invocation (182.63 ms)**:
-   - When AWS Lambda SnapStart restores a snapshot, the very first user invocation after the restore phase undergoes initial class-loading, JVM JIT profiling, and TLS socket initialization with DynamoDB / HTTPS endpoints. This resulted in the initial 182.63 ms execution duration recorded in the early smoke test.
+1. **Initial Post-Restore First Invocation (182.63 ms — [UNVERIFIED pending CloudWatch REPORT lines])**:
+   - The figure of 182.63 ms was originally recorded during early prototype testing. Whether this represents snapshot restoration duration or cold JIT startup execution will be determined definitively from live CloudWatch `REPORT` log excerpts (`Restore Duration` vs `Duration`). Until fresh live CloudWatch log lines are extracted, this distinction remains **UNVERIFIED**.
 2. **Subsequent Steady-State Warm Invocations (14 ms - 22 ms, Average ~18 ms)**:
-   - Once the JVM tiered compiler processes hot execution paths and HTTP connection pools are established, pure handler execution drops to 14 ms - 22 ms.
+   - Once hot JVM paths are compiled and DynamoDB HTTP connections are pooled, warm Lambda handler execution executes within 14 ms - 22 ms.
 3. **AWS Lambda SnapStart Restore Phase**:
-   - Snapshot restore duration: **~622 ms** (observed in CloudWatch upon initial snapshot restore).
+   - Initial snapshot restore duration: **~622 ms** (observed during initial deployment publish phase; to be re-verified from CloudWatch logs).
 4. **Network Transit / CDN Edge Overhead**:
    - Client-to-Mumbai public Internet RTT: **~25 - 40 ms**.
    - CloudFront reverse-proxy forwarding to API Gateway origin: **~15 - 25 ms**.

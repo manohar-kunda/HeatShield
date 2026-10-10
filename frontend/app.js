@@ -301,12 +301,13 @@ async function updateActionStatus(actionId, status, note) {
       alert('Note exceeds maximum length of 200 characters.');
       return;
     }
-    const strippedForDigits = note.replace(/[\s\-\.\(\)\+]/g, '');
-    if (/\d{10,}/.test(strippedForDigits) || /[\u0966-\u096F]{10,}/.test(strippedForDigits)) {
+    // Strip everything except letters and digits (handles spaces, dashes, slashes, underscores, commas, newlines)
+    const strippedNonAlphanumeric = note.replace(/[^\p{L}\p{Nd}]/gu, '');
+    if (/\p{Nd}{10,}/u.test(strippedNonAlphanumeric)) {
       alert('Privacy alert: Phone numbers or citizen identifiers cannot be entered in notes.');
       return;
     }
-    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(note)) {
+    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/m.test(note)) {
       alert('Privacy alert: Email addresses cannot be entered in notes.');
       return;
     }

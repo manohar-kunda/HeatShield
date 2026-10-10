@@ -177,7 +177,6 @@ Resources:
           StrictTransportSecurity:
             AccessControlMaxAgeSec: 31536000
             IncludeSubdomains: true
-            Preload: true
             Override: true
           ContentSecurityPolicy:
             ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
