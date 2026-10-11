@@ -51,7 +51,14 @@ try {
         "DRAFT Ward Heat Advisory (illustrative)",
         "PENDING HUMAN REVIEW",
         "Replay: Ahmedabad, May 2010 heatwave",
-        "Retrospective illustration only"
+        "Retrospective illustration only",
+        "A forecast says how hot it will be, not what a ward should do about it.",
+        "Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days.",
+        "Quick tour:",
+        "tour-live-btn",
+        "tour-whatif-btn",
+        "tour-replay-btn",
+        "chart-accessible-summary"
     )
 
     foreach ($req in $requiredStrings) {
@@ -73,7 +80,14 @@ try {
         "MUNICIPAL WARD HEATWAVE ACTION NOTICE",
         "Severe Heatwave",
         "docs/ACCESSIBILITY.md",
-        "sin((hour-9)"
+        "sin((hour-9)",
+        "16-term",
+        "16 term",
+        "Zero-Data",
+        "strictly client-side",
+        "Heatwaves turn dangerous before",
+        "Action dispatch",
+        "verifiable tracking"
     )
 
     foreach ($forb in $forbiddenStrings) {

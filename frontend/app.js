@@ -531,17 +531,17 @@ function renderPipelineStrip(assessment) {
   if (ds === 'SIMULATION') {
     p1.textContent = 'What-if custom input';
     p2.textContent = `NWS shade HI ${assessment.heatIndex ? assessment.heatIndex.heatIndexC.toFixed(1) : '--'}°C`;
-    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+    p3.textContent = `${(assessment.actions || []).length} suggested actions tracked`;
   } else if (ds === 'HISTORICAL_REPLAY_2010') {
     p1.textContent = 'ERA5 2010 archive rows';
     p2.textContent = `Max dry-bulb 45.4°C (${assessment.operationalTier})`;
-    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+    p3.textContent = `${(assessment.actions || []).length} suggested actions tracked`;
   } else {
     const summary = assessment.forecastSummary;
     const peakStr = summary ? `${summary.maxHeatIndexC.toFixed(1)}°C (${summary.peakTier})` : '72h window';
     p1.textContent = 'Open-Meteo 72h forecast';
     p2.textContent = `Peak HI: ${peakStr}`;
-    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+    p3.textContent = `${(assessment.actions || []).length} suggested actions tracked`;
   }
 }
 
@@ -937,8 +937,12 @@ function generateBulletinText(assessment) {
 
   const currentAirTemp = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
   const summary = assessment.forecastSummary;
-  const peakAirTemp = (summary && summary.maxTemperatureC !== undefined) ? summary.maxTemperatureC : currentAirTemp;
-  const isExtrapolated = (currentAirTemp > 43.33) || (peakAirTemp > 43.33);
+  let isExtrapolated = (currentAirTemp > 43.33);
+  if (assessment.dataSource === 'HISTORICAL_REPLAY_2010') {
+    isExtrapolated = true;
+  } else if (assessment.hourlyPoints && assessment.hourlyPoints.length > 0) {
+    isExtrapolated = assessment.hourlyPoints.some(pt => (pt.temperatureC !== undefined ? pt.temperatureC : pt.ambientTempC) > 43.33);
+  }
 
   const timeStr = formatIstTimestamp(assessment.timestamp);
 
@@ -1251,17 +1255,17 @@ function setupEventListeners() {
       setTourActive(tourWhatifBtn);
       whatifForm.hidden = false;
       toggleWhatifBtn.setAttribute('aria-expanded', 'true');
-      document.getElementById('sim-temp').value = '46.0';
+      document.getElementById('sim-temp').value = '38.5';
       document.getElementById('sim-humidity').value = '55';
-      document.getElementById('sim-departure').value = '6.5';
+      document.getElementById('sim-departure').value = '5.0';
       const replayProv = document.getElementById('replay-provenance');
       if (replayProv) replayProv.style.display = 'none';
       await runWhatIfAssessment({
         wardId: wardSelect.value,
         wardName: wardSelect.options[wardSelect.selectedIndex].text,
-        temperatureC: 46.0,
+        temperatureC: 38.5,
         humidityPct: 55,
-        imdDepartureC: 6.5
+        imdDepartureC: 5.0
       });
     });
   }

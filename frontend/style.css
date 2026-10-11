@@ -202,7 +202,7 @@ body {
 }
 
 .pipeline-step-num {
-  font-size: 0.75rem;
+  font-size: 0.875rem; /* 14px floor */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -317,12 +317,19 @@ body {
 
 .form-select, .form-input {
   width: 100%;
+  min-height: 44px; /* WCAG 44px touch target */
   padding: 0.625rem 0.75rem;
   font-size: 1rem;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: #ffffff;
   color: var(--text-main);
+  box-sizing: border-box;
+}
+
+.hindi-review-tag {
+  font-size: 0.875rem; /* 14px floor */
+  font-weight: 600;
 }
 
 .form-select:focus, .form-input:focus {

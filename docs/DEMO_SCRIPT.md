@@ -66,9 +66,9 @@
 >
 > *Behind the scenes, HeatShield runs on a high-efficiency AWS serverless architecture in `ap-south-1` (Mumbai):*
 > - *Java 21 compiled natively on Amazon Linux 2023 with **AWS Lambda SnapStart**, delivering sub-650ms cold starts and 80ms warm latencies.*
-> - *An HTTP API Gateway connected to **DynamoDB On-Demand** with automated 4-hour TTL expiration for privacy and cost control.*
+> - *An HTTP API Gateway connected to **DynamoDB On-Demand** with automated 7-day TTL expiration for privacy and cost control.*
 > - *Static assets hosted on S3 behind **CloudFront with Origin Access Control**, routing `/api/*` same-origin with zero CORS overhead and low-latency global CDN caching.*
-> - *And zero citizen PII is ever collected or stored."*
+> - *Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days; the optional helpline stays in the browser. Designed not to collect personal data."*
 
 ---
 

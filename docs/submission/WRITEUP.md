@@ -74,10 +74,10 @@ Existing weather apps display current ambient readings, but fail municipal field
 
 ## 4. Engineering Verification & Quality Record
 
-- **Unit & Contract Tests**: **68 automated JUnit 5 tests** covering Rothfusz polynomial precision, IMD classification, composite peak logic, IST deadline formatting, and security/privacy allowlists.
+- **Unit & Contract Tests**: **75 automated JUnit 5 tests** covering NWS Rothfusz regression precision, IMD classification, composite peak logic, IST deadline formatting, and security/privacy allowlists.
 - **Bundle Size**: **55.45 KB** total uncompressed static bundle (~14.3 KB gzipped), well within the 100 KB low-bandwidth budget.
 - **Performance & Latency**: CloudFront $p_{50}$ median latency of **77 ms**, steady-state warm Lambda execution of **14 ms - 22 ms (average ~18 ms)**. Early post-restore first-invocation figures (182.63 ms) marked as UNVERIFIED pending live CloudWatch REPORT line validation.
-- **Accessibility & Lighthouse**: **98 Performance**, **96 Accessibility**, **100 Best Practices** (internal rule: no text below 14 px, footer 13 px; targeting WCAG 2.1 AA, checklist in the repository; no compliance claim).
+- **Accessibility & Lighthouse**: **98 Performance**, **96 Accessibility**, **100 Best Practices** (internal rule: no text below 14 px (footer 13 px). Targeting WCAG 2.1 AA; checklist in the repository; no compliance claim).
 - **Clean-Room Independence**: 100% newly written from scratch starting October 8, 2026. Zero legacy code or fabricated deliverables.
 
 ### Architectural Limitations, Replay Provenance & Cache Behavior:
@@ -87,6 +87,6 @@ Existing weather apps display current ambient readings, but fail municipal field
 
 ---
 
-## 5. AI Assistance Disclosure
+## 5. AI tool disclosure
 
-In full compliance with Environmental Hacks rules, AI assistance (Antigravity pair programmer) was utilized as an interactive architecture sparring partner, test runner, and documentation compiler. All mathematical derivations (NWS Rothfusz polynomial, Steadman adjustments), government criteria mappings (IMD / NDMA / AMC HAP), serverless architecture decisions, and test cases were verified and reviewed directly.
+AI tools used: Antigravity (an AI coding agent) generated most of the code, tests and deployment scripts under my direction. Claude (an AI assistant) was used to plan the work, write the prompts and review the agent's reports. I directed the work, reviewed each report, authenticated AWS, tested the live site, and decided what to claim; see docs/BUILD_LOG.md.

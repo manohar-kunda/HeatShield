@@ -54,14 +54,14 @@ flowchart TD
 
 ## Core Principles & Transparency
 
-1. **Mathematically Rigorous Heat Index**: Implements the official National Oceanic and Atmospheric Administration (NOAA) / National Weather Service (NWS) Rothfusz 9-term polynomial regression with Steadman baseline pre-check, low-RH, and high-RH adjustments.
+1. **Mathematically Rigorous Heat Index**: Implements the NWS Rothfusz regression with the Steadman simple-formula pre-check and the low- and high-humidity adjustments.
 2. **Dual-Signal Protection**: Evaluates both NWS apparent temperature tiers and official India Meteorological Department (IMD) maximum temperature criteria for plains stations ($\ge 40.0^\circ\text{C}$ gate, $\ge 45.0^\circ\text{C}$ Heat Wave, $\ge 47.0^\circ\text{C}$ Severe Heat Wave).
 3. **Data-Driven Playbook**: Action checklists are grounded in the National Disaster Management Authority (NDMA) 2019 Guidelines and the Ahmedabad Municipal Corporation Heat Action Plan (HAP).
-4. **Zero PII**: No personal names, phone numbers, or health records are stored. All records pertain to aggregated community wards.
+4. **Designed not to collect personal data**: Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses but should never contain personal details. Designed not to collect personal data.
 
 > **Operational Disclaimer**: HeatShield is a DRAFT planning aid for coordinator review. It is not an official notice, not an IMD warning, not an individual medical diagnostic tool, and not personal health advice. Always adhere to official bulletins from the India Meteorological Department and local disaster management authorities. National emergency: **112**.
 >
-> **Accessibility**: Internal rule: no text below 14 px (footer 13 px); targeting WCAG 2.1 AA, checklist in the repository; no compliance claim. Detailed checklist and Lighthouse audit findings are documented in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
+> **Accessibility**: Internal rule: no text below 14 px (footer 13 px). Targeting WCAG 2.1 AA; checklist in the repository; no compliance claim. Detailed checklist and Lighthouse audit findings are documented in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
 
 ---
 
@@ -113,7 +113,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 
 ## Known Limitations
 
-1. **Extrapolation Caution**: The NWS Rothfusz polynomial is validated between 80°F–110°F and 40%–100% relative humidity. Outside this range, the system tags calculations with an explicit cautionary badge.
+1. **Extrapolation Caution**: Air temperature above 110°F / 43.3°C is outside the validated range of the NWS regression; heat index values are extrapolated.
 2. **Advisory Scope**: HeatShield is an administrative planning aid for municipal coordinators. It does not replace official meteorological bulletins from the IMD or clinical triage advice.
 3. **Mild Weather Windows**: When tested during mild autumn conditions (e.g. October), ambient heat indices may remain in the "Below Threshold" tier. Users can use the What-If Simulator or the Historical Ahmedabad May 2010 Replay mode to observe Extreme Danger response tiers.
 
@@ -123,7 +123,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 
 | Component / Claim | Verification Status | Exact Evidence & Method |
 | :--- | :---: | :--- |
-| **Rothfusz Polynomial & Steadman Logic** | **VERIFIED** | 26 golden tests in `RothfuszCalculatorTest` matching official NOAA/NWS charts. |
+| **NWS Rothfusz Regression & Steadman Logic** | **VERIFIED** | 32 golden tests in `RothfuszCalculatorTest` matching official NOAA/NWS charts. |
 | **IMD Heatwave Plains Criteria** | **VERIFIED** | 9 unit tests in `ImdHeatwaveCategoryTest` verifying absolute ($\ge 45^\circ\text{C}$) and departure ($\ge 4.5^\circ\text{C}$) thresholds. |
 | **DynamoDB Persistence** | **VERIFIED** | Covered by live integration checks (`scripts/verify-live.ps1` & `scripts/smoke.ps1`) against real AWS DynamoDB table `heatshield-data-heatshield-app`. |
 | **SnapStart & Low Warm Latency** | **VERIFIED** | CloudWatch REPORT logs confirm restore duration (360–499 ms) and warm durations (1.7–24 ms). |
@@ -131,7 +131,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 | **Privacy Filter (Unicode & Multiline Emails)** | **VERIFIED** | 21 unit tests in `LambdaApiHandlerTest` and live HTTP 400 rejection suite in `scripts/verify-live.ps1`. |
 | **Content Security Policy (Zero Inline)** | **VERIFIED** | CloudFront response headers policy active; verified via live `curl -sI`. |
 | **Live Headless Browser DOM Rendering** | **VERIFIED** | Automated Edge headless DOM verification (`tests/run-browser-checks.py`) passing at 360px, 768px, 1280px (no horizontal scroll, buttons enclosed, truthful status pill, no placeholder dashes). |
-| **Browser Interactive Clicks & Offline Queue Sync** | **NOT AUTOMATED** | Automated suite does not simulate user click flows (status toggle, note save, clipboard copy, simulation form submit, Service Worker offline queue background sync); these require manual evaluation. |
+| **Browser Interactive Clicks & Offline Queue Sync** | **NOT AUTOMATED** | NOT AUTOMATED: manual steps listed in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md). |
 | **API Throttling Protection** | **VERIFIED** | API Gateway HTTP API stage throttling configured at 25 rps (burst 50). Unreserved Lambda concurrency default pool is used (no reserved concurrency 10). |
 | **Hindi Language Translations** | **PENDING REVIEW** | All Hindi UI, bulletin, and print strings are marked **PENDING HUMAN REVIEW** in the UI and sourced from `frontend/i18n/hi.json` (review packet in `docs/hindi-review/`). |
 
@@ -153,6 +153,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 - [Evidence & Scientific Verification Record (Live vs Recalled)](docs/VERIFICATION.md)
 - [Latency & Performance Profile](docs/LATENCY.md)
 - [Accessibility Walkthrough & Checklist](docs/ACCESSIBILITY.md)
+- [Manual Test Walkthrough](docs/MANUAL_TESTS.md)
 - [5-Minute Stranger Test Protocol](docs/STRANGER_TEST.md)
 - [3-Minute Demo Video Script](docs/DEMO_SCRIPT.md)
 - [Submission Form Answers Guide](docs/submission/FORM_ANSWERS.md)
@@ -163,5 +164,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl "https://d
 
 ---
 
-## Mandatory AI Tool Disclosure
-This project was designed, implemented, and verified using Google Antigravity as an interactive pair-programming technical mentor and execution coach.
+## AI tool disclosure
+AI tools used: Antigravity (an AI coding agent) generated most of the code, tests and deployment scripts under my direction. Claude (an AI assistant) was used to plan the work, write the prompts and review the agent's reports. I directed the work, reviewed each report, authenticated AWS, tested the live site, and decided what to claim; see docs/BUILD_LOG.md.

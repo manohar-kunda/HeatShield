@@ -133,4 +133,20 @@ class RothfuszCalculatorTest {
         assertThat(result.extrapolated()).isFalse();
         assertThat(result.riskTier()).isEqualTo(HeatRiskTier.EXTREME_DANGER);
     }
+
+    @ParameterizedTest(name = "Heat index {0}°F rounds to nearest degree and assigns tier {1}")
+    @CsvSource({
+            "79.4, BELOW_THRESHOLD",
+            "79.5, CAUTION",
+            "79.6, CAUTION",
+            "79.7, CAUTION",
+            "80.0, CAUTION"
+    })
+    @DisplayName("NWS integer Fahrenheit rounding boundary tests around 80°F (Caution threshold)")
+    void testNwsIntegerFahrenheitRoundingBoundaries(double heatIndexF, HeatRiskTier expectedTier) {
+        HeatRiskTier tier = HeatRiskTier.fromHeatIndexFahrenheit(heatIndexF);
+        assertThat(tier)
+                .as("HI %.1f°F rounded to nearest degree F should yield tier %s", heatIndexF, expectedTier)
+                .isEqualTo(expectedTier);
+    }
 }

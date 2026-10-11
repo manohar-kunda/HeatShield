@@ -16,7 +16,7 @@
 > **Question**: What environmental problem does your project address, and why does it matter?
 >
 > **Answer**:
-> Extreme heatwaves across Indian urban municipalities cause avoidable morbidity and mortality among outdoor labourers, slum dwellers, and vulnerable citizens. While macroeconomic forecasts exist, municipal coordinators lack an actionable, transparent planning tool that translates ambient observations into specific, time-bound ward interventions. HeatShield bridges this "last-mile risk-to-action gap" by calculating apparent heat indices using the NOAA/NWS Rothfusz polynomial combined with IMD heatwave thresholds. It automatically prioritises NDMA-aligned civic actions (water tanker deployment, shaded rest cycles, hospital cooling wards) and tracks implementation with field notes under a strict zero-PII privacy model.
+> Extreme heatwaves across Indian urban municipalities cause avoidable morbidity and mortality among outdoor labourers, slum dwellers, and vulnerable citizens. While macroeconomic forecasts exist, municipal coordinators lack an actionable, transparent planning tool that translates ambient observations into specific, time-bound ward interventions. HeatShield bridges this "last-mile risk-to-action gap" by calculating apparent heat indices using the NWS Rothfusz regression with the Steadman simple-formula pre-check and the low- and high-humidity adjustments, combined with an indicative IMD-style signal. It prioritises NDMA-aligned civic actions (water tanker deployment, shaded rest cycles, hospital cooling wards) and tracks implementation with status tracking and field notes. Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days; the optional helpline stays in the browser. Designed not to collect personal data.
 
 ### 2. Architecture & AWS Services Used
 > **Question**: Which AWS services did you use and why?
@@ -34,10 +34,16 @@
 > **Question**: How did you verify your project and ensure originality?
 >
 > **Answer**:
-> All code was authored from scratch following hackathon opening on October 8, 2026. Scientific equations are verified against NOAA/NWS test charts across 26 golden unit tests (68/68 automated tests passing). End-to-end integration is proven by automated smoke scripts, multi-tenant workspace isolation tests, and live CloudFront latency benchmarks ($p_{50} = 77\text{ ms}$). To test severe scenarios outside mild autumn weather, HeatShield includes an ERA5-anchored historical replay of the May 2010 Ahmedabad heatwave.
+> All code was authored from scratch following hackathon opening on October 8, 2026. Scientific equations are verified against NOAA/NWS test charts across 32 golden unit tests (75/75 automated tests passing). End-to-end integration is proven by automated smoke scripts, multi-tenant workspace isolation tests, and live CloudFront latency benchmarks ($p_{50} = 77\text{ ms}$). To test severe scenarios outside mild autumn weather, HeatShield includes an ERA5-anchored historical replay of the May 2010 Ahmedabad heatwave.
 
 ### 4. Accessibility & Open Data
 > **Question**: How is your solution accessible and what data sources are leveraged?
 >
 > **Answer**:
-> The UI is a lightweight, zero-dependency PWA (<60 KB bundle) built under an internal rule of no text below 14 px (footer 13 px), targeting WCAG 2.1 AA standards (checklist in the repository; no compliance claim), featuring keyboard navigation, screen-reader aria attributes, high-contrast hazard palettes, and offline service-worker caching. Weather forecasts are ingested from Open-Meteo (CC BY 4.0), and guidance follows NDMA 2019 National Guidelines and AMC Heat Action Plans.
+> The UI is a lightweight, zero-dependency PWA (<60 KB bundle) built under an internal rule: no text below 14 px (footer 13 px). Targeting WCAG 2.1 AA; checklist in the repository; no compliance claim, featuring keyboard navigation, screen-reader aria attributes, high-contrast hazard palettes, and offline service-worker caching. Weather forecasts are ingested from Open-Meteo (CC BY 4.0), and guidance follows NDMA 2019 National Guidelines and AMC Heat Action Plans.
+
+### 5. AI tool disclosure
+> **Question**: Did you use AI tools during the hackathon?
+>
+> **Answer**:
+> AI tools used: Antigravity (an AI coding agent) generated most of the code, tests and deployment scripts under my direction. Claude (an AI assistant) was used to plan the work, write the prompts and review the agent's reports. I directed the work, reviewed each report, authenticated AWS, tested the live site, and decided what to claim; see docs/BUILD_LOG.md.

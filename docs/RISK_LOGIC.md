@@ -34,12 +34,13 @@ $$\text{Tier}_{\text{operational}} = \max_{t \in [t_0, t_0 + 72\text{h}]} \left(
 2. **Hourly NWS Rothfusz Calculation**:
    - Evaluate Steadman's simple formula.
    - If $\text{HI} \ge 80.0^\circ\text{F}$, evaluate Rothfusz 9-term regression polynomial with low-RH and high-RH adjustments.
-   - Map to half-open NWS intervals:
-     - $<80.0^\circ\text{F}$ $\rightarrow$ `BELOW_THRESHOLD`
-     - $[80.0, 90.0^\circ\text{F})$ $\rightarrow$ `CAUTION`
-     - $[90.0, 103.0^\circ\text{F})$ $\rightarrow$ `EXTREME_CAUTION`
-     - $[103.0, 125.0^\circ\text{F})$ $\rightarrow$ `DANGER`
-     - $\ge 125.0^\circ\text{F}$ $\rightarrow$ `EXTREME_DANGER`
+   - Tier boundaries use the heat index rounded to the nearest degree F, as NWS does (80 F = 26.7 C starts Caution). Delhi showed Caution at 26.5 C (79.7 F) because 79.7 F rounds to 80 F.
+   - Map to half-open NWS intervals using rounded integer °F:
+     - $<80^\circ\text{F}$ $\rightarrow$ `BELOW_THRESHOLD`
+     - $80 - 89^\circ\text{F}$ $\rightarrow$ `CAUTION`
+     - $90 - 102^\circ\text{F}$ $\rightarrow$ `EXTREME_CAUTION`
+     - $103 - 124^\circ\text{F}$ $\rightarrow$ `DANGER`
+     - $\ge 125^\circ\text{F}$ $\rightarrow$ `EXTREME_DANGER`
 3. **Hourly IMD Plains Signal Evaluation**:
    - Normal: $T_t < 40.0^\circ\text{C}$ or (if $T_t \ge 40.0^\circ\text{C}$, $\Delta T_t < 4.5^\circ\text{C}$ and $T_t < 45.0^\circ\text{C}$).
    - Heat Wave: $T_t \ge 40.0^\circ\text{C}$ and ($\Delta T_t \in [4.5, 6.4^\circ\text{C}]$ or $T_t \ge 45.0^\circ\text{C}$).
@@ -77,5 +78,5 @@ Actions are cumulative (each tier inherits and builds upon lower tiers):
 All deadlines are calculated in Indian Standard Time (`Asia/Kolkata`) using 24-hour notation:
 - `BEFORE_10_AM`: If current IST $< 10:00$, due `"<Today Day Date Month>, before 10:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 10:00 IST"`.
 - `BEFORE_11_AM`: If current IST $< 11:00$, due `"<Today Day Date Month>, before 11:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 11:00 IST"`.
-- `PEAK_HOURS_12_TO_16`: If peak window start is known in forecast summary, due `"Before peak: <Weekday> <Day> <Month> <HH:00> IST"`; otherwise `"During peak hours (12:00 to 16:00 IST)"`.
+- `PEAK_HOURS_12_TO_16`: If peak window start is known in forecast summary, due `"Before peak: <Weekday> <Day> <Month> <HH:00> IST"`; otherwise `"During peak hours 12:00 to 16:00 IST"`. A peak-anchored deadline is the start of the peak window, two hours before the forecast peak hour.
 - `IMMEDIATE`: Due `"Immediate (within 30 mins, by <HH:mm> IST)"`.

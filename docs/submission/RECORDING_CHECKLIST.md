@@ -54,5 +54,5 @@
 
 ### Shot 6: Conclusion & Closing Summary (2:45 - 3:00) [15s]
 1. Camera on speaker or final dashboard screen.
-2. State clean-room engineering: 100% written for Environmental Hacks 2026, internal rule no text below 14 px (footer 13 px), targeting WCAG 2.1 AA (checklist in the repository; no compliance claim), serverless in `ap-south-1`.
+2. State clean-room engineering: 100% written for Environmental Hacks 2026, internal rule: no text below 14 px (footer 13 px). Targeting WCAG 2.1 AA; checklist in the repository; no compliance claim, serverless in `ap-south-1`.
 3. Conclude video.

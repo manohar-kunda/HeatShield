@@ -55,9 +55,14 @@ Crucially, HeatShield enforces the **72-Hour Peak Composite Tier Rule**: actions
 
 ## Results & Reflections
 
-- **68 automated unit and contract tests** verify every formula, boundary condition, and privacy constraint.
+- **75 automated unit and contract tests** verify every formula, boundary condition, and privacy constraint.
 - **55.4 KB uncompressed frontend** loads instantly even on throttled 2G connections.
 - **Lighthouse audit**: 98 Performance, 96 Accessibility, 100 Best Practices.
-- **Zero PII**: Ward-level planning ensures citizen privacy is preserved by design.
+- **Designed not to collect personal data**: Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days; the optional helpline field stays in your browser. Designed not to collect personal data.
 
 By leveraging AWS serverless primitives, we built a production-ready civic tool that costs virtually nothing to maintain during quiet months, yet scales seamlessly when the heat rises.
+
+---
+
+## AI tool disclosure
+AI tools used: Antigravity (an AI coding agent) generated most of the code, tests and deployment scripts under my direction. Claude (an AI assistant) was used to plan the work, write the prompts and review the agent's reports. I directed the work, reviewed each report, authenticated AWS, tested the live site, and decided what to claim; see docs/BUILD_LOG.md.

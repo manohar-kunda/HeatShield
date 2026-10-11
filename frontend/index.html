@@ -8,7 +8,7 @@
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <!-- Inline SVG Sprite: Zero Emoji, Pure Accessible SVG Symbols -->
@@ -118,7 +118,7 @@
     <section class="intro-block" aria-labelledby="intro-heading">
       <h2 id="intro-heading" class="sr-only">About HeatShield</h2>
       <p class="intro-lead">
-        Heatwaves turn dangerous before official thresholds are crossed. HeatShield computes shade and direct-sun heat indices from hourly weather models, evaluates IMD heatwave criteria, and maps the 72-hour peak risk to prioritized municipal actions with deadlines, role assignments, and verifiable tracking.
+        A forecast says how hot it will be, not what a ward should do about it. HeatShield turns the next 72 hours of hourly forecast into a heat-index timeline, finds the peak, and gives a ward coordinator a short list of suggested actions with owner roles and deadlines, plus a way to track them. A planning aid, not an official warning.
       </p>
     </section>
 
@@ -139,7 +139,7 @@
       <div class="pipeline-step">
         <div class="pipeline-step-num">Step 3</div>
         <div class="pipeline-step-title">Ward Playbook</div>
-        <div class="pipeline-step-desc" id="pipeline-step-3">Action dispatch & deadlines</div>
+        <div class="pipeline-step-desc" id="pipeline-step-3">Suggested actions, deadlines, tracking</div>
       </div>
     </section>
 
@@ -193,7 +193,7 @@
         <summary class="settings-summary">Bulletin settings</summary>
         <div class="form-group" style="margin-top: 0.75rem;">
           <label for="local-helpline-input" class="form-label">Public office helpline (optional coordinator field):</label>
-          <input type="text" id="local-helpline-input" class="form-input" placeholder="e.g. 079-2535-0000 (kept locally, not sent to server)" maxlength="50">
+          <input type="text" id="local-helpline-input" class="form-input" placeholder="e.g. 079-2535-0000 (stays in your browser, not sent to server)" maxlength="50">
         </div>
       </details>
 
@@ -202,11 +202,11 @@
         <h3 class="whatif-title">Simulation Parameters</h3>
         <div class="form-group">
           <label for="sim-temp" class="form-label">Ambient Temp (°C):</label>
-          <input type="number" id="sim-temp" class="form-input" min="20" max="55" step="0.5" value="41.5" required>
+          <input type="number" id="sim-temp" class="form-input" min="20" max="55" step="0.5" value="38.5" required>
         </div>
         <div class="form-group">
           <label for="sim-humidity" class="form-label">Relative Humidity (%):</label>
-          <input type="number" id="sim-humidity" class="form-input" min="5" max="100" step="1" value="45" required>
+          <input type="number" id="sim-humidity" class="form-input" min="5" max="100" step="1" value="55" required>
         </div>
         <div class="form-group">
           <label for="sim-departure" class="form-label">IMD Departure from Normal (°C):</label>
@@ -324,7 +324,7 @@
     <!-- (6) Bulletin & Dispatch -->
     <section class="card bulletin-card" aria-labelledby="bulletin-heading">
       <div class="bulletin-header">
-        <h2 id="bulletin-heading" class="card-title">Ward Public Bulletin & Dispatch</h2>
+        <h2 id="bulletin-heading" class="card-title">Ward Bulletin: copy or print</h2>
         <div class="btn-row">
           <button id="copy-whatsapp-btn" class="btn btn-secondary" disabled>
             <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-copy"/></svg>
@@ -352,15 +352,15 @@
           <div class="about-grid">
             <div>
               <h4>Meteorological Foundation</h4>
-              <p>72-hour hourly forecasts of 2m dry-bulb temperature, 2m relative humidity, and wind speed retrieved from Open-Meteo under CC BY 4.0. Shade heat index computed via the full 16-term National Weather Service (NWS) Rothfusz polynomial regression with dry/humid region adjustments. Direct-sun heat index applies standard solar radiation elevation (+15°F / +8.3°C equivalent).</p>
+              <p>72-hour hourly forecasts of 2m dry-bulb temperature, 2m relative humidity, and wind speed retrieved from Open-Meteo under CC BY 4.0. Shade heat index computed via the NWS Rothfusz regression with the Steadman simple-formula pre-check and the low- and high-humidity adjustments. Direct-sun heat index applies standard solar radiation elevation (+15°F / +8.3°C equivalent).</p>
             </div>
             <div>
               <h4>Dual-Signal Risk Engine</h4>
-              <p>Integrates international thermal comfort guidelines with IMD Heatwave Criteria (plains: heatwave at ≥40°C or +4.5°C departure; severe heatwave at ≥47°C or +6.4°C departure). Operational planning tier dynamically elevates to match the peak risk projected across the upcoming 72 hours.</p>
+              <p>Integrates international thermal comfort guidelines with an indicative IMD-style signal (plains: heatwave at ≥40°C or +4.5°C departure; severe heatwave at ≥47°C or +6.4°C departure). Operational planning tier dynamically elevates to match the peak risk projected across the upcoming 72 hours. Tier boundaries use the heat index rounded to the nearest degree F, as NWS does (80 F = 26.7 C starts Caution). Delhi showed Caution at 26.5 C (79.7 F) because 79.7 F rounds to 80 F. A peak-anchored deadline is the start of the peak window, two hours before the forecast peak hour.</p>
             </div>
             <div>
-              <h4>Offline & Edge Resilience</h4>
-              <p>Single-binary Spring Boot / Native Lambda backend running on AWS Serverless. PWA client precaches critical assets and bilingual dictionaries (English/Hindi) with client-side localStorage fallback and optimistic queuing for disconnected field workers.</p>
+              <h4>Offline support (prototype)</h4>
+              <p>Offline support (prototype): the app shell and English/Hindi strings are cached; status changes made offline are queued and sent when you are back online.</p>
             </div>
             <div>
               <h4>Accessibility & Data Protection</h4>
@@ -368,7 +368,7 @@
             </div>
             <div>
               <h4>Designed not to collect personal data</h4>
-              <p>Designed not to collect personal data. Local coordinator helpline numbers and notes are stored strictly client-side. Free-text notes are screened but should not contain personal details.</p>
+              <p>Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses but should never contain personal details. Designed not to collect personal data.</p>
             </div>
           </div>
         </div>
@@ -406,6 +406,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

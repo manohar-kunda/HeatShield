@@ -1,6 +1,6 @@
 # HeatShield Accessibility Record & Evaluation
 
-> **Status**: Internal rule: no text below 14 px (footer 13 px); targeting WCAG 2.1 AA, checklist in the repository; no compliance claim.  
+> **Status**: Internal rule: no text below 14 px (footer 13 px). Targeting WCAG 2.1 AA; checklist in the repository; no compliance claim.  
 > This document maintains the evaluated accessibility checklist, contrast measurements, keyboard interaction patterns, and Lighthouse audit findings.
 
 ---
