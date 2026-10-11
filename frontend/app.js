@@ -277,6 +277,22 @@ function formatPeakDateTimeHindi(raw) {
   return `${dayHi}, ${parts.day} ${monthHi}, ${parts.hour}:${parts.minute} IST को`;
 }
 
+function getPeakPointTimestamp(assessment) {
+  if (assessment && assessment.hourlyForecast && assessment.hourlyForecast.length > 0) {
+    let peakPt = assessment.hourlyForecast[0];
+    for (let i = 1; i < assessment.hourlyForecast.length; i++) {
+      const pt = assessment.hourlyForecast[i];
+      const ptF = (pt.heatIndexF !== undefined) ? pt.heatIndexF : (pt.heatIndexC !== undefined ? (pt.heatIndexC * 9 / 5 + 32) : -999);
+      const peakF = (peakPt.heatIndexF !== undefined) ? peakPt.heatIndexF : (peakPt.heatIndexC !== undefined ? (peakPt.heatIndexC * 9 / 5 + 32) : -999);
+      if (ptF > peakF) {
+        peakPt = pt;
+      }
+    }
+    return peakPt.timestamp;
+  }
+  return assessment && assessment.forecastSummary ? assessment.forecastSummary.peakWindowStart : null;
+}
+
 function localizeDeadlineText(rawDeadline, isHindi = false) {
   if (!rawDeadline) return '';
   if (!isHindi) return rawDeadline;
@@ -602,10 +618,12 @@ function renderRiskSummary(assessment) {
 
   rightNowTier.textContent = `Right now: ${currentMeta.title} (heat index ${currentHiC}°C)`;
 
+  const peakTimestamp = getPeakPointTimestamp(assessment);
+
   if (assessment.dataSource === 'SIMULATION') {
     peak72hTier.textContent = 'Peak: not applicable (what-if, constant conditions)';
-  } else if (summary && summary.peakWindowStart) {
-    const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
+  } else if (summary && (peakTimestamp || summary.peakWindowStart)) {
+    const peakTimeStr = formatPeakDateTime(peakTimestamp || summary.peakWindowStart);
     peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr} (heat index ${peakHiC}°C)`;
   } else {
     peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} (heat index ${peakHiC}°C)`;
@@ -639,8 +657,8 @@ function renderRiskSummary(assessment) {
   if (assessment.dataSource === 'SIMULATION') {
     forecastPeakVal.textContent = 'Not applicable';
     forecastSummaryText.textContent = 'What-if constant simulation (no forecast timeline)';
-  } else if (summary && summary.peakWindowStart) {
-    const peakTimeStr = formatPeakDateTime(summary.peakWindowStart);
+  } else if (summary && (peakTimestamp || summary.peakWindowStart)) {
+    const peakTimeStr = formatPeakDateTime(peakTimestamp || summary.peakWindowStart);
     forecastPeakVal.textContent = `${peakMeta.title}`;
     forecastSummaryText.textContent = `Expected around ${peakTimeStr} (${summary.maxHeatIndexC.toFixed(1)}°C)`;
   } else {
@@ -691,7 +709,8 @@ function render72hChart(assessment) {
   const summary = assessment.forecastSummary;
   const peakTier = summary ? summary.peakTier : assessment.operationalTier;
   const peakVal = summary ? summary.maxHeatIndexC.toFixed(1) : '--';
-  const peakTime = summary && summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : 'upcoming';
+  const peakTimestamp = getPeakPointTimestamp(assessment);
+  const peakTime = peakTimestamp ? formatPeakDateTime(peakTimestamp) : (summary && summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : 'upcoming');
   summaryP.textContent = `72-hour forecast spans ${hourly.length} hourly intervals. Highest heat index reaches ${peakVal}°C (${peakTier}) around ${peakTime}. Reference lines indicate Caution (26.7°C), Extreme Caution (32.2°C), Danger (39.4°C), and Extreme Danger (51.7°C).`;
 
   // Draw pure SVG chart
@@ -950,11 +969,13 @@ function generateBulletinText(assessment) {
   text += `Issued: ${timeStr}\n`;
   text += `Right now: ${currentMeta.title} (heat index ${hiC}C)\n`;
 
+  const peakTimestamp = getPeakPointTimestamp(assessment);
+
   if (assessment.dataSource === 'SIMULATION') {
     text += `Peak in next 72 hours: not applicable (what-if, constant conditions)\n`;
   } else if (summary && summary.peakTier) {
     const peakMeta = TIER_METADATA[summary.peakTier] || compositeMeta;
-    const peakTimeStr = summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '';
+    const peakTimeStr = peakTimestamp ? formatPeakDateTime(peakTimestamp) : (summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : '');
     const peakLineEn = peakTimeStr
       ? `Peak in next 72 hours: ${peakMeta.title} at ${peakTimeStr}\n`
       : `Peak in next 72 hours: ${peakMeta.title}\n`;
@@ -993,7 +1014,7 @@ function generateBulletinText(assessment) {
     text += `${notApplicableHi}\n`;
   } else if (summary && summary.peakTier) {
     const peakTierHindi = hindiTiers[summary.peakTier] || summary.peakTier;
-    const peakTimeStrHi = summary.peakWindowStart ? formatPeakDateTimeHindi(summary.peakWindowStart) : '';
+    const peakTimeStrHi = peakTimestamp ? formatPeakDateTimeHindi(peakTimestamp) : (summary.peakWindowStart ? formatPeakDateTimeHindi(summary.peakWindowStart) : '');
     const peakLineHi = peakTimeStrHi
       ? `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi} (${peakTimeStrHi})`
       : `${I18N_HINDI.bulletin_peak_prefix || 'अगले 72 घंटों में चरम जोखिम:'} ${peakTierHindi}`;

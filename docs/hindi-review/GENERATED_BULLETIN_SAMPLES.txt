@@ -1,12 +1,11 @@
 =========================================================================================
  HEATSHIELD LIVE CAPTURED BULLETIN SAMPLES
  Live Source URL: https://d2ijd5tuo68h8.cloudfront.net
- Captured (UTC):  2026-10-11 13:09:57 UTC
- Captured (IST):  2026-10-11 18:39:57 IST
- Build Version:   v10 (heatshield-v10)
+ Captured (UTC):  2026-10-11 14:11:47 UTC
+ Captured (IST):  2026-10-11 19:41:47 IST
+ Build Version:   v12 (heatshield-v12)
  Method:          Live Headless Microsoft Edge DOM Evaluation (#bulletin-preview.innerText)
 =========================================================================================
-
 
 
 =========================================================================================
@@ -14,9 +13,9 @@ SCENARIO 1: LIVE OPERATIONAL WARD (DEMO_AHMEDABAD)
 =========================================================================================
 
 HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
-Issued: 18:40 IST, 11 Oct 2026
+Issued: 19:41 IST, 11 Oct 2026
 Right now: Caution (heat index 29.4C)
-Peak in next 72 hours: Extreme Caution at Tue 13 Oct, 12:00 IST
+Peak in next 72 hours: Extreme Caution at Tue 13 Oct, 14:00 IST
 Planning level (follows the 72-hour peak): Extreme Caution
 
 Summary:
@@ -28,7 +27,7 @@ Suggested Civic Actions:
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
 वर्तमान स्थिति: सावधानी
-अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (मंगलवार, 13 अक्टूबर, 12:00 IST को)
+अगले 72 घंटों में चरम जोखिम: अत्यधिक सावधानी (मंगलवार, 13 अक्टूबर, 14:00 IST को)
 योजना स्तर (72 घंटे के चरम के अनुसार): अत्यधिक सावधानी
 
 सुझाए गए नागरिक कार्य (वार्ड स्तर):
@@ -48,7 +47,7 @@ SCENARIO 2: EXTREME WHAT-IF SIMULATION (38.5°C, 55% RH, +5.0°C DEPARTURE)
 =========================================================================================
 
 HEATWAVE ADVISORY (DRAFT) - Demo ward: Ahmedabad Central (illustrative)
-Issued: 18:40 IST, 11 Oct 2026
+Issued: 19:41 IST, 11 Oct 2026
 Right now: Extreme Danger (heat index 53.3C)
 Peak in next 72 hours: not applicable (what-if, constant conditions)
 Planning level (follows the 72-hour peak): Extreme Danger
@@ -61,7 +60,7 @@ Suggested Civic Actions:
 2. [PENDING] Enforce work-rest cycles and shaded rest breaks for outdoor laborers and street vendors (Deadline: During peak hours (12:00 to 16:00 IST))
 3. [PENDING] Open shaded or cooled community buildings and public shelters (Deadline: Mon 12 Oct, before 11:00 IST)
 4. [PENDING] Dispatch mobile ASHA/volunteer patrols with Oral Rehydration Salts (ORS) packets to informal colonies (Deadline: During peak hours (12:00 to 16:00 IST))
-5. [PENDING] Alert urban health centres to prepare for heat-related illnesses (Deadline: Immediate (within 30 mins, by 19:10 IST))
+5. [PENDING] Alert urban health centres to prepare for heat-related illnesses (Deadline: Immediate (within 30 mins, by 20:11 IST))
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
 वर्तमान स्थिति: अत्यधिक खतरा
@@ -90,7 +89,7 @@ SCENARIO 3: HISTORICAL REPLAY (AHMEDABAD MAY 2010 HEATWAVE)
 HEATWAVE ADVISORY (DRAFT) - Historical Replay: Ahmedabad May 2010 Heatwave
 Issued: 08:00 IST, 20 May 2010
 Right now: Extreme Caution (heat index 35.6C)
-Peak in next 72 hours: Danger at Thu 20 May, 11:00 IST
+Peak in next 72 hours: Danger at Thu 20 May, 13:00 IST
 Planning level (follows the 72-hour peak): Danger
 Air temperature above 110 F / 43.3 C is outside the validated range of the NWS regression; heat index values are extrapolated.
 
@@ -105,7 +104,7 @@ Suggested Civic Actions:
 
 --- वार्ड ग्रीष्म परामर्श (प्रारूप) [PENDING HUMAN REVIEW] ---
 वर्तमान स्थिति: अत्यधिक सावधानी
-अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 11:00 IST को)
+अगले 72 घंटों में चरम जोखिम: खतरा (गुरुवार, 20 मई, 13:00 IST को)
 योजना स्तर (72 घंटे के चरम के अनुसार): खतरा
 110 F / 43.3 C से ऊपर का हवा का तापमान NWS प्रतिगमन की मान्य सीमा से बाहर है; हीट इंडेक्स मान अनुमानित हैं।
 

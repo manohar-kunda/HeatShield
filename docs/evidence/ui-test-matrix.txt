@@ -1,8 +1,8 @@
 =========================================================================================
  HeatShield UI & Functional Test Matrix (T01 - T12)
  Target URL:  https://d2ijd5tuo68h8.cloudfront.net
- Capture UTC: 2026-10-11 13:42:46 UTC
- Capture IST: 2026-10-11 19:12:46 IST
+ Capture UTC: 2026-10-11 14:11:47 UTC
+ Capture IST: 2026-10-11 19:41:47 IST
  Build Ref:   v10 (heatshield-v10)
 =========================================================================================
 

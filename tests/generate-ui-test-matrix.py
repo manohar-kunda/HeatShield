@@ -315,10 +315,9 @@ async def run_suite():
  Live Source URL: {target_url}
  Captured (UTC):  {now_utc.strftime('%Y-%m-%d %H:%M:%S UTC')}
  Captured (IST):  {now_ist.strftime('%Y-%m-%d %H:%M:%S IST')}
- Build Version:   v10 (heatshield-v10)
+ Build Version:   v12 (heatshield-v12)
  Method:          Live Headless Microsoft Edge DOM Evaluation (#bulletin-preview.innerText)
 =========================================================================================
-
 """
             sample_content = header_sample + "\n\n"
             sample_content += "=========================================================================================\n"
@@ -336,9 +335,9 @@ async def run_suite():
             sample_content += "=========================================================================================\n\n"
             sample_content += sample_3_replay.strip() + "\n"
 
-            # Preserving GENERATED_BULLETIN_SAMPLES.txt per instructions: no sample regeneration
-            # with open("docs/hindi-review/GENERATED_BULLETIN_SAMPLES.txt", "w", encoding="utf-8") as f:
-            #     f.write(sample_content)
+            with open("docs/hindi-review/GENERATED_BULLETIN_SAMPLES.txt", "w", encoding="utf-8") as f:
+                f.write(sample_content)
+            print("Saved docs/hindi-review/GENERATED_BULLETIN_SAMPLES.txt")
 
     finally:
         proc.terminate()
