@@ -1,11 +1,11 @@
-const CACHE_NAME = 'heatshield-v8';
+const CACHE_NAME = 'heatshield-v9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css?v=8',
-  './app.js?v=8',
-  './i18n/hi.json?v=8',
-  './i18n/en.json?v=8',
+  './style.css?v=9',
+  './app.js?v=9',
+  './i18n/hi.json?v=9',
+  './i18n/en.json?v=9',
   './manifest.json'
 ];
 

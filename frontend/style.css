@@ -1,6 +1,6 @@
-/* HeatShield Production Stylesheet v3
+/* HeatShield Production Stylesheet
    Mobile-first, high contrast light theme for outdoor sunlight readability.
-   Targeting WCAG 2.1 AA. Max width 720px centered single-column layout. */
+   Internal rule: no text below 14 px (footer 13 px); targeting WCAG 2.1 AA, checklist in the repository; no compliance claim. Max width 860px centered single-column layout. */
 
 :root {
   --bg-app: #f8fafc;

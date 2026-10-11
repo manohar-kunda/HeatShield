@@ -40,4 +40,4 @@
 > **Question**: How is your solution accessible and what data sources are leveraged?
 >
 > **Answer**:
-> The UI is a lightweight, zero-dependency PWA (<60 KB bundle) targeting WCAG 2.1 AA standards, featuring keyboard navigation, screen-reader aria attributes, high-contrast hazard palettes, and offline service-worker caching. Real-time weather is ingested from Open-Meteo (CC BY 4.0), and guidance follows NDMA 2019 National Guidelines and AMC Heat Action Plans.
+> The UI is a lightweight, zero-dependency PWA (<60 KB bundle) built under an internal rule of no text below 14 px (footer 13 px), targeting WCAG 2.1 AA standards (checklist in the repository; no compliance claim), featuring keyboard navigation, screen-reader aria attributes, high-contrast hazard palettes, and offline service-worker caching. Weather forecasts are ingested from Open-Meteo (CC BY 4.0), and guidance follows NDMA 2019 National Guidelines and AMC Heat Action Plans.

@@ -61,7 +61,7 @@ flowchart TD
 
 > **Operational Disclaimer**: HeatShield is a DRAFT planning aid for coordinator review. It is not an official notice, not an IMD warning, not an individual medical diagnostic tool, and not personal health advice. Always adhere to official bulletins from the India Meteorological Department and local disaster management authorities. National emergency: **112**.
 >
-> **Accessibility**: The frontend is built mobile-first targeting WCAG 2.1 AA; detailed checklist and Lighthouse audit findings are documented in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
+> **Accessibility**: Internal rule: no text below 14 px (footer 13 px); targeting WCAG 2.1 AA, checklist in the repository; no compliance claim. Detailed checklist and Lighthouse audit findings are documented in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
 
 ---
 

@@ -97,4 +97,4 @@
 | **IMD Criteria** | Accurate evaluation of IMD Plains heatwave and severe heatwave conditions | ✅ PASSED |
 | **Persistence** | Mutations stored in DynamoDB table `heatshield-data-heatshield-app` | ✅ PASSED |
 | **Resilience** | Fallback to cached snapshots or offline fixtures if weather API is unreachable | ✅ PASSED |
-| **Accessibility** | Mobile-first 360px layout, targeting WCAG 2.1 AA (see docs/ACCESSIBILITY.md) | ✅ PASSED |
+| **Accessibility** | Mobile-first 360px layout, internal rule no text below 14 px (footer 13 px), targeting WCAG 2.1 AA (checklist in the repository; no compliance claim; see docs/ACCESSIBILITY.md) | ✅ PASSED |
