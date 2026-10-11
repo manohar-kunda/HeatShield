@@ -68,7 +68,7 @@
 > - *Java 21 compiled natively on Amazon Linux 2023 with **AWS Lambda SnapStart**, delivering sub-650ms cold starts and 80ms warm latencies.*
 > - *An HTTP API Gateway connected to **DynamoDB On-Demand** with automated 7-day TTL expiration for privacy and cost control.*
 > - *Static assets hosted on S3 behind **CloudFront with Origin Access Control**, routing `/api/*` same-origin with zero CORS overhead and low-latency global CDN caching.*
-> - *Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days; the optional helpline stays in the browser. Designed not to collect personal data."*
+> - *Action statuses and short notes are saved on the server (DynamoDB) under a random workspace ID and are set to expire after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses, but the screen is not perfect: do not enter personal details. This tool is not designed to collect personal data."*
 
 ---
 

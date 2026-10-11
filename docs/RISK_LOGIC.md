@@ -78,5 +78,5 @@ Actions are cumulative (each tier inherits and builds upon lower tiers):
 All deadlines are calculated in Indian Standard Time (`Asia/Kolkata`) using 24-hour notation:
 - `BEFORE_10_AM`: If current IST $< 10:00$, due `"<Today Day Date Month>, before 10:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 10:00 IST"`.
 - `BEFORE_11_AM`: If current IST $< 11:00$, due `"<Today Day Date Month>, before 11:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 11:00 IST"`.
-- `PEAK_HOURS_12_TO_16`: If peak window start is known in forecast summary, due `"Before peak: <Weekday> <Day> <Month> <HH:00> IST"`; otherwise `"During peak hours 12:00 to 16:00 IST"`. A peak-anchored deadline is the start of the peak window, two hours before the forecast peak hour.
+- `PEAK_HOURS_12_TO_16`: If peak window start is known in forecast summary, due `"Before peak: <Weekday> <Day> <Month> <HH:00> IST"` (where the deadline hour equals peak minus 2 h, representing the start of the 4-hour peak window [peak - 2h, peak + 2h]); otherwise `"During peak hours 12:00 to 16:00 IST"`.
 - `IMMEDIATE`: Due `"Immediate (within 30 mins, by <HH:mm> IST)"`.

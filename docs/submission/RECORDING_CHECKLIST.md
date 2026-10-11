@@ -48,7 +48,7 @@
 2. **Resources to Show**:
    - **CloudFront Distribution**: Show `d2ijd5tuo68h8.cloudfront.net` status *Enabled* with Origin Access Control.
    - **AWS Lambda Function**: Show `HeatShieldFunction` configured with **Java 21** and **SnapStart enabled** (`ApplyOn: PublishedVersions`). Show CloudWatch execution logs with warm durations under 20ms.
-   - **Amazon DynamoDB**: Show single-table `heatshield-data-heatshield-app` with items partitioned by `WS#<workspaceId>#WARD#<wardId>` and automatic 7-day TTL (`expiresAt`).
+   - **Amazon DynamoDB**: Show single-table `heatshield-data-heatshield-app` with items partitioned by `WS#<workspaceId>#WARD#<wardId>` and automatic 7-day TTL (`expiresAt`). Action statuses and short notes are saved on the server (DynamoDB) under a random workspace ID and are set to expire after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses, but the screen is not perfect: do not enter personal details. This tool is not designed to collect personal data.
    - **AWS Budgets**: Show configured budget containment alert ($5.00 threshold).
    - *(Reminder: Keep top-right account dropdown blurred/cropped).*
 

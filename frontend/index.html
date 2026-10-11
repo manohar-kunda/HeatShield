@@ -8,7 +8,7 @@
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <!-- Inline SVG Sprite: Zero Emoji, Pure Accessible SVG Symbols -->
@@ -367,8 +367,8 @@
               <p>High-contrast daylight theme (internal rule: no text below 14 px, footer 13 px; targeting WCAG 2.1 AA, checklist in the repository; no compliance claim) with strict semantic HTML, native accessible controls, zero emojis, and touch targets ≥44px.</p>
             </div>
             <div>
-              <h4>Designed not to collect personal data</h4>
-              <p>Action statuses and short notes are saved on the server (DynamoDB), scoped to a random workspace ID that expires after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses but should never contain personal details. Designed not to collect personal data.</p>
+              <h4>Data storage and privacy</h4>
+              <p>Action statuses and short notes are saved on the server (DynamoDB) under a random workspace ID and are set to expire after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses, but the screen is not perfect: do not enter personal details. This tool is not designed to collect personal data.</p>
             </div>
           </div>
         </div>
@@ -402,10 +402,10 @@
     <div class="footer-content">
       <p><strong>HeatShield</strong> — Built for Bharat Builds Tour 2026 / Environmental Hacks.</p>
       <p>Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com (CC BY 4.0)</a> | Targeting WCAG 2.1 AA (checklist in the repository; no compliance claim).</p>
-      <p><small>Designed not to collect personal data. Free-text notes are screened but should not contain personal details.</small></p>
+      <p><small>Action statuses and short notes are saved on the server (DynamoDB) under a random workspace ID and are set to expire after 7 days. The optional helpline field stays in your browser. Notes are screened for phone numbers and email addresses, but the screen is not perfect: do not enter personal details. This tool is not designed to collect personal data.</small></p>
     </div>
   </footer>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

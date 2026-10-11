@@ -21,7 +21,7 @@ const TIER_METADATA = {
   CAUTION: { title: 'Caution', desc: 'Fatigue possible with prolonged exposure and physical activity. Hydration advised.' },
   EXTREME_CAUTION: { title: 'Extreme Caution', desc: 'Heat cramps and heat exhaustion possible. Suggested shaded rest cycles for outdoor workers.' },
   DANGER: { title: 'Danger', desc: 'Heat cramps or exhaustion likely, heatstroke possible. Open daytime cooling shelters.' },
-  EXTREME_DANGER: { title: 'Extreme Danger', desc: 'Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.' }
+  EXTREME_DANGER: { title: 'Extreme Danger', desc: 'Heatstroke highly likely with continued exposure. Emergency hospital alert & mobile medical patrols.' }
 };
 
 // Mirror functions exactly from frontend/app.js

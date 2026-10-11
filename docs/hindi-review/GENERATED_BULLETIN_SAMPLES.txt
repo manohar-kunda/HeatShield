@@ -54,7 +54,7 @@ Peak in next 72 hours: not applicable (what-if, constant conditions)
 Planning level (follows the 72-hour peak): Extreme Danger
 
 Summary:
-Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.
+Heatstroke highly likely with continued exposure. Emergency hospital alert & mobile medical patrols.
 
 Suggested Civic Actions:
 1. [PENDING] Activate and inspect shaded drinking water kiosks (Piyawa) at transit hubs (Deadline: Mon 12 Oct, before 10:00 IST)

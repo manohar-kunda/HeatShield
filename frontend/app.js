@@ -48,7 +48,7 @@ const TIER_METADATA = {
     title: 'Extreme Danger',
     iconSymbol: '#icon-alert-triangle',
     cssClass: 'tier-extreme-danger',
-    desc: 'Heatstroke imminent with continued exposure. Emergency hospital alert & mobile medical patrols.'
+    desc: 'Heatstroke highly likely with continued exposure. Emergency hospital alert & mobile medical patrols.'
   }
 };
 
