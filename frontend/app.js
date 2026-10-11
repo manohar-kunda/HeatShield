@@ -264,7 +264,7 @@ function getIstParts(raw) {
 function formatPeakDateTime(raw) {
   const parts = getIstParts(raw);
   if (!parts) return 'Upcoming';
-  // English format: "Tue 13 Oct, 14:00 IST" or 12h: "Tue, 02:00 PM IST"
+  // English format: "Tue 13 Oct, 14:00 IST"
   return `${parts.weekday} ${parts.day} ${parts.month}, ${parts.hour}:${parts.minute} IST`;
 }
 
@@ -299,7 +299,7 @@ function localizeDeadlineText(rawDeadline, isHindi = false) {
     return I18N_HINDI.deadlines.historical_replay || 'ऐतिहासिक: 21 मई 2010';
   }
 
-  // Pattern: "Mon 12 Oct, before 10:00 AM IST" or "Today, Sun 11 Oct, before 10:00 AM" or "Tomorrow, Mon 12 Oct..."
+  // Pattern: "Mon 12 Oct, before 10:00 IST" or "Today, Sun 11 Oct, before 10:00" or "Tomorrow, Mon 12 Oct..."
   // Extract weekday, day number, month, time
   const match = rawDeadline.match(/(?:(?:Today|Tomorrow),\s+)?(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)(?:,\s*before\s*|\s*before\s*)(\d{1,2}:\d{2}(?:\s*[APap][Mm])?)/i);
   if (match) {

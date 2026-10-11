@@ -90,6 +90,32 @@ try {
         $hiJsonContent = (Invoke-WebRequest -Uri "$BaseUrl/i18n/hi.json" -Method Get -UseBasicParsing).Content
         $hiJsonHas442 = $hiJsonContent.Contains("44.2")
         Report-Check "Live i18n/hi.json forbids '44.2'" (-not $hiJsonHas442) "Absent from hi.json: $(-not $hiJsonHas442)"
+
+        # 24-hour and extrapolation assertions
+        $appJsHasAmIst = $appJsContent.Contains("AM IST")
+        Report-Check "Live app.js forbids 'AM IST'" (-not $appJsHasAmIst) "Absent from app.js: $(-not $appJsHasAmIst)"
+
+        $appJsHasPmIst = $appJsContent.Contains("PM IST")
+        Report-Check "Live app.js forbids 'PM IST'" (-not $appJsHasPmIst) "Absent from app.js: $(-not $appJsHasPmIst)"
+
+        $hiJsonHasAmIst = $hiJsonContent.Contains("AM IST")
+        Report-Check "Live i18n/hi.json forbids 'AM IST'" (-not $hiJsonHasAmIst) "Absent from hi.json: $(-not $hiJsonHasAmIst)"
+
+        $hiJsonHasPmIst = $hiJsonContent.Contains("PM IST")
+        Report-Check "Live i18n/hi.json forbids 'PM IST'" (-not $hiJsonHasPmIst) "Absent from hi.json: $(-not $hiJsonHasPmIst)"
+
+        $appJsHasOldExtrap = $appJsContent.Contains("Heat index above 110")
+        Report-Check "Live app.js forbids 'Heat index above 110'" (-not $appJsOldExtrap) "Absent from app.js: $(-not $appJsHasOldExtrap)"
+
+        $hiJsonHasOldExtrap = $hiJsonContent.Contains("Heat index above 110")
+        Report-Check "Live i18n/hi.json forbids 'Heat index above 110'" (-not $hiJsonHasOldExtrap) "Absent from hi.json: $(-not $hiJsonHasOldExtrap)"
+
+        $enJsonContent = (Invoke-WebRequest -Uri "$BaseUrl/i18n/en.json" -Method Get -UseBasicParsing).Content
+        $enJsonHasOldExtrap = $enJsonContent.Contains("Heat index above 110")
+        Report-Check "Live i18n/en.json forbids 'Heat index above 110'" (-not $enJsonHasOldExtrap) "Absent from en.json: $(-not $enJsonHasOldExtrap)"
+
+        $enJsonHasNewExtrap = $enJsonContent.Contains("Air temperature above 110 F")
+        Report-Check "Live i18n/en.json requires 'Air temperature above 110 F'" $enJsonHasNewExtrap "Present in en.json: $enJsonHasNewExtrap"
     } catch {
         Report-Check "Live asset provenance check" $false $_.Exception.Message
     }
