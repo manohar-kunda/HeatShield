@@ -8,7 +8,7 @@
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <!-- Inline SVG Sprite: Zero Emoji, Pure Accessible SVG Symbols -->
@@ -57,6 +57,10 @@
     <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
       <polyline points="22 4 12 14.01 9 11.01"/>
+    </symbol>
+    <symbol id="icon-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+      <line x1="4" y1="22" x2="4" y2="15"/>
     </symbol>
     <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"/>
@@ -108,6 +112,43 @@
     <div class="disclaimer-banner" role="note">
       <svg class="icon icon-inline" aria-hidden="true"><use href="#icon-info"/></svg>
       <span><strong>DRAFT for coordinator review.</strong> Planning aid only. Not an official notice, not an IMD warning, not medical advice. National emergency: <strong>112</strong>.</span>
+    </div>
+
+    <!-- Intro block explaining who HeatShield is for -->
+    <section class="intro-block" aria-labelledby="intro-heading">
+      <h2 id="intro-heading" class="sr-only">About HeatShield</h2>
+      <p class="intro-lead">
+        Heatwaves turn dangerous before official thresholds are crossed. HeatShield computes shade and direct-sun heat indices from hourly weather models, evaluates IMD heatwave criteria, and maps the 72-hour peak risk to prioritized municipal actions with deadlines, role assignments, and verifiable tracking.
+      </p>
+    </section>
+
+    <!-- Pipeline 3-step strip with live values -->
+    <section class="pipeline-strip" aria-label="Risk-to-action data pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">Step 1</div>
+        <div class="pipeline-step-title">Weather Models</div>
+        <div class="pipeline-step-desc" id="pipeline-step-1">Open-Meteo 72h forecast</div>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">→</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">Step 2</div>
+        <div class="pipeline-step-title">Risk Engine</div>
+        <div class="pipeline-step-desc" id="pipeline-step-2">NWS Rothfusz + IMD signal</div>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">→</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">Step 3</div>
+        <div class="pipeline-step-title">Ward Playbook</div>
+        <div class="pipeline-step-desc" id="pipeline-step-3">Action dispatch & deadlines</div>
+      </div>
+    </section>
+
+    <!-- Quick Tour Scenarios Strip -->
+    <div class="quick-tour-row" role="region" aria-label="Quick tour scenarios">
+      <span class="quick-tour-label">Quick tour:</span>
+      <button type="button" class="btn btn-tour is-active" id="tour-live-btn" aria-pressed="true">Live forecast</button>
+      <button type="button" class="btn btn-tour" id="tour-whatif-btn" aria-pressed="false">Extreme what-if</button>
+      <button type="button" class="btn btn-tour" id="tour-replay-btn" aria-pressed="false">May 2010 replay</button>
     </div>
 
     <!-- (3) Controls Card -->
@@ -221,6 +262,15 @@
         <div class="imd-status" id="imd-signal-val">No heatwave signal (indicative)</div>
         <div class="imd-sub" id="imd-criteria-desc">Indicative signal from model forecast, not an official IMD warning.</div>
       </div>
+
+      <!-- 72-Hour Forecast Trajectory Chart -->
+      <div class="chart-container" id="chart-section" style="margin-top: 1.25rem;">
+        <h3 class="chart-title">72-Hour Heat Index Trajectory</h3>
+        <p class="chart-accessible-summary" id="chart-accessible-summary">Loading 72-hour forecast data...</p>
+        <div id="chart-svg-wrapper" class="chart-svg-wrapper">
+          <!-- Inline SVG rendered by app.js -->
+        </div>
+      </div>
     </section>
 
     <!-- (5) Suggested Action Playbook -->
@@ -228,7 +278,7 @@
       <div class="actions-header">
         <div>
           <h2 id="actions-heading" class="card-title">Suggested Ward Action Playbook</h2>
-          <p class="card-intro">Operational planning suggestions adapted from NDMA Guidelines and municipal Heat Action Plans.</p>
+          <p class="card-intro" id="actions-count-intro">Showing prioritized municipal actions based on peak heat risk.</p>
         </div>
         <div class="progress-wrap" id="progress-container" style="display: none;">
           <div class="progress-label" id="progress-label">0 of 0 actions done</div>
@@ -237,6 +287,21 @@
           </div>
         </div>
       </div>
+
+      <!-- Level to Actions Explainer Accordion -->
+      <details class="level-actions-details">
+        <summary class="level-actions-summary">How planning levels map to actions</summary>
+        <div class="level-actions-content">
+          <p>The operational planning level is driven by the highest heat index reached over the 72-hour window, ensuring wards mobilize preventative measures before peak thermal stress arrives:</p>
+          <ul>
+            <li><strong>Below threshold (&lt;80°F / 26.7°C):</strong> Routine municipal surveillance (0 actions).</li>
+            <li><strong>Caution (80–89°F / 26.7–32.2°C):</strong> Inspect and activate shaded water kiosks (1 action).</li>
+            <li><strong>Extreme Caution (90–102°F / 32.2–39.4°C):</strong> Water kiosks + outdoor work-rest advisory (2 actions).</li>
+            <li><strong>Danger (103–124°F / 39.4–51.7°C):</strong> Kiosks + work advisory + daytime cooling shelters + ORS dispatch (4 actions).</li>
+            <li><strong>Extreme Danger (≥125°F / ≥51.7°C):</strong> All above actions + hospital preparedness alert (5 actions).</li>
+          </ul>
+        </div>
+      </details>
 
       <!-- Filter Controls: Native Select for Accessibility & Clean Layout -->
       <div class="filter-group">
@@ -278,6 +343,33 @@
         Waiting for forecast data...
       </div>
     </section>
+    <!-- (7) About HeatShield & Architecture Details -->
+    <section class="card about-card" aria-labelledby="about-heading">
+      <details class="about-details">
+        <summary class="about-summary" id="about-heading">About HeatShield: Architecture, Algorithms & Data Lineage</summary>
+        <div class="about-content">
+          <p><strong>System Purpose:</strong> HeatShield is an open-architecture community heatwave preparedness planner tailored for municipal ward coordinators across Indian cities. It translates raw meteorological forecasts into immediate, role-specific civic actions before life-threatening thermal peaks occur.</p>
+          <div class="about-grid">
+            <div>
+              <h4>Meteorological Foundation</h4>
+              <p>72-hour hourly forecasts of 2m dry-bulb temperature, 2m relative humidity, and wind speed retrieved from Open-Meteo under CC BY 4.0. Shade heat index computed via the full 16-term National Weather Service (NWS) Rothfusz polynomial regression with dry/humid region adjustments. Direct-sun heat index applies standard solar radiation elevation (+15°F / +8.3°C equivalent).</p>
+            </div>
+            <div>
+              <h4>Dual-Signal Risk Engine</h4>
+              <p>Integrates international thermal comfort guidelines with IMD Heatwave Criteria (plains: heatwave at ≥40°C or +4.5°C departure; severe heatwave at ≥47°C or +6.4°C departure). Operational planning tier dynamically elevates to match the peak risk projected across the upcoming 72 hours.</p>
+            </div>
+            <div>
+              <h4>Offline & Edge Resilience</h4>
+              <p>Single-binary Spring Boot / Native Lambda backend running on AWS Serverless. PWA client precaches critical assets and bilingual dictionaries (English/Hindi) with client-side localStorage fallback and optimistic queuing for disconnected field workers.</p>
+            </div>
+            <div>
+              <h4>Accessibility & Zero-Data Privacy</h4>
+              <p>High-contrast daylight theme targeting WCAG 2.1 AA with strict semantic HTML, native accessible controls, zero emojis, and touch targets ≥44px. No personal data collected; local coordinator helpline numbers and notes are stored strictly client-side.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
   </main>
 
   <!-- Print-Only A4 Ward Poster View -->
@@ -310,6 +402,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

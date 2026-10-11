@@ -52,6 +52,7 @@
     "immediate": "तुरंत",
     "peak_hours": "चरम घंटों में 12:00 से 16:00 IST",
     "before_time": "{day}, {date} {month}, {time} IST से पहले",
+    "before_peak": "चरम जोखिम से पहले: {day}, {date} {month}, {time} IST",
     "historical_replay": "ऐतिहासिक: 21 मई 2010"
   },
   "actions": {

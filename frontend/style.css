@@ -74,7 +74,7 @@ body {
 }
 
 .header-content {
-  max-width: 720px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -103,10 +103,10 @@ body {
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 9999px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   font-weight: 700;
   border: 1px solid var(--border-color);
 }
@@ -148,7 +148,7 @@ body {
 
 /* Layout */
 .main-container {
-  max-width: 720px;
+  max-width: 860px;
   margin: 1.25rem auto;
   padding: 0 1rem;
   display: flex;
@@ -168,6 +168,116 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+}
+
+/* Intro Block */
+.intro-block {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.intro-lead {
+  font-size: 0.9375rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* 3-Step Pipeline Strip */
+.pipeline-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.pipeline-step {
+  flex: 1;
+  min-width: 0;
+}
+
+.pipeline-step-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+
+.pipeline-step-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+.pipeline-step-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-arrow {
+  color: var(--border-color);
+  font-weight: 700;
+  font-size: 1.125rem;
+  padding: 0 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .pipeline-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pipeline-arrow {
+    display: none;
+  }
+}
+
+/* Quick Tour Row */
+.quick-tour-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.quick-tour-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-right: 0.25rem;
+}
+
+.btn-tour {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.btn-tour:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-tour.is-active, .btn-tour[aria-pressed="true"] {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
 }
 
 /* Card Container */
@@ -311,7 +421,7 @@ body {
 }
 
 .timestamp-text {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--text-muted);
 }
 
@@ -345,7 +455,7 @@ body {
 }
 
 .tier-desc {
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--text-main);
   margin-top: 0.375rem;
 }
@@ -398,11 +508,12 @@ body {
   background-color: #f8fafc;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 0.75rem;
+  padding: 0.875rem;
 }
 
 .stat-label {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
   color: var(--text-sub);
   margin-bottom: 0.25rem;
 }
@@ -414,7 +525,7 @@ body {
 }
 
 .stat-sub {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--text-muted);
   margin-top: 0.25rem;
 }
@@ -422,12 +533,12 @@ body {
 .imd-box {
   background-color: #f1f5f9;
   border-left: 4px solid #0284c7;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   border-radius: 4px;
 }
 
 .imd-title {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -442,36 +553,67 @@ body {
 }
 
 .imd-sub {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--text-muted);
   margin-top: 0.25rem;
+}
+
+/* 72-Hour Trajectory Chart */
+.chart-container {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.chart-accessible-summary {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.chart-svg-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 180px;
 }
 
 /* Action Playbook */
 .actions-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
 .progress-wrap {
   width: 100%;
-  max-width: 240px;
 }
 
 .progress-label {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 0.25rem;
-  text-align: right;
+  margin-bottom: 0.375rem;
+  text-align: left; /* Left aligned */
 }
 
 .progress-bar-bg {
-  height: 8px;
+  height: 10px;
+  width: 100%;
   background-color: #e2e8f0;
   border-radius: 9999px;
   overflow: hidden;
@@ -481,6 +623,38 @@ body {
   height: 100%;
   background-color: var(--success);
   transition: width 0.3s ease;
+}
+
+.level-actions-details {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: #f8fafc;
+}
+
+.level-actions-summary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 0.625rem 0.875rem;
+  cursor: pointer;
+}
+
+.level-actions-content {
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.level-actions-content ul {
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;
+}
+
+.level-actions-content li {
+  margin-bottom: 0.375rem;
 }
 
 .filter-group {
@@ -524,6 +698,15 @@ body {
   color: var(--text-main);
 }
 
+.action-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
 .action-hindi {
   font-size: 0.875rem;
   color: var(--text-muted);
@@ -531,7 +714,7 @@ body {
 }
 
 .action-meta {
-  font-size: 0.8125rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--text-sub);
   display: flex;
   flex-wrap: wrap;
@@ -547,8 +730,8 @@ body {
 }
 
 .action-status-select {
-  min-height: 40px;
-  padding: 0.375rem 0.5rem;
+  min-height: 44px; /* Touch target >= 44px */
+  padding: 0.375rem 0.625rem;
   font-size: 0.875rem;
   font-weight: 600;
   border: 1px solid var(--border-color);
@@ -559,16 +742,16 @@ body {
 .action-note-input {
   flex: 1;
   min-width: 180px;
-  min-height: 40px;
-  padding: 0.375rem 0.5rem;
+  min-height: 44px; /* Touch target >= 44px */
+  padding: 0.375rem 0.625rem;
   font-size: 0.875rem;
   border: 1px solid var(--border-color);
   border-radius: 6px;
 }
 
 .action-save-btn {
-  min-height: 40px;
-  padding: 0.375rem 0.75rem;
+  min-height: 44px; /* Touch target >= 44px */
+  padding: 0.375rem 0.875rem;
   font-size: 0.875rem;
   font-weight: 600;
   border: 1px solid var(--border-color);
@@ -597,12 +780,56 @@ body {
   border-radius: 6px;
   padding: 1rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* 14px */
   line-height: 1.6;
   white-space: pre-wrap;
   color: var(--text-main);
   max-height: 360px;
   overflow-y: auto;
+}
+
+/* About Card */
+.about-card {
+  background-color: #ffffff;
+}
+
+.about-summary {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.about-content {
+  margin-top: 0.875rem;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 600px) {
+  .about-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.about-grid h4 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.about-grid p {
+  color: var(--text-muted);
 }
 
 /* Screen reader only utility */
@@ -620,11 +847,11 @@ body {
 
 /* Footer */
 .app-footer {
-  max-width: 720px;
+  max-width: 860px;
   margin: 1.5rem auto 2rem;
   padding: 1rem;
   text-align: center;
-  font-size: 0.8125rem;
+  font-size: 0.8125rem; /* 13px legal/small */
   color: var(--text-sub);
   border-top: 1px solid var(--border-color);
 }

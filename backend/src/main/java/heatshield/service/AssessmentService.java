@@ -160,10 +160,10 @@ public class AssessmentService {
         if ("PEAK_HOURS_12_TO_16".equalsIgnoreCase(timeWindow)) {
             if (summary != null && summary.peakWindowStart() != null) {
                 java.time.ZonedDateTime peakStartIst = summary.peakWindowStart().atZone(zone);
-                return "Enforce before peak thermal stress (" + peakStartIst.format(DAY_MONTH_FMT) + " ~ " +
-                        String.format(Locale.ENGLISH, "%02d:00", peakStartIst.getHour()) + ")";
+                return "Before peak: " + peakStartIst.format(DAY_MONTH_FMT) + " " +
+                        String.format(Locale.ENGLISH, "%02d:00 IST", peakStartIst.getHour());
             }
-            return "Enforce prior to peak hours (12:00 - 16:00)";
+            return "During peak hours (12:00 to 16:00 IST)";
         }
 
         return "Complete within operational shift";

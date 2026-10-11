@@ -299,6 +299,25 @@ function localizeDeadlineText(rawDeadline, isHindi = false) {
     return I18N_HINDI.deadlines.historical_replay || 'ऐतिहासिक: 21 मई 2010';
   }
 
+  // Pattern: "Before peak: Tue 13 Oct 12:00 IST" or "Before peak: Tue 13 Oct 12:00"
+  const peakMatch = rawDeadline.match(/before peak:\s*(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)\s+(\d{1,2}:\d{2})/i);
+  if (peakMatch) {
+    const rawWk = peakMatch[1] || '';
+    const dayNum = peakMatch[2];
+    const rawMo = peakMatch[3];
+    const rawTime = peakMatch[4];
+
+    const dayHi = (rawWk && I18N_HINDI.weekdays && I18N_HINDI.weekdays[rawWk]) ? I18N_HINDI.weekdays[rawWk] : rawWk;
+    const monthHi = (I18N_HINDI.months && I18N_HINDI.months[rawMo]) ? I18N_HINDI.months[rawMo] : rawMo;
+
+    const tpl = (I18N_HINDI.deadlines && I18N_HINDI.deadlines.before_peak) || 'चरम जोखिम से पहले: {day}, {date} {month}, {time} IST';
+    return tpl
+      .replace('{day}', dayHi)
+      .replace('{date}', dayNum)
+      .replace('{month}', monthHi)
+      .replace('{time}', rawTime);
+  }
+
   // Pattern: "Mon 12 Oct, before 10:00 IST" or "Today, Sun 11 Oct, before 10:00" or "Tomorrow, Mon 12 Oct..."
   // Extract weekday, day number, month, time
   const match = rawDeadline.match(/(?:(?:Today|Tomorrow),\s+)?(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)(?:,\s*before\s*|\s*before\s*)(\d{1,2}:\d{2}(?:\s*[APap][Mm])?)/i);
@@ -480,19 +499,61 @@ async function updateActionStatus(actionId, status, note) {
   }
 }
 
+let lastFetchedTimestamp = Date.now();
+let freshnessInterval = null;
+
 // --- Isolated Section Rendering ---
 function renderAll(assessment) {
+  lastFetchedTimestamp = Date.now();
   try { renderHeaderStatus(assessment); } catch (e) { console.error('Error rendering header status:', e); }
+  try { renderPipelineStrip(assessment); } catch (e) { console.error('Error rendering pipeline strip:', e); }
   try { renderRiskSummary(assessment); } catch (e) { console.error('Error rendering risk summary:', e); }
+  try { render72hChart(assessment); } catch (e) { console.error('Error rendering 72h chart:', e); }
   try { renderActions(assessment ? assessment.actions : []); } catch (e) { console.error('Error rendering actions:', e); }
   try { updateProgress(assessment ? assessment.actions : []); } catch (e) { console.error('Error rendering progress:', e); }
   try { renderBulletin(assessment); } catch (e) { console.error('Error rendering bulletin:', e); }
 }
 
+function renderPipelineStrip(assessment) {
+  const p1 = document.getElementById('pipeline-step-1');
+  const p2 = document.getElementById('pipeline-step-2');
+  const p3 = document.getElementById('pipeline-step-3');
+  if (!p1 || !p2 || !p3) return;
+
+  if (!assessment) {
+    p1.textContent = 'Awaiting data';
+    p2.textContent = 'Awaiting data';
+    p3.textContent = 'Awaiting data';
+    return;
+  }
+
+  const ds = assessment.dataSource;
+  if (ds === 'SIMULATION') {
+    p1.textContent = 'What-if custom input';
+    p2.textContent = `NWS shade HI ${assessment.heatIndex ? assessment.heatIndex.heatIndexC.toFixed(1) : '--'}°C`;
+    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+  } else if (ds === 'HISTORICAL_REPLAY_2010') {
+    p1.textContent = 'ERA5 2010 archive rows';
+    p2.textContent = `Max dry-bulb 45.4°C (${assessment.operationalTier})`;
+    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+  } else {
+    const summary = assessment.forecastSummary;
+    const peakStr = summary ? `${summary.maxHeatIndexC.toFixed(1)}°C (${summary.peakTier})` : '72h window';
+    p1.textContent = 'Open-Meteo 72h forecast';
+    p2.textContent = `Peak HI: ${peakStr}`;
+    p3.textContent = `${(assessment.actions || []).length} civic actions dispatched`;
+  }
+}
+
 function renderHeaderStatus(assessment) {
   const ds = (assessment && assessment.dataSource) ? assessment.dataSource : 'UNKNOWN';
+  const ageMs = Date.now() - lastFetchedTimestamp;
+  const isStale = ageMs > (60 * 60 * 1000); // > 60 minutes
   
-  if (ds === 'LIVE_OPEN_METEO') {
+  if (isStale) {
+    dataSourceBadge.textContent = 'Stale (fetched > 60m ago)';
+    dataSourceBadge.className = 'pill pill-saved';
+  } else if (ds === 'LIVE_OPEN_METEO') {
     dataSourceBadge.textContent = 'Live data';
     dataSourceBadge.className = 'pill pill-live';
   } else if (ds === 'STALE_CACHE') {
@@ -607,9 +668,163 @@ function renderRiskSummary(assessment) {
   }
 }
 
+function render72hChart(assessment) {
+  const chartWrapper = document.getElementById('chart-svg-wrapper');
+  const summaryP = document.getElementById('chart-accessible-summary');
+  const chartSection = document.getElementById('chart-section');
+  if (!chartWrapper || !summaryP || !chartSection) return;
+
+  if (!assessment || assessment.dataSource === 'SIMULATION') {
+    chartSection.style.display = 'none';
+    return;
+  }
+
+  chartSection.style.display = 'block';
+  const hourly = assessment.hourlyForecast || [];
+  if (hourly.length === 0) {
+    summaryP.textContent = 'Hourly curve data unavailable for this assessment.';
+    chartWrapper.innerHTML = '';
+    return;
+  }
+
+  // Summary statement for screen readers and accessibility
+  const summary = assessment.forecastSummary;
+  const peakTier = summary ? summary.peakTier : assessment.operationalTier;
+  const peakVal = summary ? summary.maxHeatIndexC.toFixed(1) : '--';
+  const peakTime = summary && summary.peakWindowStart ? formatPeakDateTime(summary.peakWindowStart) : 'upcoming';
+  summaryP.textContent = `72-hour forecast spans ${hourly.length} hourly intervals. Highest heat index reaches ${peakVal}°C (${peakTier}) around ${peakTime}. Reference lines indicate Caution (26.7°C), Extreme Caution (32.2°C), Danger (39.4°C), and Extreme Danger (51.7°C).`;
+
+  // Draw pure SVG chart
+  const W = 800;
+  const H = 200;
+  const padL = 45;
+  const padR = 25;
+  const padT = 20;
+  const padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  let minHI = 20;
+  let maxHI = 55;
+  hourly.forEach(p => {
+    const val = (p.heatIndexC !== undefined ? p.heatIndexC : p.heatIndex);
+    if (val < minHI) minHI = Math.floor(val - 2);
+    if (val > maxHI) maxHI = Math.ceil(val + 2);
+  });
+  if (maxHI - minHI < 15) maxHI = minHI + 15;
+
+  function getY(hiVal) {
+    return padT + plotH - ((hiVal - minHI) / (maxHI - minHI)) * plotH;
+  }
+
+  function getX(idx) {
+    return padL + (idx / (hourly.length - 1)) * plotW;
+  }
+
+  // Threshold lines
+  const thresholds = [
+    { label: 'Caution (26.7°C)', val: 26.67, color: '#b45309' },
+    { label: 'Ext Caution (32.2°C)', val: 32.22, color: '#c2410c' },
+    { label: 'Danger (39.4°C)', val: 39.44, color: '#b91c1c' },
+    { label: 'Ext Danger (51.7°C)', val: 51.67, color: '#991b1b' }
+  ];
+
+  let thresholdSvg = '';
+  thresholds.forEach(t => {
+    if (t.val >= minHI && t.val <= maxHI) {
+      const y = getY(t.val);
+      thresholdSvg += `
+        <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${t.color}" stroke-dasharray="4 4" stroke-width="1" opacity="0.6"/>
+        <text x="${padL + 4}" y="${y - 3}" fill="${t.color}" font-size="10" font-weight="600">${t.label}</text>
+      `;
+    }
+  });
+
+  // Polyline points
+  const points = hourly.map((p, i) => {
+    const val = (p.heatIndexC !== undefined ? p.heatIndexC : p.heatIndex);
+    return `${getX(i).toFixed(1)},${getY(val).toFixed(1)}`;
+  }).join(' ');
+
+  // Peak marker
+  let maxIdx = 0;
+  let maxVal = -999;
+  hourly.forEach((p, i) => {
+    const val = (p.heatIndexC !== undefined ? p.heatIndexC : p.heatIndex);
+    if (val > maxVal) {
+      maxVal = val;
+      maxIdx = i;
+    }
+  });
+  const peakX = getX(maxIdx);
+  const peakY = getY(maxVal);
+
+  // Time ticks (every 12 hours)
+  let ticksSvg = '';
+  for (let i = 0; i < hourly.length; i += 12) {
+    const x = getX(i);
+    const p = hourly[i];
+    const parts = getIstParts(p.timestamp);
+    const timeLabel = parts ? `${parts.hour}:00` : `+${i}h`;
+    const dayLabel = parts ? `${parts.weekday} ${parts.day}` : '';
+    ticksSvg += `
+      <line x1="${x}" y1="${padT + plotH}" x2="${x}" y2="${padT + plotH + 5}" stroke="#94a3b8" stroke-width="1"/>
+      <text x="${x}" y="${padT + plotH + 16}" fill="#475569" font-size="10" text-anchor="middle">${timeLabel}</text>
+      <text x="${x}" y="${padT + plotH + 26}" fill="#64748b" font-size="9" text-anchor="middle">${dayLabel}</text>
+    `;
+  }
+
+  // Y-axis ticks
+  let yAxisSvg = '';
+  const ySteps = [25, 35, 45, 55];
+  ySteps.forEach(val => {
+    if (val >= minHI && val <= maxHI) {
+      const y = getY(val);
+      yAxisSvg += `
+        <line x1="${padL - 4}" y1="${y}" x2="${padL}" y2="${y}" stroke="#94a3b8" stroke-width="1"/>
+        <text x="${padL - 6}" y="${y + 3}" fill="#475569" font-size="10" text-anchor="end">${val}°C</text>
+      `;
+    }
+  });
+
+  chartWrapper.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" class="chart-svg" role="img" aria-label="72-Hour Heat Index Trajectory Chart">
+      <!-- Plot Area Background -->
+      <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+      
+      <!-- Thresholds -->
+      ${thresholdSvg}
+      
+      <!-- Axes -->
+      ${yAxisSvg}
+      ${ticksSvg}
+      
+      <!-- Curve Polyline -->
+      <polyline points="${points}" fill="none" stroke="#0369a1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      
+      <!-- "Now" Dot (index 0) -->
+      <circle cx="${getX(0)}" cy="${getY(hourly[0].heatIndexC || hourly[0].heatIndex)}" r="4.5" fill="#0369a1"/>
+      <text x="${getX(0) + 6}" y="${getY(hourly[0].heatIndexC || hourly[0].heatIndex) - 4}" fill="#0369a1" font-size="10" font-weight="700">Now</text>
+      
+      <!-- Peak Dot -->
+      <circle cx="${peakX}" cy="${peakY}" r="5" fill="#b91c1c" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="${peakX}" y="${peakY - 7}" fill="#b91c1c" font-size="11" font-weight="800" text-anchor="middle">Peak ${maxVal.toFixed(1)}°C</text>
+    </svg>
+  `;
+}
+
 function renderActions(actions) {
   actionsList.innerHTML = '';
   const list = actions || [];
+
+  const countIntro = document.getElementById('actions-count-intro');
+  if (countIntro) {
+    const total = list.length;
+    const tierName = (currentAssessment && currentAssessment.operationalTier)
+      ? (TIER_METADATA[currentAssessment.operationalTier] ? TIER_METADATA[currentAssessment.operationalTier].title : currentAssessment.operationalTier)
+      : 'current risk';
+    countIntro.textContent = `Showing ${total} of 5 municipal actions for ${tierName} planning level. Prioritized by peak risk.`;
+  }
 
   const filtered = currentFilter === 'ALL'
     ? list
@@ -635,7 +850,7 @@ function renderActions(actions) {
     card.innerHTML = `
       <div class="action-top-row">
         <h3 class="action-title">${escapeHtml(action.title)}</h3>
-        <span class="action-priority"><svg class="icon icon-inline" aria-hidden="true"><use href="#icon-clock"/></svg>${escapeHtml(action.priority || 'MEDIUM')}</span>
+        <span class="action-priority"><svg class="icon icon-inline" aria-hidden="true"><use href="#icon-flag"/></svg>${escapeHtml(action.priority || 'MEDIUM')}</span>
       </div>
       ${hindiFromI18n ? `<p class="action-hindi">${escapeHtml(hindiFromI18n)} <small class="hindi-review-tag">[${escapeHtml(hindiStatusLabel)}]</small></p>` : ''}
       <div class="action-meta">
@@ -717,7 +932,7 @@ function generateBulletinText(assessment) {
   const hiC = hi ? hi.heatIndexC.toFixed(1) : '--';
 
   // Compute current tier from current heat index (or fallback to riskTier / compositeTier)
-  const currentTier = (hi && hi.tier) || assessment.riskTier || compositeTier;
+  const currentTier = (hi && (hi.riskTier || hi.tier)) || assessment.operationalTier || 'BELOW_THRESHOLD';
   const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
 
   const currentAirTemp = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
@@ -861,7 +1076,7 @@ function preparePrintPoster() {
   const compositeTier = currentAssessment.operationalTier || 'BELOW_THRESHOLD';
   const compositeMeta = TIER_METADATA[compositeTier] || TIER_METADATA.BELOW_THRESHOLD;
   const hi = currentAssessment.heatIndex;
-  const currentTier = (hi && hi.tier) || currentAssessment.riskTier || compositeTier;
+  const currentTier = (hi && (hi.riskTier || hi.tier)) || currentAssessment.operationalTier || 'BELOW_THRESHOLD';
   const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
 
   const currentAir = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
@@ -999,6 +1214,87 @@ function setupEventListeners() {
   roleFilterSelect.addEventListener('change', () => {
     currentFilter = roleFilterSelect.value;
     renderActions(currentAssessment ? currentAssessment.actions : []);
+  });
+
+  // Quick Tour Buttons
+  const tourLiveBtn = document.getElementById('tour-live-btn');
+  const tourWhatifBtn = document.getElementById('tour-whatif-btn');
+  const tourReplayBtn = document.getElementById('tour-replay-btn');
+
+  function setTourActive(btn) {
+    [tourLiveBtn, tourWhatifBtn, tourReplayBtn].forEach(b => {
+      if (b) {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-pressed', 'false');
+      }
+    });
+    if (btn) {
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+    }
+  }
+
+  if (tourLiveBtn) {
+    tourLiveBtn.addEventListener('click', () => {
+      setTourActive(tourLiveBtn);
+      whatifForm.hidden = true;
+      toggleWhatifBtn.setAttribute('aria-expanded', 'false');
+      wardSelect.value = 'DEMO_AHMEDABAD';
+      const replayProv = document.getElementById('replay-provenance');
+      if (replayProv) replayProv.style.display = 'none';
+      fetchForecast('DEMO_AHMEDABAD', true);
+    });
+  }
+
+  if (tourWhatifBtn) {
+    tourWhatifBtn.addEventListener('click', async () => {
+      setTourActive(tourWhatifBtn);
+      whatifForm.hidden = false;
+      toggleWhatifBtn.setAttribute('aria-expanded', 'true');
+      document.getElementById('sim-temp').value = '46.0';
+      document.getElementById('sim-humidity').value = '55';
+      document.getElementById('sim-departure').value = '6.5';
+      const replayProv = document.getElementById('replay-provenance');
+      if (replayProv) replayProv.style.display = 'none';
+      await runWhatIfAssessment({
+        wardId: wardSelect.value,
+        wardName: wardSelect.options[wardSelect.selectedIndex].text,
+        temperatureC: 46.0,
+        humidityPct: 55,
+        imdDepartureC: 6.5
+      });
+    });
+  }
+
+  if (tourReplayBtn) {
+    tourReplayBtn.addEventListener('click', () => {
+      setTourActive(tourReplayBtn);
+      whatifForm.hidden = true;
+      toggleWhatifBtn.setAttribute('aria-expanded', 'false');
+      wardSelect.value = 'REPLAY_AHMEDABAD_2010';
+      const replayProv = document.getElementById('replay-provenance');
+      if (replayProv) replayProv.style.display = 'block';
+      fetchForecast('REPLAY_AHMEDABAD_2010', true);
+    });
+  }
+
+  // Auto-refresh timer: refresh forecast every 30 minutes while tab is visible
+  setInterval(() => {
+    if (!document.hidden && currentAssessment && currentAssessment.dataSource === 'LIVE_OPEN_METEO') {
+      const ageMs = Date.now() - lastFetchedTimestamp;
+      if (ageMs >= 30 * 60 * 1000) {
+        fetchForecast(wardSelect.value, true);
+      }
+    }
+  }, 60000); // Check every minute
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentAssessment && currentAssessment.dataSource === 'LIVE_OPEN_METEO') {
+      const ageMs = Date.now() - lastFetchedTimestamp;
+      if (ageMs >= 30 * 60 * 1000) {
+        fetchForecast(wardSelect.value, true);
+      }
+    }
   });
 
   copyWhatsappBtn.addEventListener('click', copyBulletinToClipboard);

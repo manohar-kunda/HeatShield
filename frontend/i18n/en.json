@@ -51,6 +51,7 @@
     "immediate": "Immediate (within 30 mins)",
     "peak_hours": "During peak hours 12:00 to 16:00 IST",
     "before_time": "{day} {date} {month}, before {time} IST",
+    "before_peak": "Before peak: {day} {date} {month} {time} IST",
     "historical_replay": "Historical: 21 May 2010"
   },
   "actions": {

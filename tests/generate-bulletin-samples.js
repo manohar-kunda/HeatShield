@@ -122,6 +122,25 @@ function localizeDeadlineText(rawDeadline, isHindi = false) {
     return I18N_HINDI.deadlines.historical_replay || 'ऐतिहासिक: 21 मई 2010';
   }
 
+  // Pattern: "Before peak: Tue 13 Oct 12:00 IST" or "Before peak: Tue 13 Oct 12:00"
+  const peakMatch = rawDeadline.match(/before peak:\s*(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)\s+(\d{1,2}:\d{2})/i);
+  if (peakMatch) {
+    const rawWk = peakMatch[1] || '';
+    const dayNum = peakMatch[2];
+    const rawMo = peakMatch[3];
+    const rawTime = peakMatch[4];
+
+    const dayHi = (rawWk && I18N_HINDI.weekdays && I18N_HINDI.weekdays[rawWk]) ? I18N_HINDI.weekdays[rawWk] : rawWk;
+    const monthHi = (I18N_HINDI.months && I18N_HINDI.months[rawMo]) ? I18N_HINDI.months[rawMo] : rawMo;
+
+    const tpl = (I18N_HINDI.deadlines && I18N_HINDI.deadlines.before_peak) || 'चरम जोखिम से पहले: {day}, {date} {month}, {time} IST';
+    return tpl
+      .replace('{day}', dayHi)
+      .replace('{date}', dayNum)
+      .replace('{month}', monthHi)
+      .replace('{time}', rawTime);
+  }
+
   const match = rawDeadline.match(/(?:(?:Today|Tomorrow),\s+)?(?:([A-Za-z]+),?\s+)?(\d{1,2})\s+([A-Za-z]+)(?:,\s*before\s*|\s*before\s*)(\d{1,2}:\d{2}(?:\s*[APap][Mm])?)/i);
   if (match) {
     const rawWk = match[1] || '';
@@ -165,7 +184,7 @@ function generateBulletinText(assessment, localHelpline = '') {
   const ambient = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC).toFixed(1) : '--';
   const hiC = hi ? hi.heatIndexC.toFixed(1) : '--';
 
-  const currentTier = (hi && hi.tier) || assessment.riskTier || compositeTier;
+  const currentTier = (hi && (hi.riskTier || hi.tier)) || assessment.operationalTier || 'BELOW_THRESHOLD';
   const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
 
   const currentAirTemp = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
