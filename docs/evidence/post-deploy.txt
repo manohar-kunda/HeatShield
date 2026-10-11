@@ -5,7 +5,7 @@ Target URL: https://d2ijd5tuo68h8.cloudfront.net
 Distribution ID: E2REXQRKCWEVMK
 Stack Name: heatshield-app
 Region: ap-south-1
-Account ID: ****0597
+Account ID: ACCOUNT_ID
 ======================================================================
 
 1. CLOUDFORMATION STACK STATUS & OUTPUTS
@@ -15,7 +15,7 @@ Stack Status: UPDATE_COMPLETE
 Outputs:
 - CloudFrontUrl: https://d2ijd5tuo68h8.cloudfront.net
 - DynamoDbTableName: heatshield-data-heatshield-app
-- FrontendBucketName: heatshield-frontend-****0597-ap-south-1
+- FrontendBucketName: heatshield-frontend-ACCOUNT_ID-ap-south-1
 - CloudFrontDistributionId: E2REXQRKCWEVMK
 - HttpApiUrl: https://m4oh9vt5d8.execute-api.ap-south-1.amazonaws.com
 

@@ -9,7 +9,7 @@
 
 | Check | Status | Verification Evidence |
 | :--- | :---: | :--- |
-| **No 12-digit AWS Account IDs in Git** | **PASS** | Grep scan completed. Account ID masked as `****0597` in public docs. |
+| **No 12-digit AWS Account IDs in Git** | **PASS** | Grep scan completed. Account ID masked as `ACCOUNT_ID` in public docs. |
 | **No AWS Secret Keys or Session Tokens** | **PASS** | Grep scan completed across repo. Clean. |
 | **No Raw Email Addresses Committed** | **PASS** | BudgetNotificationEmail passed as deploy parameter only. |
 | **Clean `.gitignore`** | **PASS** | Covers `.aws-sam/`, `target/`, `samconfig.toml`, `.env`, temporary scripts. |

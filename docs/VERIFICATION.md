@@ -122,7 +122,7 @@ They are strictly marked **`[PENDING HUMAN REVIEW]`**. A complete review packet 
 - **Stack Name**: `heatshield-app`
 - **Unified CloudFront CDN URL**: [`https://d2ijd5tuo68h8.cloudfront.net`](https://d2ijd5tuo68h8.cloudfront.net)
 - **Direct HTTP API Gateway URL**: `https://m4oh9vt5d8.execute-api.ap-south-1.amazonaws.com`
-- **S3 Frontend Web Bucket**: `heatshield-frontend-****0597-ap-south-1`
+- **S3 Frontend Web Bucket**: `heatshield-frontend-ACCOUNT_ID-ap-south-1`
 - **DynamoDB Single-Table**: `heatshield-data-heatshield-app` (TTL 4h on `expiresAt`)
 
 ### Measured AWS SnapStart Latencies (CloudWatch Metrics)
