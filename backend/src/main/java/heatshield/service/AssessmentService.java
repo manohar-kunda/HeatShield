@@ -135,25 +135,25 @@ public class AssessmentService {
 
         if ("IMMEDIATE".equalsIgnoreCase(timeWindow)) {
             java.time.ZonedDateTime due = nowIst.plusMinutes(30);
-            return String.format(Locale.ENGLISH, "Immediate (within 30 mins, by %02d:%02d)",
+            return String.format(Locale.ENGLISH, "Immediate (within 30 mins, by %02d:%02d IST)",
                     due.getHour(), due.getMinute());
         }
 
         if ("BEFORE_10_AM".equalsIgnoreCase(timeWindow)) {
             if (nowIst.getHour() < 10) {
-                return nowIst.format(DAY_MONTH_FMT) + ", before 10:00 AM IST";
+                return nowIst.format(DAY_MONTH_FMT) + ", before 10:00 IST";
             } else {
                 java.time.ZonedDateTime nextDay = nowIst.plusDays(1);
-                return nextDay.format(DAY_MONTH_FMT) + ", before 10:00 AM IST";
+                return nextDay.format(DAY_MONTH_FMT) + ", before 10:00 IST";
             }
         }
 
         if ("BEFORE_11_AM".equalsIgnoreCase(timeWindow)) {
             if (nowIst.getHour() < 11) {
-                return nowIst.format(DAY_MONTH_FMT) + ", before 11:00 AM IST";
+                return nowIst.format(DAY_MONTH_FMT) + ", before 11:00 IST";
             } else {
                 java.time.ZonedDateTime nextDay = nowIst.plusDays(1);
-                return nextDay.format(DAY_MONTH_FMT) + ", before 11:00 AM IST";
+                return nextDay.format(DAY_MONTH_FMT) + ", before 11:00 IST";
             }
         }
 

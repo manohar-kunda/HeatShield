@@ -21,7 +21,7 @@
   "bulletin_planning_level_prefix": "Planning level (follows the 72-hour peak):",
   "bulletin_peak_prefix": "Peak in next 72 hours:",
   "bulletin_peak_not_applicable": "Peak: not applicable (what-if, constant conditions)",
-  "bulletin_extrapolation_note": "Heat index above 110 F / 43.3 C is outside the NWS validated range (extrapolated).",
+  "bulletin_extrapolation_note": "Air temperature above 110 F / 43.3 C is outside the validated range of the NWS regression; heat index values are extrapolated.",
   "bulletin_time_at": "at",
   "bulletin_deadline_prefix": "Deadline:",
   "weekdays": {

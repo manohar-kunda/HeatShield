@@ -79,4 +79,19 @@ class ForecastIngestionServiceTest {
         assertThat(summary.hoursPerTier()).isNotEmpty();
         assertThat(summary.maxHeatIndexC()).isGreaterThan(35.0);
     }
+
+    @Test
+    @DisplayName("Replay fixture maximum dry-bulb temperature strictly equals raw Open-Meteo archive data (45.4°C)")
+    void testReplayFixtureMaxDryBulbMatchesRawArchive() {
+        List<HourlyHeatIndexPoint> replayPoints = ForecastIngestionService.createAhmedabad2010ReplayFixture();
+        assertThat(replayPoints).hasSize(72);
+
+        double maxReplayDryBulb = replayPoints.stream()
+                .mapToDouble(HourlyHeatIndexPoint::temperatureC)
+                .max()
+                .orElseThrow();
+
+        // Exact maximum dry-bulb in docs/data/replay-ahmedabad-2010-raw.json is 45.4°C on 21 May 2010 16:00 IST
+        assertThat(maxReplayDryBulb).isEqualTo(45.4);
+    }
 }

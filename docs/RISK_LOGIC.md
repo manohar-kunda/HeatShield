@@ -70,8 +70,12 @@ Actions are cumulative (each tier inherits and builds upon lower tiers):
 
 ## 4. Time-Bound Deadlines (Indian Standard Time)
 
-All deadlines are calculated relative to `ZoneId.of("Asia/Kolkata")`:
-- `BEFORE_10_AM`: If current IST $< 10:00$, due `"Today, <Date>, before 10:00 AM"`; otherwise `"Tomorrow, <Date>, before 10:00 AM"`.
-- `BEFORE_11_AM`: If current IST $< 11:00$, due `"Today, <Date>, before 11:00 AM"`; otherwise `"Tomorrow, <Date>, before 11:00 AM"`.
-- `PEAK_HOURS_12_TO_16`: Tied to peak thermal window; due `"Today/Tomorrow, <Date>, before peak hours (12:00 - 04:00 PM)"`.
-- `IMMEDIATE`: Due `"Immediate (< 30 mins from <CurrentTime>)"`.
+**Important Distinction**:
+- **Which actions are activated** follows the **72-hour peak tier** (so coordinators prepare proactively for the upcoming peak even if the current morning is mild).
+- **When deadlines are set** follows the **next working morning or peak hours relative to the current assessment time** (so field teams have immediate operational targets rather than delaying action until the peak day).
+
+All deadlines are calculated in Indian Standard Time (`Asia/Kolkata`) using 24-hour notation:
+- `BEFORE_10_AM`: If current IST $< 10:00$, due `"<Today Day Date Month>, before 10:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 10:00 IST"`.
+- `BEFORE_11_AM`: If current IST $< 11:00$, due `"<Today Day Date Month>, before 11:00 IST"`; otherwise `"<Tomorrow Day Date Month>, before 11:00 IST"`.
+- `PEAK_HOURS_12_TO_16`: If peak window start is known in forecast summary, due `"Enforce before peak thermal stress (<PeakDate> ~ <PeakHour>:00)"`; otherwise `"Enforce prior to peak hours (12:00 - 16:00)"`.
+- `IMMEDIATE`: Due `"Immediate (within 30 mins, by <HH:mm> IST)"`.

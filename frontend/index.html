@@ -8,7 +8,7 @@
   <title>HeatShield — Community Heatwave Risk-to-Action Planner</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <!-- Inline SVG Sprite: Zero Emoji, Pure Accessible SVG Symbols -->
@@ -129,7 +129,7 @@
           </optgroup>
         </select>
         <p id="replay-provenance" class="form-hint" style="display: none; margin-top: 0.5rem; font-size: 0.8125rem; color: #475569;">
-          ERA5 reanalysis rows via Open-Meteo archive (CC BY 4.0), max dry-bulb 45.4°C on 21 May 2010. Observed station 46.8°C reported in the AMC Heat Action Plan (page not verified). Computed by the same NWS regression as live data; values above 110°F (43.3°C) are outside its validated range and are flagged as extrapolated. Retrospective illustration only; not a forecast.
+          ERA5 reanalysis rows via Open-Meteo archive (CC BY 4.0), max dry-bulb 45.4°C on 21 May 2010. Observed station 46.8°C reported in the AMC Heat Action Plan (page not verified). Computed by the same NWS regression as live data; air temperature above 110°F (43.3°C) is outside the validated range of the NWS regression and heat index values are extrapolated. Retrospective illustration only; not a forecast.
         </p>
       </div>
 
@@ -310,6 +310,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

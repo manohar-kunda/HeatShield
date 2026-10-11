@@ -221,7 +221,7 @@ function formatIstTimestamp(raw) {
       timeZone: 'Asia/Kolkata',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
+      hour12: false,
       day: 'numeric',
       month: 'short',
       year: 'numeric'
@@ -230,7 +230,7 @@ function formatIstTimestamp(raw) {
     const parts = formatter.formatToParts(dt);
     const partMap = {};
     parts.forEach(p => { partMap[p.type] = p.value; });
-    const time = `${partMap.hour}:${partMap.minute} ${partMap.dayPeriod.toUpperCase()}`;
+    const time = `${partMap.hour}:${partMap.minute}`;
     const date = `${partMap.day} ${partMap.month} ${partMap.year}`;
     return `${time} IST, ${date}`;
   } catch (e) {
@@ -550,7 +550,13 @@ function renderRiskSummary(assessment) {
     peak72hTier.textContent = `Peak in next 72 hours: ${peakMeta.title} (heat index ${peakHiC}°C)`;
   }
 
-  tierDesc.textContent = peakMeta.desc;
+  const currentAirTemp = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
+  const peakAirTemp = (summary && summary.maxTemperatureC !== undefined) ? summary.maxTemperatureC : currentAirTemp;
+  const isExtrapolated = (currentAirTemp > 43.33) || (peakAirTemp > 43.33);
+
+  tierDesc.textContent = isExtrapolated
+    ? `${peakMeta.desc} Air temperature above 110°F / 43.3°C is outside the validated range of the NWS regression; heat index values are extrapolated.`
+    : peakMeta.desc;
 
   // 2. Simple Stats
   if (hi) {
@@ -714,7 +720,10 @@ function generateBulletinText(assessment) {
   const currentTier = (hi && hi.tier) || assessment.riskTier || compositeTier;
   const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
 
-  const isExtrapolated = hi && (hi.isExtrapolated === true || hi.extrapolated === true || (hi.temperatureC || hi.ambientTempC) > 43.33);
+  const currentAirTemp = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
+  const summary = assessment.forecastSummary;
+  const peakAirTemp = (summary && summary.maxTemperatureC !== undefined) ? summary.maxTemperatureC : currentAirTemp;
+  const isExtrapolated = (currentAirTemp > 43.33) || (peakAirTemp > 43.33);
 
   const timeStr = formatIstTimestamp(assessment.timestamp);
 
@@ -722,7 +731,6 @@ function generateBulletinText(assessment) {
   text += `Issued: ${timeStr}\n`;
   text += `Right now: ${currentMeta.title} (heat index ${hiC}C)\n`;
 
-  const summary = assessment.forecastSummary;
   if (assessment.dataSource === 'SIMULATION') {
     text += `Peak in next 72 hours: not applicable (what-if, constant conditions)\n`;
   } else if (summary && summary.peakTier) {
@@ -738,7 +746,7 @@ function generateBulletinText(assessment) {
 
   text += `Planning level (follows the 72-hour peak): ${compositeMeta.title}\n`;
   if (isExtrapolated) {
-    text += `Heat index above 110 F / 43.3 C is outside the NWS validated range (extrapolated).\n`;
+    text += `Air temperature above 110 F / 43.3 C is outside the validated range of the NWS regression; heat index values are extrapolated.\n`;
   }
   text += `\n`;
 
@@ -775,7 +783,7 @@ function generateBulletinText(assessment) {
 
   text += `${I18N_HINDI.bulletin_planning_level_prefix || 'योजना स्तर (72 घंटे के चरम के अनुसार):'} ${compositeTierHindi}\n`;
   if (isExtrapolated) {
-    text += `${I18N_HINDI.bulletin_extrapolation_note || '110 F / 43.3 C से ऊपर का हीट इंडेक्स NWS मान्य सीमा से बाहर है (अनुमानित)।'}\n`;
+    text += `${I18N_HINDI.bulletin_extrapolation_note || '110 F / 43.3 C से ऊपर का हवा का तापमान NWS प्रतिगमन की मान्य सीमा से बाहर है; हीट इंडेक्स मान अनुमानित हैं।'}\n`;
   }
 
   text += `\n${hindiActionHeading}\n`;
@@ -855,7 +863,11 @@ function preparePrintPoster() {
   const hi = currentAssessment.heatIndex;
   const currentTier = (hi && hi.tier) || currentAssessment.riskTier || compositeTier;
   const currentMeta = TIER_METADATA[currentTier] || TIER_METADATA.BELOW_THRESHOLD;
-  const isExtrapolated = hi && (hi.isExtrapolated === true || hi.extrapolated === true || (hi.temperatureC || hi.ambientTempC) > 43.33);
+
+  const currentAir = hi ? (hi.ambientTempC !== undefined ? hi.ambientTempC : hi.temperatureC) : 0;
+  const sum = currentAssessment.forecastSummary;
+  const peakAir = (sum && sum.maxTemperatureC !== undefined) ? sum.maxTemperatureC : currentAir;
+  const isExtrapolated = (currentAir > 43.33) || (peakAir > 43.33);
 
   const localHelpline = localHelplineInput ? localHelplineInput.value.trim() : '';
   if (printHelplineSpan) {
@@ -872,7 +884,7 @@ function preparePrintPoster() {
   tier.innerHTML = `
     <div>PLANNING LEVEL: ${compositeMeta.title.toUpperCase()}</div>
     <div style="font-size: 11pt; font-weight: normal; margin-top: 4pt;">${compositeMeta.desc}</div>
-    ${isExtrapolated ? '<div style="font-size: 9pt; font-style: italic; margin-top: 2pt;">Heat index above 110°F / 43.3°C is outside the NWS validated range (extrapolated).</div>' : ''}
+    ${isExtrapolated ? '<div style="font-size: 9pt; font-style: italic; margin-top: 2pt;">Air temperature above 110°F / 43.3°C is outside the validated range of the NWS regression; heat index values are extrapolated.</div>' : ''}
   `;
 
   acts.innerHTML = '<h3>SUGGESTED WARD-LEVEL ACTIONS (PLANNING AID):</h3>';

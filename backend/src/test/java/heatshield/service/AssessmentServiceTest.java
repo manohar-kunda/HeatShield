@@ -97,11 +97,11 @@ class AssessmentServiceTest {
         // AND all 5 actions must be activated
         assertThat(assessment.actions()).hasSize(5);
 
-        // Verify deadline for BEFORE_10_AM is today (Sat 10 Oct) because current IST is 08:00 AM
+        // Verify deadline for BEFORE_10_AM is today (Sat 10 Oct) because current IST is 08:00
         heatshield.domain.TrackedAction kioskAction = assessment.actions().stream()
                 .filter(a -> a.actionId().equals("ACT_WATER_KIOSKS"))
                 .findFirst().orElseThrow();
-        assertThat(kioskAction.deadline()).contains("Sat 10 Oct").contains("before 10:00 AM IST");
+        assertThat(kioskAction.deadline()).contains("Sat 10 Oct").contains("before 10:00 IST");
     }
 
     @Test
@@ -135,7 +135,7 @@ class AssessmentServiceTest {
         heatshield.domain.TrackedAction kioskAction = assessment.actions().stream()
                 .filter(a -> a.actionId().equals("ACT_WATER_KIOSKS"))
                 .findFirst().orElseThrow();
-        // Since it's already 14:30 IST (past 10:00 AM) on Sat 10 Oct, deadline for water kiosks must be Sun 11 Oct
-        assertThat(kioskAction.deadline()).contains("Sun 11 Oct").contains("before 10:00 AM IST");
+        // Since it's already 14:30 IST (past 10:00) on Sat 10 Oct, deadline for water kiosks must be Sun 11 Oct
+        assertThat(kioskAction.deadline()).contains("Sun 11 Oct").contains("before 10:00 IST");
     }
 }

@@ -49,7 +49,7 @@ HeatShield does not treat temperature as a simplistic scalar. It computes two di
 1. **NOAA/NWS Rothfusz Heat Index Regression**: A 9-term polynomial evaluated only when ambient conditions cross 80°F, calculating apparent shade temperature and high/low humidity adjustments.
 2. **IMD Heat Wave Plains Criteria**: Evaluates both absolute thresholds (≥45°C) and normal departure criteria (≥4.5°C departure).
 
-Crucially, HeatShield enforces the **72-Hour Peak Composite Tier Rule**: actions are triggered by the **highest forecast hazard tier across the next 72 hours**, not the instantaneous morning temperature. Deadlines are rendered deterministically in Indian Standard Time (IST), giving field officers actionable directives like *"Tomorrow, Sat 10 Oct, before 10:00 AM"*.
+Crucially, HeatShield enforces the **72-Hour Peak Composite Tier Rule**: actions follow the 72-hour peak tier; deadlines are set for the next working morning or peak hours (for example, *"Sat 10 Oct, before 10:00 IST"*).
 
 ---
 

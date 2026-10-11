@@ -117,4 +117,20 @@ class RothfuszCalculatorTest {
         assertThat(result.extrapolated()).isTrue();
         assertThat(result.rationale()).contains("extrapolated beyond standard empirical chart range");
     }
+
+    @Test
+    @DisplayName("Golden test for What-if at 38.5°C (101.3°F) and 55% RH matches NWS Calculator (~127.9°F / 53.3°C)")
+    void testWhatIf38Point5And55PercentMatchesNws() {
+        // Source URL: https://www.wpc.ncep.noaa.gov/html/heatindex.shtml
+        // Reference: Air temp 101.3°F (38.5°C), RH 55% yields Rothfusz HI = 127.9°F (53.3°C).
+        // Tolerance: 1.0°F.
+        HeatIndexResult result = RothfuszCalculator.calculate(38.5, 55.0);
+
+        assertThat(result.heatIndexF()).isCloseTo(127.9, org.assertj.core.data.Offset.offset(1.0));
+        assertThat(result.heatIndexC()).isCloseTo(53.3, org.assertj.core.data.Offset.offset(0.6));
+        assertThat(result.temperatureF()).isCloseTo(101.3, org.assertj.core.data.Offset.offset(0.1));
+        // Air temperature 101.3°F is below 110°F, so extrapolated MUST be false
+        assertThat(result.extrapolated()).isFalse();
+        assertThat(result.riskTier()).isEqualTo(HeatRiskTier.EXTREME_DANGER);
+    }
 }
