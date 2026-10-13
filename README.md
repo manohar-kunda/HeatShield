@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
 - **Live Production URL**: [https://d2ijd5tuo68h8.cloudfront.net](https://d2ijd5tuo68h8.cloudfront.net)
-- **3-Minute Demo Video**: `[https://youtu.be/CzfocaChzJs?si=nuV5-_pCbEXFyv6c]`
+- **3-Minute Demo Video**: https://youtu.be/CzfocaChzJs?si=nuV5-_pCbEXFyv6c
 - **Hackathon Track**: Bharat Builds Tour 2026 / Environmental Hacks (Solo Developer: Manohar Kunda)
 
 HeatShield converts ambient weather forecasts and community context into transparent, rule-backed heat risk assessments, prioritised emergency protective actions, and verifiable action completion tracking.
